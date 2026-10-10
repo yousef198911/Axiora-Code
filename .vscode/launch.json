@@ -578,9 +578,9 @@
 			"request": "launch",
 			"name": "Run Unit Tests",
 			"program": "${workspaceFolder}/test/unit/electron/index.js",
-			"runtimeExecutable": "${workspaceFolder}/.build/electron/Code - OSS.app/Contents/MacOS/Code - OSS",
+			"runtimeExecutable": "${workspaceFolder}/.build/electron/Axiora Code.app/Contents/MacOS/Axiora Code",
 			"windows": {
-				"runtimeExecutable": "${workspaceFolder}/.build/electron/Code - OSS.exe"
+				"runtimeExecutable": "${workspaceFolder}/.build/electron/Axiora Code.exe"
 			},
 			"linux": {
 				"runtimeExecutable": "${workspaceFolder}/.build/electron/code-oss"
@@ -608,9 +608,9 @@
 			"request": "launch",
 			"name": "Run Unit Tests For Current File",
 			"program": "${workspaceFolder}/test/unit/electron/index.js",
-			"runtimeExecutable": "${workspaceFolder}/.build/electron/Code - OSS.app/Contents/MacOS/Code - OSS",
+			"runtimeExecutable": "${workspaceFolder}/.build/electron/Axiora Code.app/Contents/MacOS/Axiora Code",
 			"windows": {
-				"runtimeExecutable": "${workspaceFolder}/.build/electron/Code - OSS.exe"
+				"runtimeExecutable": "${workspaceFolder}/.build/electron/Axiora Code.exe"
 			},
 			"linux": {
 				"runtimeExecutable": "${workspaceFolder}/.build/electron/code-oss"
@@ -644,7 +644,7 @@
 			"timeout": 240000,
 			"args": [
 				"-l",
-				"${workspaceFolder}/.build/electron/Code - OSS.app/Contents/MacOS/Code - OSS"
+				"${workspaceFolder}/.build/electron/Axiora Code.app/Contents/MacOS/Axiora Code"
 			],
 			"outFiles": [
 				"${cwd}/out/**/*.js"
