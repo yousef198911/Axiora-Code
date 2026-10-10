@@ -829,7 +829,7 @@ function printHelp(): void {
 	console.log([
 		'Usage: node .github/skills/auto-perf-optimize/scripts/chat-memory-smoke.mts [options]',
 		'',
-		'Launches Code - OSS, opens Chat with Playwright, runs a small chat scenario, and writes renderer heap snapshots plus summary.json.',
+		'Launches Axiora Code, opens Chat with Playwright, runs a small chat scenario, and writes renderer heap snapshots plus summary.json.',
 		'',
 		'Options:',
 		'  --workspace <path>              Workspace to open. Default: repo root',

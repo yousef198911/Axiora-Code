@@ -1,6 +1,6 @@
-# Code - OSS Development MCP Server
+# Axiora Code Development MCP Server
 
-This directory contains a Model Context Protocol (MCP) server that provides VS Code automation capabilities for Code - OSS development and testing. The MCP server exposes Code - OSS's testing infrastructure through a standardized interface, allowing AI assistants and other tools to interact with VS Code programmatically.
+This directory contains a Model Context Protocol (MCP) server that provides VS Code automation capabilities for Axiora Code development and testing. The MCP server exposes Axiora Code's testing infrastructure through a standardized interface, allowing AI assistants and other tools to interact with VS Code programmatically.
 
 ## What is MCP?
 
@@ -161,17 +161,17 @@ The server uses a simple architecture:
 ## Troubleshooting
 
 ### Server Won't Start
-- Ensure Code - OSS has been built and run at least once (via F5 or `code.sh`)
+- Ensure Axiora Code has been built and run at least once (via F5 or `code.sh`)
 - Verify all dependencies are installed with `npm install`
 
 ### Automation Issues
-- Ensure Code - OSS has been built and run at least once (via F5 or `code.sh`)
+- Ensure Axiora Code has been built and run at least once (via F5 or `code.sh`)
 - Check the server logs for errors
 - Verify the workspace path is correct
 
 ## Contributing
 
-This MCP server is part of the Code - OSS development infrastructure. When making changes:
+This MCP server is part of the Axiora Code development infrastructure. When making changes:
 
 1. Follow the existing TypeScript and coding conventions
 2. Test with multiple MCP clients if possible

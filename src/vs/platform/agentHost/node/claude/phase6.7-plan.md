@@ -132,10 +132,10 @@ Add `ClaudeAgent.truncateSession`, serialized through the existing `_sessionSequ
 ### E2E
 The agent-host Claude path is node-side; the realistic E2E for the conversation truncation is the **live SDK round-trip** (see Manual). The workbench-side Restore Checkpoint UI can additionally be exercised with the discovered skills:
 
-- **Launch skill**: `launch` (`.claude/skills/launch`) — boots Code OSS from source into an isolated profile, drivable via Playwright.
+- **Launch skill**: `launch` (`.claude/skills/launch`) — boots Axiora Code from source into an isolated profile, drivable via Playwright.
 - **Log skill**: `code-oss-logs` (`.github/skills/code-oss-logs`) — locates and reads dev-build logs (search for `[Claude:` / `[AgentHost]` lines).
 - **Scenario** (optional, UI-level smoke — requires a configured Claude session):
-  1. Use `launch` to open Code OSS and open the Agents window on a Claude-backed session with ≥2 turns.
+  1. Use `launch` to open Axiora Code and open the Agents window on a Claude-backed session with ≥2 turns.
   2. Invoke "Restore Checkpoint" on an earlier request, then send a new message.
   3. Use `code-oss-logs` to confirm a `[Claude:<id>] … resume … resumeSessionAt=<uuid>` rebuild line and that the next turn's reconstructed history excludes the dropped turns.
 
@@ -199,7 +199,7 @@ The `avoid-private-methods` skill is now available; ran it (+ `improve-codebase-
 ### Verification status
 - ✅ Unit/integration: `claudeAgent.test` (148), `claudeSdkOptions.test` (9), `claudeReplayMapper.test` (23), `claudeSubagentResolver.test` (14) all pass via `npm run test-node -- --run <file>`.
 - ✅ Gates: `typecheck-client`, `valid-layers-check`, `eslint` (changed files) all clean.
-- ✅ **Live E2E (plan task 1) — PASSED.** Ran via the `launch` skill against an authenticated Code OSS Agents window with a real **Claude Opus 4.8** session (id `58465918-…`, 2026-06-25):
+- ✅ **Live E2E (plan task 1) — PASSED.** Ran via the `launch` skill against an authenticated Axiora Code Agents window with a real **Claude Opus 4.8** session (id `58465918-…`, 2026-06-25):
   1. Turn 1: "Remember secret word BANANA" → "OK".
   2. Turn 2: "Also remember ELEPHANT" → "OK".
   3. Clicked **Restore Checkpoint** on turn 2 → no `truncateSession` yet (confirms the lazy, next-turn-coupled write-timing — option (a)).

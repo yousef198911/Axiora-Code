@@ -1,6 +1,6 @@
 ---
 name: auto-perf-optimize
-description: "Run agent-driven VS Code performance or memory investigations. Use when asked to launch Code OSS, automate a VS Code scenario, run the Chat memory smoke runner, capture renderer heap snapshots, take workflow screenshots, compare run summaries, or drive a repeatable scenario before heap-snapshot analysis."
+description: "Run agent-driven VS Code performance or memory investigations. Use when asked to launch Axiora Code, automate a VS Code scenario, run the Chat memory smoke runner, capture renderer heap snapshots, take workflow screenshots, compare run summaries, or drive a repeatable scenario before heap-snapshot analysis."
 metadata:
   allowed-tools: Bash(npx @playwright/cli:*)
 ---
@@ -40,7 +40,7 @@ The `scripts/` folder contains stable, generic runners. Use them directly or as 
 
 ### Chat Workflow: Chat Memory Smoke Runner
 
-Use the bundled [Chat memory smoke runner](./scripts/chat-memory-smoke.mts) when the scenario is Chat-specific or can be expressed as repeated Chat prompts. It launches Code OSS, opens Chat, sends prompts, waits for responses, writes screenshots and `summary.json`, samples renderer heap, and can take selected heap snapshots.
+Use the bundled [Chat memory smoke runner](./scripts/chat-memory-smoke.mts) when the scenario is Chat-specific or can be expressed as repeated Chat prompts. It launches Axiora Code, opens Chat, sends prompts, waits for responses, writes screenshots and `summary.json`, samples renderer heap, and can take selected heap snapshots.
 
 Fast health check:
 
@@ -66,7 +66,7 @@ Important runner behavior:
 - Pass `--temporary-user-data` only if a clean profile is part of the scenario.
 - Pass `--seed-user-data-dir <path>` to copy a logged-in profile into a fresh target profile before launch. The target profile may contain auth secrets; keep it inside ignored local `.build/...` folders and never attach it to issues or PRs.
 
-**Safety: chat runs execute on the real machine.** The Code OSS instance launched by these runners is a full VS Code with Copilot auth on the user's actual computer — not a sandbox. Chat prompts you craft will be sent to a real LLM, and any tool calls the agent makes (terminal commands, file edits, etc.) will execute for real. Be responsible:
+**Safety: chat runs execute on the real machine.** The Axiora Code instance launched by these runners is a full VS Code with Copilot auth on the user's actual computer — not a sandbox. Chat prompts you craft will be sent to a real LLM, and any tool calls the agent makes (terminal commands, file edits, etc.) will execute for real. Be responsible:
 
 - **Use a throwaway workspace**, not the real repo. Pass `--workspace <scratch-folder>` pointing to a temporary or gitignored directory (e.g., the runner's scratchpad subfolder, or a folder under `.build/`). The default workspace in checked-in runners is the repo root for convenience, but scratchpad runners for Chat scenarios should always override it to avoid accidental file modifications in the source tree.
 - Use **safe, read-only commands** for prompts that trigger terminal tools (e.g., `touch /tmp/foo`, `git log --oneline`, `ls`). Never instruct the agent to delete files, run destructive commands, or modify the user's workspace.

@@ -22,7 +22,7 @@ preset bodies.
 
 Choose the client setup in the GUI:
 
-- **Code OSS from sources:** apply `product.overrides.json`, reload, sign in, and
+- **Axiora Code from sources:** apply `product.overrides.json`, reload, sign in, and
   run **Developer: Sync Account Policy**.
 - **Stable, Insiders, CLI, or other clients:** configure the displayed system
   proxy mapping.
@@ -32,7 +32,7 @@ prevents a network request. The live request log confirms whether the client
 reached the server.
 
 Other Copilot clients share the default cache. For deterministic testing, start
-both Code OSS and the mock server with the same isolated `COPILOT_CACHE_HOME`.
+both Axiora Code and the mock server with the same isolated `COPILOT_CACHE_HOME`.
 
 The managed-settings schema is auto-detected from a sibling
 `copilot-agent-runtime` checkout, including when VS Code runs from a Git

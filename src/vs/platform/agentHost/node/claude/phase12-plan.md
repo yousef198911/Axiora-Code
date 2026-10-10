@@ -298,13 +298,13 @@ Note: **no changes to `claudeSessionMetadataStore.ts`**. Persistence dropped per
 - `typecheck-client` clean, `valid-layers-check` clean.
 
 ### E2E
-The workspace has the [launch skill](../../../../../../.agents/skills/launch/SKILL.md) (Playwright-driven Code OSS automation) and [code-oss-logs skill](../../../../../../.github/skills/code-oss-logs/SKILL.md) (find and read dev-build logs). Smoke scenario:
+The workspace has the [launch skill](../../../../../../.agents/skills/launch/SKILL.md) (Playwright-driven Axiora Code automation) and [code-oss-logs skill](../../../../../../.github/skills/code-oss-logs/SKILL.md) (find and read dev-build logs). Smoke scenario:
 
-1. Use the **launch** skill to start Code OSS with the agent host enabled and a Claude session open.
+1. Use the **launch** skill to start Axiora Code with the agent host enabled and a Claude session open.
 2. Send a prompt that the model is likely to delegate via `Agent` (e.g. "use the Agent tool to list files in /tmp").
 3. Watch for the subagent marker rendering in the parent transcript and confirm the workbench can drill into the subagent session and see its turns.
 4. Use the **code-oss-logs** skill to inspect agent-host logs for `[AgentSideEffects] Creating subagent session` and the absence of buffered-signal warnings; also confirm a `claude.subagent.resolved_via.<strategy>` telemetry counter incremented.
-5. Restart Code OSS; reopen the same parent session; click into the same subagent marker; confirm the transcript still loads (this exercises the cold path through the resolver chain + priming).
+5. Restart Axiora Code; reopen the same parent session; click into the same subagent marker; confirm the transcript still loads (this exercises the cold path through the resolver chain + priming).
 
 If the live model rarely invokes the `Agent` tool in a deterministic way, fall back to a `MockAgent`-driven scenario (`scripts/code-agent-host.js --enable-mock-agent`) that synthesises an Agent turn and a paired subagent transcript on disk.
 

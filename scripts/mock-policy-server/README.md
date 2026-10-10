@@ -17,12 +17,12 @@ immediately; status and JSON edits auto-save.
 The GUI opens on the **Policies** workspace. Select **Setup** in the header to
 open a modal that guides you through either connection method:
 
-- **System proxy (recommended):** works with Code OSS, Stable, Insiders, Copilot
+- **System proxy (recommended):** works with Axiora Code, Stable, Insiders, Copilot
   CLI, and SDK/runtime clients. The page recommends Proxyman on macOS and
   provides a **Map Remote** rule. VS Code normally uses the system proxy; the
   `http.proxy` setting is available as an optional fallback when explicit client
   configuration is needed.
-- **Code OSS overrides:** the quicker option for Code OSS from this checkout.
+- **Axiora Code overrides:** the quicker option for Axiora Code from this checkout.
   Select **Apply Overrides**, reload, and sign in. This option does not redirect
   SDK/runtime requests.
 
@@ -30,7 +30,7 @@ After connecting, open the VS Code Command Palette and run **> Developer: Sync
 Account Policy**. To refresh the policy used by Local Agent Host, also run
 **> Developer: Restart Local Agent Host**.
 
-The Setup dialog checks Code OSS overrides directly. It tests the system proxy by
+The Setup dialog checks Axiora Code overrides directly. It tests the system proxy by
 sending a request without credentials to the managed settings URL and confirming
 that the response came from this local server. It does not inspect Proxyman or
 macOS proxy configuration. The test runs automatically, and the global header
@@ -41,7 +41,7 @@ fresh managed-settings cache entry can prevent the client from making a request
 for up to one hour. Then run the commands above again.
 
 Other Copilot clients share that cache. For an isolated run, start both the
-server and Code OSS with the same temporary cache home:
+server and Axiora Code with the same temporary cache home:
 
 ```sh
 COPILOT_CACHE_HOME="$PWD/.build/mock-policy-cache" npm run mock-policy-server

@@ -125,7 +125,7 @@ const server = http.createServer((req, res) => {
 		}
 
 		// Mocked Copilot endpoints. Only these get permissive CORS, so the web
-		// build (browser) of Code OSS can call them cross-origin.
+		// build (browser) of Axiora Code can call them cross-origin.
 		if (endpoint && state.get(endpoint.id)?.active) {
 			const entry = state.get(endpoint.id)!;
 			setMockResponseHeaders(res);
@@ -697,7 +697,7 @@ function isWired(): boolean {
 }
 
 /**
- * Write `product.overrides.json` so Code OSS calls this server for every policy
+ * Write `product.overrides.json` so Axiora Code calls this server for every policy
  * endpoint.
  *
  * `src/bootstrap-meta.ts` merges overrides via `Object.assign` (shallow,

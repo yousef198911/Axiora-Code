@@ -9,7 +9,7 @@ Verification:
 - Full agent-host unit suite 1807/1807 passing.
 - Agent-host integration suite 86/86 passing.
 - `npm run typecheck-client` clean.
-- Live workbench E2E executed against `--agents` Code OSS (run dir `/tmp/phase10.5-e2e/logs/20260521T114550`). Validated live:
+- Live workbench E2E executed against `--agents` Axiora Code (run dir `/tmp/phase10.5-e2e/logs/20260521T114550`). Validated live:
   - Provider registration + proxy startup + auth path.
   - Three Claude sessions created via local agent host (`b0b896c5-...`, `e40afbbb-...`, `749dc491-...`).
   - `setClientTools` registered 13 workbench tools pre-materialize.
@@ -143,7 +143,7 @@ Use an incremental, bisectable refactor where each step stays testable and rever
 
 ### E2E
 
-- **Launch skill**: `launch` - drives Agents window UI and Claude session turns in local Code OSS.
+- **Launch skill**: `launch` - drives Agents window UI and Claude session turns in local Axiora Code.
 - **Log skill**: `code-oss-logs` - reads `agenthost.log` and related logs to validate runtime behavior.
 - **Scenario**:
   1. Use `launch` to start `./scripts/code.sh --agents` and open a new session with the `Claude` entry under `Local Agent Host`.

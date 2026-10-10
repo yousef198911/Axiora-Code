@@ -723,12 +723,12 @@ _All Open Questions resolved during the grilling pass and the second council rev
 
 ### E2E
 Workspace launch/log skills available:
-- **Launch skill**: `launch` — Playwright-driven automation of Code OSS via Chrome DevTools Protocol. Drives the chat panel, switches agent, sends messages.
+- **Launch skill**: `launch` — Playwright-driven automation of Axiora Code via Chrome DevTools Protocol. Drives the chat panel, switches agent, sends messages.
 - **Log skill**: `code-oss-logs` — finds and reads the renderer / extension host / **agent host** log files from the dev build.
 - **Bonus**: `vscode-dev-workbench` — for browser-driven testing of the Agents window if needed.
 
 **Scenario** (Phase 10 acceptance):
-1. Use the `launch` skill to start Code OSS with `--agents` and authenticate to GitHub Copilot.
+1. Use the `launch` skill to start Axiora Code with `--agents` and authenticate to GitHub Copilot.
 2. Open a new Claude session in the Agents window.
 3. Drive the workbench to register a client tool via the protocol
    (`session/activeClientToolsChanged`) with a minimal `ToolDefinition`

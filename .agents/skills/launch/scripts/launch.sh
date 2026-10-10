@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Launch Code OSS (VS Code from sources) with:
+# Launch Axiora Code (VS Code from sources) with:
 #   - a fresh, slimmed copy of the authenticated user-data-dir (so Copilot/GitHub auth works)
 #   - an isolated --shared-data-dir (otherwise two instances share ~/.vscode-oss-shared and crash each other)
 #   - unique debug ports for renderer (CDP), extension host, main process, and agent host
@@ -230,7 +230,7 @@ unset ELECTRON_RUN_AS_NODE
 
 CODE_SH="$REPO/scripts/code.sh"
 if [[ ! -x "$CODE_SH" ]]; then
-	echo "Could not find an executable Code OSS launcher at $CODE_SH. Pass --repo <vscode-repo-root>." >&2
+	echo "Could not find an executable Axiora Code launcher at $CODE_SH. Pass --repo <vscode-repo-root>." >&2
 	exit 2
 fi
 

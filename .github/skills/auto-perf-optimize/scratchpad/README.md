@@ -59,7 +59,7 @@ These are reusable, generic runners. Use them directly or as templates:
   persistent profile with Copilot auth). Never create a fresh user-data-dir.
 - Use `--skip-prelaunch` to avoid re-downloading Electron on every run.
 - If you need to clean up an orphaned test instance, stop only the specific
-  Code - OSS process (e.g. by killing the PID that was logged at launch, or
+  Axiora Code process (e.g. by killing the PID that was logged at launch, or
   `lsof -ti :<port> | xargs kill`). Avoid `pkill -f 'Electron'` — it can
   kill unrelated Electron apps.
 - For heap snapshot analysis, use the `heap-snapshot-analysis` skill's

@@ -333,7 +333,7 @@ manual/optional pass:
   is added to the harness (optional stretch; see below).
 - **Log skill**: `agent-host-logs` — analyze exported Agent Host debug-log
   bundles (`events.jsonl`, AHP JSONL transport logs) for post-hoc inspection.
-- **Launch skill**: `launch` — drive Code OSS with @playwright/cli + a Node
+- **Launch skill**: `launch` — drive Axiora Code with @playwright/cli + a Node
   debugger for a manual check in the Agents window.
 
 - **Optional stretch (real protocol e2e):** add a stub in-process MCP server to
@@ -345,7 +345,7 @@ manual/optional pass:
   `url`-mode question-less request. Only pursue if the integration round-trip
   proves insufficient.
 
-- **Manual (optional):** use `launch` to open Code OSS in an isolated profile,
+- **Manual (optional):** use `launch` to open Axiora Code in an isolated profile,
   start a Claude session with an MCP server that elicits, and confirm the
   chat-input form renders in the Agents window and the answer reaches the
   server; use `agent-host-logs` to inspect the transport if needed.

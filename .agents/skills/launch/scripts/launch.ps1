@@ -1,4 +1,4 @@
-# Launch Code OSS (VS Code from sources) with an isolated, slimmed copy of a
+# Launch Axiora Code (VS Code from sources) with an isolated, slimmed copy of a
 # user-data-dir and unique debugger ports. Prints exactly one JSON line to
 # stdout after the renderer CDP endpoint is ready; all diagnostics use stderr.
 
@@ -496,7 +496,7 @@ try {
 
 	$codeBat = Join-Path $repo 'scripts\code.bat'
 	if (-not (Test-Path -LiteralPath $codeBat -PathType Leaf)) {
-		Exit-Usage "Could not find a Code OSS launcher at $codeBat. Pass --repo <vscode-repo-root>."
+		Exit-Usage "Could not find a Axiora Code launcher at $codeBat. Pass --repo <vscode-repo-root>."
 	}
 
 	if ([string]::IsNullOrWhiteSpace($sourceUserDataDir)) {
@@ -545,7 +545,7 @@ try {
 	$hasGitHubAuthenticationSecret = Test-SourceHasGitHubAuthenticationSecret $node $sourceUserDataDir $sourceSharedDataDir (Join-Path $runDir 'auth-preflight.vscdb')
 	if ($hasGitHubAuthenticationSecret -eq $false) {
 		Write-LaunchError "[launch.ps1] WARNING: source profile $sourceUserDataDir has no stored GitHub session; the launched instance will prompt you to sign in."
-		Write-LaunchError 'To fix once and for all, launch Code OSS directly against the source profile (no copy), sign in, then close it:'
+		Write-LaunchError 'To fix once and for all, launch Axiora Code directly against the source profile (no copy), sign in, then close it:'
 		Write-LaunchError "  .\scripts\code.bat --user-data-dir=$sourceUserDataDir"
 		Write-LaunchError 'Every future launch copies that profile and inherits the session.'
 	}

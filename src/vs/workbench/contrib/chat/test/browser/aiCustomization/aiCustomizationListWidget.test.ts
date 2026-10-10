@@ -90,7 +90,7 @@ suite('aiCustomizationListWidget', () => {
 			);
 		});
 
-		test('extracts extension ID from Code OSS dev path', () => {
+		test('extracts extension ID from Axiora Code dev path', () => {
 			assert.strictEqual(
 				extractExtensionIdFromPath('/Users/josh/.vscode-oss-dev/extensions/github.copilot-chat-0.43.2026040602/assets/prompts/skills/troubleshoot/SKILL.md'),
 				'github.copilot-chat'

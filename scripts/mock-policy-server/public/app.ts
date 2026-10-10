@@ -476,7 +476,7 @@ declare const MOCK_POLICY_ENDPOINTS: EndpointDef[];
 		globalStatus.dataset.state = connectionReady ? 'ready' : proxyCheckInFlight ? 'checking' : 'error';
 		$('global-connection-label').textContent = proxyVerified
 			? 'System proxy connected'
-			: overridesWired ? 'Code OSS overrides active' : proxyCheckInFlight ? 'Checking connection\u2026' : 'No connection detected';
+			: overridesWired ? 'Axiora Code overrides active' : proxyCheckInFlight ? 'Checking connection\u2026' : 'No connection detected';
 	}
 
 	function renderProxyStatus(state: 'checking' | 'ready' | 'pending', message: string, detail: string): void {
@@ -682,7 +682,7 @@ declare const MOCK_POLICY_ENDPOINTS: EndpointDef[];
 		try {
 			const state = await api<ServerState>(wireIt ? '/api/wire' : '/api/unwire', { method: 'POST' });
 			applyState(state);
-			toast(wireIt ? 'Overrides applied — reload Code OSS' : 'Original file restored — reload Code OSS');
+			toast(wireIt ? 'Overrides applied — reload Axiora Code' : 'Original file restored — reload Axiora Code');
 		} catch (e) {
 			toast(`${wireIt ? 'Apply' : 'Restore'} failed: ${e instanceof Error ? e.message : String(e)}`, true);
 		}

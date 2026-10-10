@@ -128,7 +128,7 @@ Build a Claude-specific disk resolver that reuses the shared frontmatter/MCP par
 - Type/layer/hygiene: `npm run typecheck-client`, `npm run valid-layers-check`, gulp `hygiene` clean.
 
 ### E2E
-Workspace skills (project scope): `launch` (drive Code OSS Agents window), `code-oss-logs` (read `agenthost.log`).
+Workspace skills (project scope): `launch` (drive Axiora Code Agents window), `code-oss-logs` (read `agenthost.log`).
 - **Scenario:**
   1. Put a real customization on disk (e.g. `~/.claude/agents/explore.md` with frontmatter + a body).
   2. `launch` the Agents window, authenticate, pick **Claude**, create a session, and **without sending a message** open the customization list.

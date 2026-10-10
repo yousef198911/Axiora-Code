@@ -139,11 +139,11 @@ Run via VS Code's `runTests` tool against the test files, or fall back to `scrip
 ### E2E
 
 Workspace skills available for E2E:
-- **Launch skill**: [`launch`](../../../../../../.agents/skills/launch/SKILL.md) — Playwright-driven Code OSS automation.
+- **Launch skill**: [`launch`](../../../../../../.agents/skills/launch/SKILL.md) — Playwright-driven Axiora Code automation.
 - **Log skill**: [`code-oss-logs`](../../../../../../.github/skills/code-oss-logs/SKILL.md) — read agent host / renderer logs from dev builds.
 
 **Scenario — restart-and-restore:**
-1. Use `launch` to start Code OSS Agents (`./scripts/code.sh --agents`), open the Agents window, create a new Claude session, send a prompt that triggers at least one tool call (e.g., "list files in the current directory" → `Bash` or `Read`).
+1. Use `launch` to start Axiora Code Agents (`./scripts/code.sh --agents`), open the Agents window, create a new Claude session, send a prompt that triggers at least one tool call (e.g., "list files in the current directory" → `Bash` or `Read`).
 2. Wait for the turn to settle. Take a screenshot of the rendered turn.
 3. Close the Agents window (do not quit the agent host process initially).
 4. Re-open the same session via the sessions sidebar.
