@@ -1,16 +1,20 @@
 version: 2
 updates:
-  - package-ecosystem: github-actions
-    directory: /
-    target-branch: insider
+  - package-ecosystem: "github-actions"
+    directory: "/"
     schedule:
-      interval: weekly
+      interval: "weekly"
     cooldown:
       default-days: 7
-  - package-ecosystem: npm
-    directory: /font-size
-    target-branch: insider
+  - package-ecosystem: "devcontainers" # https://containers.dev/guide/dependabot
+    directory: "/"
     schedule:
-      interval: weekly
-    cooldown:
-      default-days: 7
+      interval: "weekly"
+  - package-ecosystem: "npm"
+    directory: "/extensions/markdown-language-features"
+    schedule:
+      interval: "daily"
+      time: "16:00"
+      timezone: "America/Los_Angeles"
+    allow:
+      - dependency-name: "@vscode/markdown-editor"
