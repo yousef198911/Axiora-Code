@@ -5,7 +5,7 @@
 
 import { localize } from '../../../../nls.js';
 import { Registry } from '../../../../platform/registry/common/platform.js';
-import { Extensions as WorkbenchExtensions, IWorkbenchContributionsRegistry } from '../../../common/contributions.js';
+import { Extensions as WorkbenchExtensions, IWorkbenchContribution, IWorkbenchContributionsRegistry } from '../../../common/contributions.js';
 import { LifecyclePhase } from '../../../services/lifecycle/common/lifecycle.js';
 import * as platform from '../../../../base/common/platform.js';
 import { IExtensionManagementService, IExtensionGalleryService, InstallOperation, ILocalExtension, InstallExtensionResult, DidUninstallExtensionEvent } from '../../../../platform/extensionManagement/common/extensionManagement.js';
@@ -19,6 +19,9 @@ import { CancellationToken } from '../../../../base/common/cancellation.js';
 import { ILocaleService } from '../../../services/localization/common/locale.js';
 import { IProductService } from '../../../../platform/product/common/productService.js';
 import { BaseLocalizationWorkbenchContribution } from '../common/localization.contribution.js';
+import { IConfigurationRegistry, Extensions as ConfigurationExtensions, ConfigurationScope } from '../../../../platform/configuration/common/configurationRegistry.js';
+import { ConfigurationTarget, IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
 
 class NativeLocalizationWorkbenchContribution extends BaseLocalizationWorkbenchContribution {
 	private static LANGUAGEPACK_SUGGESTION_IGNORE_STORAGE_KEY = 'extensionsAssistant/languagePackSuggestionIgnore';
@@ -223,3 +226,54 @@ class NativeLocalizationWorkbenchContribution extends BaseLocalizationWorkbenchC
 
 const workbenchRegistry = Registry.as<IWorkbenchContributionsRegistry>(WorkbenchExtensions.Workbench);
 workbenchRegistry.registerWorkbenchContribution(NativeLocalizationWorkbenchContribution, LifecyclePhase.Eventually);
+
+// Axiora Code: a "Display Language" setting (English / Arabic) that is reachable from the Settings editor.
+const DISPLAY_LANGUAGE_SETTING = 'workbench.displayLanguage';
+
+Registry.as<IConfigurationRegistry>(ConfigurationExtensions.Configuration).registerConfiguration({
+	id: 'workbench',
+	order: 7,
+	title: localize('workbenchConfigurationTitle', "Workbench"),
+	type: 'object',
+	properties: {
+		[DISPLAY_LANGUAGE_SETTING]: {
+			type: 'string',
+			enum: ['en', 'ar'],
+			// allow-any-unicode-next-line
+			enumItemLabels: ['English', 'العربية (Arabic)'],
+			default: 'en',
+			scope: ConfigurationScope.APPLICATION,
+			markdownDescription: localize('workbench.displayLanguage', "Controls the display language of the user interface. Changing this setting applies the selected language after a restart."),
+		}
+	}
+});
+
+class DisplayLanguageSettingContribution extends Disposable implements IWorkbenchContribution {
+	constructor(
+		@IConfigurationService private readonly configurationService: IConfigurationService,
+		@ILocaleService private readonly localeService: ILocaleService,
+	) {
+		super();
+
+		// Keep the setting in sync with the language that is actually in use
+		const current = platform.language === 'ar' || platform.language.startsWith('ar-') ? 'ar' : 'en';
+		const configured = this.configurationService.getValue<string>(DISPLAY_LANGUAGE_SETTING);
+		if (configured !== current) {
+			this.configurationService.updateValue(DISPLAY_LANGUAGE_SETTING, current === 'en' ? undefined : current, ConfigurationTarget.USER);
+		}
+
+		this._register(this.configurationService.onDidChangeConfiguration(e => {
+			if (!e.affectsConfiguration(DISPLAY_LANGUAGE_SETTING)) {
+				return;
+			}
+			const value = this.configurationService.getValue<string>(DISPLAY_LANGUAGE_SETTING) === 'ar' ? 'ar' : 'en';
+			const active = platform.language === 'ar' || platform.language.startsWith('ar-') ? 'ar' : 'en';
+			if (value !== active) {
+				// allow-any-unicode-next-line
+				this.localeService.setLocale({ id: value, label: value === 'ar' ? 'العربية' : 'English' });
+			}
+		}));
+	}
+}
+
+workbenchRegistry.registerWorkbenchContribution(DisplayLanguageSettingContribution, LifecyclePhase.Restored);
