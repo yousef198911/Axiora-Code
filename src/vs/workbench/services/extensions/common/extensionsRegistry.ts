@@ -185,7 +185,7 @@ export const schema: IJSONSchema = {
 			}
 		},
 		publisher: {
-			description: nls.localize('vscode.extension.publisher', 'The publisher of the VS Code extension.'),
+			description: nls.localize('vscode.extension.publisher', 'The publisher of the Axiora Code extension.'),
 			type: 'string'
 		},
 		displayName: {
@@ -224,7 +224,7 @@ export const schema: IJSONSchema = {
 			}
 		},
 		contributes: {
-			description: nls.localize('vscode.extension.contributes', 'All contributions of the VS Code extension represented by this package.'),
+			description: nls.localize('vscode.extension.contributes', 'All contributions of the Axiora Code extension represented by this package.'),
 			type: 'object',
 			// eslint-disable-next-line local/code-no-any-casts
 			properties: {
@@ -259,7 +259,7 @@ export const schema: IJSONSchema = {
 			]
 		},
 		activationEvents: {
-			description: nls.localize('vscode.extension.activationEvents', 'Activation events for the VS Code extension.'),
+			description: nls.localize('vscode.extension.activationEvents', 'Activation events for the Axiora Code extension.'),
 			type: 'array',
 			items: {
 				type: 'string',
@@ -426,7 +426,7 @@ export const schema: IJSONSchema = {
 					},
 					{
 						label: '*',
-						description: nls.localize('vscode.extension.activationEvents.star', 'An activation event emitted on VS Code startup. To ensure a great end user experience, please use this activation event in your extension only when no other activation events combination works in your use-case.'),
+						description: nls.localize('vscode.extension.activationEvents.star', 'An activation event emitted on Axiora Code startup. To ensure a great end user experience, please use this activation event in your extension only when no other activation events combination works in your use-case.'),
 						body: '*'
 					}
 				],
@@ -621,7 +621,7 @@ export const schema: IJSONSchema = {
 			type: 'object',
 			properties: {
 				'vscode:prepublish': {
-					description: nls.localize('vscode.extension.scripts.prepublish', 'Script executed before the package is published as a VS Code extension.'),
+					description: nls.localize('vscode.extension.scripts.prepublish', 'Script executed before the package is published as a Axiora Code extension.'),
 					type: 'string'
 				},
 				'vscode:uninstall': {

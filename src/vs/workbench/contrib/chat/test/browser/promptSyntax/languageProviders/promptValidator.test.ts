@@ -971,7 +971,7 @@ suite('PromptValidator', () => {
 			const markers = await validate(content, PromptsType.agent);
 			const messages = markers.map(m => m.message);
 			assert.deepStrictEqual(messages, [
-				'Attribute \'mcp-servers\' is ignored when running locally in VS Code.',
+				'Attribute \'mcp-servers\' is ignored when running locally in Axiora Code.',
 				'Unknown tool \'edit\' will be ignored.',
 			]);
 		});
@@ -988,7 +988,7 @@ suite('PromptValidator', () => {
 			const markers = await validate(content, PromptsType.agent);
 			const messages = markers.map(m => m.message);
 			assert.deepStrictEqual(messages, [
-				'Attribute \'mcp-servers\' is ignored when running locally in VS Code.',
+				'Attribute \'mcp-servers\' is ignored when running locally in Axiora Code.',
 			]);
 		});
 
@@ -2550,7 +2550,7 @@ suite('PromptValidator', () => {
 			assert.strictEqual(markers.length, 1);
 			assert.strictEqual(markers[0].severity, MarkerSeverity.Hint);
 			assert.deepStrictEqual(markers[0].tags, [MarkerTag.Unnecessary]);
-			assert.ok(markers[0].message.includes(`Attribute 'applyTo' is not supported in rules files by VS Code agents.`));
+			assert.ok(markers[0].message.includes(`Attribute 'applyTo' is not supported in rules files by Axiora Code agents.`));
 		});
 
 		test('claude rules with multiple validation errors', async () => {

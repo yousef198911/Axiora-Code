@@ -332,7 +332,7 @@ const terminalConfiguration: IStringDictionary<IConfigurationPropertySchema> = {
 		default: 1000
 	},
 	[TerminalSettingId.DetectLocale]: {
-		markdownDescription: localize('terminal.integrated.detectLocale', "Controls whether to detect and set the `$LANG` environment variable to a UTF-8 compliant option since VS Code's terminal only supports UTF-8 encoded data coming from the shell."),
+		markdownDescription: localize('terminal.integrated.detectLocale', "Controls whether to detect and set the `$LANG` environment variable to a UTF-8 compliant option since Axiora Code's terminal only supports UTF-8 encoded data coming from the shell."),
 		type: 'string',
 		enum: ['auto', 'off', 'on'],
 		markdownEnumDescriptions: [
@@ -346,7 +346,7 @@ const terminalConfiguration: IStringDictionary<IConfigurationPropertySchema> = {
 		type: 'string',
 		enum: ['auto', 'on', 'off'],
 		markdownEnumDescriptions: [
-			localize('terminal.integrated.gpuAcceleration.auto', "Let VS Code detect which renderer will give the best experience."),
+			localize('terminal.integrated.gpuAcceleration.auto', "Let Axiora Code detect which renderer will give the best experience."),
 			localize('terminal.integrated.gpuAcceleration.on', "Enable GPU acceleration within the terminal."),
 			localize('terminal.integrated.gpuAcceleration.off', "Disable GPU acceleration within the terminal. The terminal will render much slower when GPU acceleration is off but it should reliably work on all systems."),
 		],
@@ -446,7 +446,7 @@ const terminalConfiguration: IStringDictionary<IConfigurationPropertySchema> = {
 		default: []
 	},
 	[TerminalSettingId.AllowChords]: {
-		markdownDescription: localize('terminal.integrated.allowChords', "Whether or not to allow chord keybindings in the terminal. Note that when this is true and the keystroke results in a chord it will bypass {0}, setting this to false is particularly useful when you want ctrl+k to go to your shell (not VS Code).", '`#terminal.integrated.commandsToSkipShell#`'),
+		markdownDescription: localize('terminal.integrated.allowChords', "Whether or not to allow chord keybindings in the terminal. Note that when this is true and the keystroke results in a chord it will bypass {0}, setting this to false is particularly useful when you want ctrl+k to go to your shell (not Axiora Code).", '`#terminal.integrated.commandsToSkipShell#`'),
 		type: 'boolean',
 		default: true
 	},
@@ -457,7 +457,7 @@ const terminalConfiguration: IStringDictionary<IConfigurationPropertySchema> = {
 	},
 	[TerminalSettingId.EnvMacOs]: {
 		restricted: true,
-		markdownDescription: localize('terminal.integrated.env.osx', "Object with environment variables that will be added to the VS Code process to be used by the terminal on macOS. Set to `null` to delete the environment variable."),
+		markdownDescription: localize('terminal.integrated.env.osx', "Object with environment variables that will be added to the Axiora Code process to be used by the terminal on macOS. Set to `null` to delete the environment variable."),
 		type: 'object',
 		additionalProperties: {
 			type: ['string', 'null']
@@ -466,7 +466,7 @@ const terminalConfiguration: IStringDictionary<IConfigurationPropertySchema> = {
 	},
 	[TerminalSettingId.EnvLinux]: {
 		restricted: true,
-		markdownDescription: localize('terminal.integrated.env.linux', "Object with environment variables that will be added to the VS Code process to be used by the terminal on Linux. Set to `null` to delete the environment variable."),
+		markdownDescription: localize('terminal.integrated.env.linux', "Object with environment variables that will be added to the Axiora Code process to be used by the terminal on Linux. Set to `null` to delete the environment variable."),
 		type: 'object',
 		additionalProperties: {
 			type: ['string', 'null']
@@ -475,7 +475,7 @@ const terminalConfiguration: IStringDictionary<IConfigurationPropertySchema> = {
 	},
 	[TerminalSettingId.EnvWindows]: {
 		restricted: true,
-		markdownDescription: localize('terminal.integrated.env.windows', "Object with environment variables that will be added to the VS Code process to be used by the terminal on Windows. Set to `null` to delete the environment variable."),
+		markdownDescription: localize('terminal.integrated.env.windows', "Object with environment variables that will be added to the Axiora Code process to be used by the terminal on Windows. Set to `null` to delete the environment variable."),
 		type: 'object',
 		additionalProperties: {
 			type: ['string', 'null']
@@ -494,7 +494,7 @@ const terminalConfiguration: IStringDictionary<IConfigurationPropertySchema> = {
 	},
 	[TerminalSettingId.WindowsUseConptyDll]: {
 		restricted: true,
-		markdownDescription: localize('terminal.integrated.windowsUseConptyDll', "Whether to use the conpty.dll (v1.25.260303002) shipped with VS Code, instead of the one bundled with Windows."),
+		markdownDescription: localize('terminal.integrated.windowsUseConptyDll', "Whether to use the conpty.dll (v1.25.260303002) shipped with Axiora Code, instead of the one bundled with Windows."),
 		type: 'boolean',
 		default: true,
 	},

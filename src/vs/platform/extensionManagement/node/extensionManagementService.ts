@@ -1100,7 +1100,7 @@ class InstallExtensionInProfileTask extends AbstractExtensionTask<ILocalExtensio
 					try {
 						await this.extensionsScanner.deleteExtension(existingExtension, 'existing');
 					} catch (e) {
-						throw new Error(nls.localize('restartCode', "Please restart VS Code before reinstalling {0}.", this.manifest.displayName || this.manifest.name));
+						throw new Error(nls.localize('restartCode', "Please restart Axiora Code before reinstalling {0}.", this.manifest.displayName || this.manifest.name));
 					}
 				}
 			}
@@ -1112,7 +1112,7 @@ class InstallExtensionInProfileTask extends AbstractExtensionTask<ILocalExtensio
 				try {
 					await this.extensionsScanner.deleteExtension(existingWithSameVersion, 'existing');
 				} catch (e) {
-					throw new Error(nls.localize('restartCode', "Please restart VS Code before reinstalling {0}.", this.manifest.displayName || this.manifest.name));
+					throw new Error(nls.localize('restartCode', "Please restart Axiora Code before reinstalling {0}.", this.manifest.displayName || this.manifest.name));
 				}
 			}
 

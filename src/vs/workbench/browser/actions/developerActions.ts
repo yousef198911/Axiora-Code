@@ -725,7 +725,7 @@ function managedSettingsPipeline(rawLabel: string, raw: unknown | undefined, nor
 	content += markdownJsonBlock(normalized);
 	content += '**VS Code policy projection**\n\n';
 	content += markdownJsonBlock(projected);
-	return markdownDetails('Source, normalized, and VS Code projection', content);
+	return markdownDetails('Source, normalized, and Axiora Code projection', content);
 }
 
 function formatDiagnosticValue(value: unknown): string {
@@ -1061,7 +1061,7 @@ class PolicyDiagnosticsAction extends Action2 {
 				);
 			}
 			content += markdownDetails('Merged normalized bag', markdownJsonBlock(pick.values));
-			content += markdownDetails('Effective VS Code policy bag', markdownJsonBlock(effective));
+			content += markdownDetails('Effective Axiora Code policy bag', markdownJsonBlock(effective));
 
 			content += `### Normalization and Parse Issues (${parseErrors.length})\n\n`;
 			if (parseErrors.length > 0) {
