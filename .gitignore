@@ -19,3 +19,7 @@ stores/snapcraft/insider/*.snap
 stores/snapcraft/stable/*.snap
 font-size/node_modules/
 font-size/generate-css.js
+
+# Axiora: track bundled Arabic language pack (overrides vscode* rule)
+!src/stable/extensions/axiora-language-pack-ar/
+!src/stable/extensions/axiora-language-pack-ar/**

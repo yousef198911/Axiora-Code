@@ -42,10 +42,10 @@ setpath "product" "introductoryVideosUrl" "https://go.microsoft.com/fwlink/?link
 setpath "product" "keyboardShortcutsUrlLinux" "https://go.microsoft.com/fwlink/?linkid=832144"
 setpath "product" "keyboardShortcutsUrlMac" "https://go.microsoft.com/fwlink/?linkid=832143"
 setpath "product" "keyboardShortcutsUrlWin" "https://go.microsoft.com/fwlink/?linkid=832145"
-setpath "product" "licenseUrl" "https://github.com/axiora-code/axiora-code/blob/main/LICENSE"
+setpath "product" "licenseUrl" "https://github.com/yousef198911/Axiora-Code/blob/main/LICENSE"
 setpath_json "product" "linkProtectionTrustedDomains" '["https://open-vsx.org"]'
 setpath "product" "releaseNotesUrl" "https://go.microsoft.com/fwlink/?LinkID=533483#vscode"
-setpath "product" "reportIssueUrl" "https://github.com/axiora-code/axiora-code/issues/new"
+setpath "product" "reportIssueUrl" "https://github.com/yousef198911/Axiora-Code/issues/new"
 setpath "product" "requestFeatureUrl" "https://go.microsoft.com/fwlink/?LinkID=533482"
 setpath "product" "tipsAndTricksUrl" "https://go.microsoft.com/fwlink/?linkid=852118"
 setpath "product" "twitterUrl" "https://go.microsoft.com/fwlink/?LinkID=533687"
@@ -181,6 +181,13 @@ for file in ../patches/user/*.patch; do
     apply_patch "${file}"
   fi
 done
+
+# Axiora: remote server download is not offered; drop serverDownloadUrlTemplate injected by 00-remote-add-url.patch
+sed -i '/json.serverDownloadUrlTemplate = /d' build/gulpfile.vscode.ts build/gulpfile.reh.ts
+# Axiora: Windows tile name (safety net in case upstream manifest is used)
+if [[ -f resources/win32/VisualElementsManifest.xml ]]; then
+  sed -i 's/ShortDisplayName="[^"]*"/ShortDisplayName="Axiora-Code"/' resources/win32/VisualElementsManifest.xml
+fi
 # }}}
 
 set -x
