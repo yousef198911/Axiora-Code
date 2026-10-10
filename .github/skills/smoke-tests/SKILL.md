@@ -33,7 +33,7 @@ npm run smoketest
 npm run smoketest -- -g "<suite name>" --tracing
 
 # Run against a packaged build (CI style)
-npm run smoketest-no-compile -- --tracing --build "/path/to/VSCode-darwin-arm64/Code - OSS.app"
+npm run smoketest-no-compile -- --tracing --build "/path/to/VSCode-darwin-arm64/Axiora Code.app"
 ```
 
 The `-g` pattern matches against test/suite titles. For example, `-g "Agents Window"` matches all three Agents Window suites (`Agents Window`, `Agents Window (local AgentHost)`, and `Agents Window (local AgentHost, SDK sandbox)`); use whatever substring identifies the suite(s) you care about.

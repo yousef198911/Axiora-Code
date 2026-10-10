@@ -349,7 +349,7 @@ npm run valid-layers-check
 Use the **`launch`** skill (personal, `~/.agents/skills/launch/`) and the **`code-oss-logs`** skill (`.github/skills/code-oss-logs/`).
 
 **Scenario A — abort + resend:**
-1. Launch Code OSS dev with a writable workspace.
+1. Launch Axiora Code dev with a writable workspace.
 2. Open a Claude session and send a long prompt ("write a 500-line essay on...").
 3. While streaming, click Abort.
 4. Confirm UI surfaces aborted state.
@@ -414,7 +414,7 @@ Verified end of implementation: **84 ClaudeAgent tests + 7 claudeModelConfig tes
 - **Genuine `'max'` effort restart deferred.** The plan called this out as TODO and the implementation matches: the runtime path clamps to `'xhigh'` and logs `TODO(phase9-max-effort)`. The yield-restart primitive is in place, so the upgrade is mechanical when needed.
 - **Tool-set-diff and settings-file change triggers deferred.** Per plan D10, the yield-restart substrate (`_rebindQuery` + `materializeResume`) ships in this phase, but the trigger conditions belong to Phases 10/11. No new code added here for those triggers.
 - **`avoid-private-methods` audit: skill not present in this workspace's skill set.** Manual scan of the changed production files (`claudeAgent.ts`, `claudeAgentSession.ts`, `claudeMaterializer.ts`, `claudeModelConfig.ts`) found no private-method extractions worth a refactor: `_rebindQuery`, `_applyPendingMutation`, `_wireAbortHandler`, `_ensureConsumerLoop` all access mutable instance state (`_query`, `_warm`, `_abortController`, `_pendingMutation`, `_currentModel/Effort/PermissionMode`, `_consumerLoopRunning`); extracting them as standalone functions would require threading 6+ arguments and re-exposing the bijective cache. Recorded as `avoid-private-methods: clean` for this phase.
-- **Live E2E (Scenarios A–D) completed 2026-05-13.** All four operator scenarios from `smoke.md` exercised against a running Code OSS dev build with a live Claude proxy: abort + resend (Scenario A), steering preemption + `steering_consumed` echo (Scenario B), `changeModel` hot-swap mid-conversation (Scenario C), and the `'max'` → `'xhigh'` clamp warning (Scenario D). No regressions observed; the unit-test posture matched live behavior. Phase 9 is production-ready.
+- **Live E2E (Scenarios A–D) completed 2026-05-13.** All four operator scenarios from `smoke.md` exercised against a running Axiora Code dev build with a live Claude proxy: abort + resend (Scenario A), steering preemption + `steering_consumed` echo (Scenario B), `changeModel` hot-swap mid-conversation (Scenario C), and the `'max'` → `'xhigh'` clamp warning (Scenario D). No regressions observed; the unit-test posture matched live behavior. Phase 9 is production-ready.
 
 ### Notable design choices
 

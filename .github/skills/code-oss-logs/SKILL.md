@@ -1,26 +1,26 @@
 ---
 name: code-oss-logs
-description: 'Find and read timestamped process logs from Code OSS dev builds, including main.log, renderer.log, extension host logs, and agenthost.log. For bundles produced by Export Agent Host Debug Logs, use agent-host-logs.'
+description: 'Find and read timestamped process logs from Axiora Code dev builds, including main.log, renderer.log, extension host logs, and agenthost.log. For bundles produced by Export Agent Host Debug Logs, use agent-host-logs.'
 ---
 
-# Code OSS Logs
+# Axiora Code Logs
 
-Find and display logs from the most recent Code OSS or Agents app dev run.
+Find and display logs from the most recent Axiora Code or Agents app dev run.
 
 ## Log Root Directories
 
 | App | Default User Data Dir | Logs Path |
 |-----|-----------------------|-----------|
-| Code OSS | `$HOME/.vscode-oss-dev` | `$HOME/.vscode-oss-dev/logs/` |
+| Axiora Code | `$HOME/.vscode-oss-dev` | `$HOME/.vscode-oss-dev/logs/` |
 | Agents app | `$HOME/.vscode-oss-dev` | `$HOME/.vscode-oss-dev/logs/` |
 
-If Code OSS was launched with `--user-data-dir=<dir>`, use `<dir>/logs/` instead of the defaults above. Launch and debugging helpers often create temporary user data dirs under `.build/`; always prefer the exact user data dir from the launch command when it is known.
+If Axiora Code was launched with `--user-data-dir=<dir>`, use `<dir>/logs/` instead of the defaults above. Launch and debugging helpers often create temporary user data dirs under `.build/`; always prefer the exact user data dir from the launch command when it is known.
 
 Each run creates a timestamped folder like `20260330T163430`. The most recent folder sorted by modification time is usually the one the user cares about.
 
 ## Procedure
 
-1. **Identify which app** the user is asking about: Code OSS or Agents app. If unclear, check both.
+1. **Identify which app** the user is asking about: Axiora Code or Agents app. If unclear, check both.
 2. **Find the most recent log folder**:
     ```bash
     ls -lt "$HOME/.vscode-oss-dev/logs" | head -5
@@ -108,7 +108,7 @@ find "<timestamp>" -type f -size +0 -print
 
 ## Temporary Console Forwarding Workflow
 
-When using temporary `console.log` probes and you need those probes to persist in the normal log files, enable dev console forwarding locally before launching Code OSS.
+When using temporary `console.log` probes and you need those probes to persist in the normal log files, enable dev console forwarding locally before launching Axiora Code.
 
 1. In `src/vs/platform/log/common/log.ts`, find `isDevConsoleLogForwardingEnabled`.
 2. Temporarily enable the commented `Boolean("true")` line:
@@ -118,7 +118,7 @@ When using temporary `console.log` probes and you need those probes to persist i
         ;
     ```
 3. Build or let the watch task pick up the change.
-4. Launch Code OSS or the Agents app and reproduce the issue.
+4. Launch Axiora Code or the Agents app and reproduce the issue.
 5. Read the relevant logs.
 6. Before finishing, restore the flag to its default-off state and remove every temporary `console.log` probe.
 

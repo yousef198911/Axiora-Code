@@ -477,10 +477,10 @@ npm run valid-layers-check
 
 ### E2E
 
-Use the **`launch`** skill (personal, `~/.agents/skills/launch/`) to drive Code OSS and the **`code-oss-logs`** skill (`.github/skills/code-oss-logs/`) to verify agent-host logs.
+Use the **`launch`** skill (personal, `~/.agents/skills/launch/`) to drive Axiora Code and the **`code-oss-logs`** skill (`.github/skills/code-oss-logs/`) to verify agent-host logs.
 
 **Scenario:**
-1. Use `launch` to open Code OSS dev build pointing at a test workspace with a writable file.
+1. Use `launch` to open Axiora Code dev build pointing at a test workspace with a writable file.
 2. Open a Claude session and send: "Edit `test.ts` — add a comment `// Phase 8 test` at the top."
 3. Approve the `Write`/`Edit` permission prompt via the UI (from Phase 7's permission card).
 4. Use `code-oss-logs` to read the agent-host log; confirm:
@@ -529,7 +529,7 @@ Verified end of implementation: **76 ClaudeAgent tests + 23 ClaudeMapSessionEven
 - **Test H (`rewindFiles` shape) skipped.** `enableFileCheckpointing: true` is set in Options for forward-compatibility, but no production code invokes `query.rewindFiles` yet (Phase 8 uses the DB-backed undo path). Adding a `FakeQuery.rewindFiles` stub would only validate the SDK contract, which the SDK's own type definitions already enforce at compile time.
 - **Test I (proxy-backed integration test) skipped.** Adding the file-write turn to `claudeAgent.integrationTest.ts` requires a SessionDatabase instance reachable to the integration harness plus a `Write`-tool prompt that hits the real Claude proxy; the live E2E (next bullet) covers the same ground end-to-end with stronger guarantees about real SDK hook timing.
 - **`scripts/verify-claude-logs.sh --phase=8` not added.** The script does not exist in the workspace (`file_search` returned no matches); creating it on-the-fly for one phase risks diverging from whatever convention the prior phases' verification used. The smoke.md Phase-8 row documents the manual log assertion to run during E2E.
-- **Live E2E via the `launch` skill is pending.** Driving Code OSS, prompting Claude to perform a `Write` / `Edit`, approving the permission, and inspecting the agent-host log for the `ToolResultFileEditContent` block is the canonical Phase-8 acceptance check. It requires a live Claude proxy connection plus an interactive permission flow and was not run as part of this implementation pass; the user should run it before tagging Phase 8 production-ready. The smoke.md Phase-8 row enumerates the exact assertions to verify.
+- **Live E2E via the `launch` skill is pending.** Driving Axiora Code, prompting Claude to perform a `Write` / `Edit`, approving the permission, and inspecting the agent-host log for the `ToolResultFileEditContent` block is the canonical Phase-8 acceptance check. It requires a live Claude proxy connection plus an interactive permission flow and was not run as part of this implementation pass; the user should run it before tagging Phase 8 production-ready. The smoke.md Phase-8 row enumerates the exact assertions to verify.
 
 ### Notable design choices
 

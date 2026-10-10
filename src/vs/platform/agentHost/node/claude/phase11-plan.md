@@ -144,7 +144,7 @@ Mirror the `clientTools/` pattern exactly. Add a sibling `customizations/` folde
 - **Log skill**: `code-oss-logs` — read `agenthost.log` and per-session log.
 - **Customizations UI skill**: `chat-customizations-editor` — domain expert on the customizations editor surface.
 - **Scenario**:
-  1. Launch Code OSS with `--agents`; open a Claude session under `Local Agent Host`.
+  1. Launch Axiora Code with `--agents`; open a Claude session under `Local Agent Host`.
   2. From the chat-customizations editor, add a customization with a simple skill plugin; send a turn that uses the skill; confirm via `code-oss-logs` that `agenthost.log` shows `[Claude] session ...: enableFileCheckpointing=true isResume=false` followed by a successful turn that references the plugin.
   3. Disable the same customization; send another turn; confirm logs show `[Claude] session ...: resume rebuild` (any plugin-set change is a yield-restart — there is no `reloadPlugins` fast path).
   4. Add a second customization; send a turn; confirm logs show another `resume rebuild` and that the new plugin is in `Options.plugins`.

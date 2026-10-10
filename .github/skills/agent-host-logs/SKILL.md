@@ -5,7 +5,7 @@ description: 'Analyze Agent Host debug log exports. Use when given an ah-logs or
 
 # Agent Host Debug Logs
 
-Use this skill to orient to bundles produced by `Developer: Export Agent Host Debug Logs...`. These are different from the normal timestamped Code OSS log directory.
+Use this skill to orient to bundles produced by `Developer: Export Agent Host Debug Logs...`. These are different from the normal timestamped Axiora Code log directory.
 
 Treat the bundle as sensitive: it can contain tokens, prompts, file contents, terminal output, paths, and settings. Keep analysis local and avoid quoting secrets or unrelated user content. Timestamps, event names, IDs, status values, and general property values are fine.
 

@@ -130,12 +130,12 @@ Run via the `runTests` tool against the two test files, or `scripts/test.sh --gr
 
 Workspace skills available:
 
-- **Launch skill**: [`launch`](../../../../../../.agents/skills/launch/SKILL.md) — Playwright-driven Code OSS automation (open the Agents window, drive chat, screenshot).
+- **Launch skill**: [`launch`](../../../../../../.agents/skills/launch/SKILL.md) — Playwright-driven Axiora Code automation (open the Agents window, drive chat, screenshot).
 - **Log skill**: [`code-oss-logs`](../../../../../../.github/skills/code-oss-logs/SKILL.md) — read agent-host / renderer logs from the dev build.
 
 **Scenario — fork-and-continue** (mirrors [smoke.md](./smoke.md) conventions):
 
-1. Use `launch` to start Code OSS Agents (`./scripts/code.sh --agents`), open the Agents window, pick the **Claude** agent, create a session, and send **three** sequential prompts so the transcript has ≥3 turns (e.g. "say apple", "say banana", "say cherry"), letting each turn settle. Screenshot the full transcript.
+1. Use `launch` to start Axiora Code Agents (`./scripts/code.sh --agents`), open the Agents window, pick the **Claude** agent, create a session, and send **three** sequential prompts so the transcript has ≥3 turns (e.g. "say apple", "say banana", "say cherry"), letting each turn settle. Screenshot the full transcript.
 2. Trigger fork at turn 2 (the "banana" turn) via the workbench's fork/edit-and-resubmit affordance (keep `[0..1]` inclusive semantic) — or, if the affordance isn't wired for Claude yet, drive `createSession({ fork: { session, turnId, turnIndex } })` through the test harness against the live agent host.
 3. Confirm a **new** session appears, pre-populated with turns 0–1 (apple, banana) and **not** turn 2's follow-up (cherry). Screenshot for comparison.
 4. Send a new prompt on the forked session ("say date") and confirm it lands cleanly and the assistant responds — validates the forked session is live (`resume` worked) and accepts new turns.

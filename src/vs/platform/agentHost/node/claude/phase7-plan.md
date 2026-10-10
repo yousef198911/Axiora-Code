@@ -81,7 +81,7 @@ No new dependencies. No SDK version change. The smoke harness scripts (`launch-s
 
 ### E2E
 
-The live-system smoke run from §7.5. Uses the [`launch`](../../../../../../.github/skills/launch/SKILL.md) and [`code-oss-logs`](../../../../../../.github/skills/code-oss-logs/SKILL.md) skills to drive Code OSS, render the tool confirmation card, and verify the `pending_confirmation → respondToPermissionRequest → tool_result → SessionToolCallComplete` sequence in agent-host logs. Captures five screenshots + a `tool-actions.log` artifact. The `bypass-mode` and `AskUserQuestion` rounds are part of the same operator session.
+The live-system smoke run from §7.5. Uses the [`launch`](../../../../../../.github/skills/launch/SKILL.md) and [`code-oss-logs`](../../../../../../.github/skills/code-oss-logs/SKILL.md) skills to drive Axiora Code, render the tool confirmation card, and verify the `pending_confirmation → respondToPermissionRequest → tool_result → SessionToolCallComplete` sequence in agent-host logs. Captures five screenshots + a `tool-actions.log` artifact. The `bypass-mode` and `AskUserQuestion` rounds are part of the same operator session.
 
 `verify-claude-logs.sh --phase=7` is the automated gate inside the operator script — the manual screenshots are for the PR. If `verify-claude-logs.sh --phase=7` fails, treat it as a regression in the most recently completed step and write a unit/integration test that reproduces the gap before re-running.
 

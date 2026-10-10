@@ -45,7 +45,7 @@ Match the symbol source to the build that produced the crash:
 | Build that crashed | Symbol files source |
 |--------------------|---------------------|
 | Insiders / Stable (internal Electron) | [microsoft/vscode-electron-prebuilt releases](https://github.com/microsoft/vscode-electron-prebuilt/releases) |
-| Code - OSS (OSS Electron) | [electron/electron releases](https://github.com/electron/electron/releases) |
+| Axiora Code (OSS Electron) | [electron/electron releases](https://github.com/electron/electron/releases) |
 
 `microsoft/vscode-electron-prebuilt` is a **private** repo — this is why the flow is team-members-only. A plain browser or `curl` link will 404 without auth; download the asset with an authenticated GitHub CLI instead (`gh auth status` should show you logged in):
 
@@ -59,7 +59,7 @@ gh release download v42.5.0-14525058 \
     --pattern "stable-symbols-v42.5.0-win32-x64.zip"
 ```
 
-The releases are tagged by **Electron version**, not VS Code version, so first find the Electron version the crashed VS Code build shipped. It's the `target=` in that version's `.npmrc` (e.g. `git show 1.128.0:.npmrc`), which mirrors the `electron` devDependency in `package.json`. Then pick the matching symbol zip by **quality, platform, and architecture** — e.g. a Stable Windows x64 crash on Electron 42.5.0 needs `stable-symbols-v42.5.0-win32-x64.zip` (use `insiders-symbols-…` for Insiders). Code - OSS symbols come from the public [electron/electron releases](https://github.com/electron/electron/releases) and can be downloaded without special access.
+The releases are tagged by **Electron version**, not VS Code version, so first find the Electron version the crashed VS Code build shipped. It's the `target=` in that version's `.npmrc` (e.g. `git show 1.128.0:.npmrc`), which mirrors the `electron` devDependency in `package.json`. Then pick the matching symbol zip by **quality, platform, and architecture** — e.g. a Stable Windows x64 crash on Electron 42.5.0 needs `stable-symbols-v42.5.0-win32-x64.zip` (use `insiders-symbols-…` for Insiders). Axiora Code symbols come from the public [electron/electron releases](https://github.com/electron/electron/releases) and can be downloaded without special access.
 
 > **These zips are small and selective.** A `*-symbols-*.zip` typically contains only a handful of first-party modules — `electron.exe.sym`, `libEGL.dll.sym`, `libGLESv2.dll.sym` on Windows (and the equivalents elsewhere). Many modules that show up in a backtrace — notably `runtime.node` and any OS/third-party DLL — are **not** in these zips. `runtime.node` frames often cannot be symbolicated at all from public symbols; when the crash is in a third-party module, attribute it by module name rather than expecting method names on every frame (see [Reading the result](#reading-the-result)).
 
@@ -151,7 +151,7 @@ If you don't yet have a `.dmp` file, produce one with the `--crash-reporter-dire
 3. Take the steps that lead to the crash.
 4. Look for a `*.dmp` file in that folder.
 
-You can only symbolicate crashes from a build you have matching symbols for. Crashes from Insiders/Stable need the internal Electron symbols; crashes from a local source build (Code - OSS) need the OSS Electron symbols.
+You can only symbolicate crashes from a build you have matching symbols for. Crashes from Insiders/Stable need the internal Electron symbols; crashes from a local source build (Axiora Code) need the OSS Electron symbols.
 
 ## Remote Extension Host crashes (Linux, gdb)
 

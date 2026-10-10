@@ -141,7 +141,7 @@ changes — no new env vars, no enumeration query, no proxy edits.
 ### E2E
 - **Launch skill**: `launch` (`.agents/skills/launch`). **Log skill**:
   `code-oss-logs` (`.github/skills/code-oss-logs`).
-- **Scenario:** launch Code OSS `--agents`, sign in to Copilot, open the Agents
+- **Scenario:** launch Axiora Code `--agents`, sign in to Copilot, open the Agents
   window with **Claude** selected, open the model picker → confirm the list,
   default ordering, and cost-multiplier rendering are **identical to today**
   (this phase must not change proxied behavior). `code-oss-logs` → agent host

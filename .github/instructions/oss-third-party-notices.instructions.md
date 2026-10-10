@@ -2,7 +2,7 @@
 applyTo: 'build/azure-pipelines/{oss/**,common/downloadNotice.ts,{win32,linux,darwin}/steps/product-build-*-compile.yml}'
 ---
 
-# VS Code OSS Third-Party-Notices pipeline
+# VS Axiora Code Third-Party-Notices pipeline
 
 This directory contains the thin VS Code-specific layer around Component Governance (CG) for producing OSS third-party notices. It replaces the legacy custom OSS tool with CG plus a gap-filling scanner, so release owners do not need to babysit `ThirdPartyNotices.txt` every release. The generated output should be at least as good as the legacy tool: CG provides the base NOTICE, the local scanner fills known CG gaps, and human-authored overrides cover the small set that automation cannot safely resolve.
 

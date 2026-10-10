@@ -84,7 +84,7 @@ Iterate records in order and rebuild the logical tree from context:
 ```
 
 The VS Code user-data dir depends on the build:
-- Windows: `%APPDATA%\Code` (Insiders: `Code - Insiders`; OSS/dev may use `Code - OSS` or a custom `--user-data-dir`)
+- Windows: `%APPDATA%\Code` (Insiders: `Code - Insiders`; OSS/dev may use `Axiora Code` or a custom `--user-data-dir`)
 - macOS: `~/Library/Application Support/Code`
 - Linux: `~/.config/Code`
 

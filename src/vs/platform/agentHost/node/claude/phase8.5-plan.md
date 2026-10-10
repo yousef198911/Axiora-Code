@@ -539,7 +539,7 @@ D5).
 
 Available skills in this workspace:
 
-- **launch** — Playwright/CDP-driven Code OSS automation. Used
+- **launch** — Playwright/CDP-driven Axiora Code automation. Used
   for the Phase 12 live E2E captured in [`phase12-plan.md`](./phase12-plan.md)
   (Step 14).
 - **code-oss-logs** — find and read dev-build renderer / agentHost

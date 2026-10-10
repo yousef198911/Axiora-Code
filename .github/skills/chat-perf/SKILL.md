@@ -124,7 +124,7 @@ npm run perf:chat -- --test-setting chat.experimental.incrementalRendering.enabl
 
 # Compare two builds with different settings:
 npm run perf:chat -- \
-  --baseline-build "../vscode2/.build/electron/Code - OSS.app/Contents/MacOS/Code - OSS" \
+  --baseline-build "../vscode2/.build/electron/Axiora Code.app/Contents/MacOS/Axiora Code" \
   --baseline-setting chat.experimental.incrementalRendering.enabled=true \
   --test-setting chat.experimental.incrementalRendering.enabled=false \
   --runs 3

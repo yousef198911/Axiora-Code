@@ -312,7 +312,7 @@ commercial-metadata overlay.
 - **Scenario (native):**
   1. With a real `ANTHROPIC_API_KEY` (or `claude login`) in the environment,
      set `claudeUseCopilotProxy` to `false` in `agent-host-config.json` (or via
-     an AHP client `updateRootConfig`). Use `launch` to open Code OSS
+     an AHP client `updateRootConfig`). Use `launch` to open Axiora Code
      `--agents`, select **Claude**, open the model picker.
   2. Use `code-oss-logs` to read the agent host log: confirm **no**
      `ClaudeProxyService.start` line, **no** CAPI `models()` fetch, and a
@@ -381,7 +381,7 @@ commercial-metadata overlay.
 ### E2E verification
 - **Native model source (real SDK, real creds) — PASSED.** A direct probe ran the exact native enumeration lifecycle (`startup → warm.query(neverYield) → query.supportedModels() → teardown`) against the repo's `@anthropic-ai/claude-agent-sdk` and the user's signed-in `claude` subscription. `supportedModels()` returned a populated catalogue; reading the real `~/.claude` surfaced the subscription's **`opus`** model; `listSessions` delta was **0** (no pollution). This overturned OQ1 (removed the ephemeral `CLAUDE_CONFIG_DIR`).
 - **Validation:** `runTests` claudeAgent.test.ts + claudeSdkOptions.test.ts + claudeSubagentResolver.test.ts = **166 passing**; `npm run typecheck-client` clean; `npm run valid-layers-check` clean.
-- **Agents-window UI launch (native mode) — PASSED.** Launched Code OSS
+- **Agents-window UI launch (native mode) — PASSED.** Launched Axiora Code
   `--agents` with `claudeUseCopilotProxy: false` (seeded, restored after).
   The model picker rendered the native catalogue ("Default (recommended)"
   selected — an SDK model name, not a CAPI one), and the agent host log
