@@ -479,12 +479,22 @@ export function packageCopilotExtensionStream(): Stream {
 	const productionDependencies = getProductionDependencies('extensions/copilot');
 	const dependenciesSrc = productionDependencies.map(d => path.relative(root, d)).map(d => [`${d}/**`, `!${d}/**/{test,tests}/**`]).flat();
 
-	return es.merge(
-		localExtensionsStream,
+	// The copilot esbuild step (run by localExtensionsStream) re-runs the extension's postinstall,
+	// which deletes and re-creates node_modules/@github/copilot/sdk. Reading the dependencies in
+	// parallel races with that and can drop the SDK from the package, so read them only afterwards.
+	const output = es.through();
+	localExtensionsStream.on('data', (file: unknown) => output.write(file));
+	localExtensionsStream.on('error', (err: unknown) => output.emit('error', err));
+	localExtensionsStream.on('end', () => {
 		gulp.src(dependenciesSrc, { base: '.' })
 			.pipe(util2.cleanNodeModules(path.join(root, 'build', '.moduleignore')))
 			.pipe(util2.cleanNodeModules(path.join(root, 'build', `.moduleignore.${process.platform}`)))
-	).pipe(util2.setExecutableBit(['**/*.sh']));
+			.on('data', (file: unknown) => output.write(file))
+			.on('error', (err: unknown) => output.emit('error', err))
+			.on('end', () => output.end());
+	});
+
+	return output.pipe(util2.setExecutableBit(['**/*.sh']));
 }
 
 export function packageMarketplaceExtensionsStream(forWeb: boolean): Stream {
