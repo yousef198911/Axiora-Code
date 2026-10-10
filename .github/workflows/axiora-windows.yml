@@ -19,6 +19,7 @@ jobs:
       SHOULD_BUILD_REH: "no"
       SHOULD_BUILD_REH_WEB: "no"
       MAX_OLD_SPACE_SIZE: "12288"
+      ComSpec: 'C:\Windows\system32\cmd.exe'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -34,16 +35,26 @@ jobs:
       - name: Tools
         run: |
           choco install -y jq innosetup 7zip || true
-          echo "C:\\Program Files (x86)\\Inno Setup 6" >> $GITHUB_PATH
           ST=$(ls -d "/c/Program Files (x86)/Windows Kits/10/bin/"10.*/x64 | sort -V | tail -1)
-          echo "signtool dir: $ST"; ls "$ST/signtool.exe"
-          cygpath -w "$ST" >> $GITHUB_PATH
+          ls "$ST/signtool.exe"
+          # Copy signtool dir to a path without "(x86)"/spaces; "(x86)" PATH entries broke cmd.exe
+          mkdir -p /c/axtools && cp -r "$ST" /c/axtools/signtool
+          ls /c/axtools/signtool/signtool.exe
+          echo "AXIORA_SIGNTOOL_DIR=/c/axtools/signtool" >> $GITHUB_ENV
+          echo "AXIORA_ISCC=/c/Program Files (x86)/Inno Setup 6/ISCC.exe" >> $GITHUB_ENV
+      - name: Check cmd.exe can run npm (fail fast)
+        run: |
+          cmd //c "npm -v"
+          cmd //c "where npm"
       - name: Increase pagefile
         shell: pwsh
         run: |
           Get-CimInstance Win32_PageFileUsage | Format-List
       - name: Build (compile + package + installers)
-        run: ./dev/build.sh -p
+        run: |
+          # bash-only PATH addition for signtool.exe (spawned by build scripts)
+          export PATH="$PATH:$AXIORA_SIGNTOOL_DIR"
+          ./dev/build.sh -p
       - name: Collect artifacts
         run: |
           mkdir -p dist
