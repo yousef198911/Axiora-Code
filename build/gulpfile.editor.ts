@@ -37,7 +37,9 @@ const BUNDLED_FILE_HEADER = [
 
 const extractEditorSrcTask = task.define('extract-editor-src', () => {
 	// Ensure codicon.ttf is copied from node_modules (needed when node_modules is cached and postinstall doesn't run)
-	const codiconSource = path.join(root, 'node_modules', '@vscode', 'codicons', 'dist', 'codicon.ttf');
+	// Axiora Code: prefer the Axiora UI icon font (same codepoints) when present
+	const axioraCodicon = path.join(root, 'resources', 'axiora', 'codicon.ttf');
+	const codiconSource = fs.existsSync(axioraCodicon) ? axioraCodicon : path.join(root, 'node_modules', '@vscode', 'codicons', 'dist', 'codicon.ttf');
 	const codiconDest = path.join(root, 'src', 'vs', 'base', 'browser', 'ui', 'codicons', 'codicon', 'codicon.ttf');
 	if (fs.existsSync(codiconSource)) {
 		fs.mkdirSync(path.dirname(codiconDest), { recursive: true });
