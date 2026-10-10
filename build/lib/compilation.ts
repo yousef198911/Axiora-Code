@@ -369,7 +369,9 @@ export const watchApiProposalNamesTask = task.define('watch-api-proposal-names',
 
 // Codicons
 const root = path.dirname(path.dirname(import.meta.dirname));
-const codiconSource = path.join(root, 'node_modules', '@vscode', 'codicons', 'dist', 'codicon.ttf');
+// Axiora Code: prefer the Axiora UI icon font (same codepoints) when present
+const axioraCodicon = path.join(root, 'resources', 'axiora', 'codicon.ttf');
+const codiconSource = fs.existsSync(axioraCodicon) ? axioraCodicon : path.join(root, 'node_modules', '@vscode', 'codicons', 'dist', 'codicon.ttf');
 const codiconDest = path.join(root, 'src', 'vs', 'base', 'browser', 'ui', 'codicons', 'codicon', 'codicon.ttf');
 
 function copyCodiconsImpl() {
