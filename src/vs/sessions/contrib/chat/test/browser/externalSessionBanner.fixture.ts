@@ -40,7 +40,7 @@ function renderBannerInChat({ container, disposableStore, theme }: ComponentFixt
 		additionalServices: registration => {
 			registerWorkbenchServices(registration);
 			registration.defineInstance(IProductService, new class extends mock<IProductService>() {
-				override readonly nameShort = 'Code - OSS';
+				override readonly nameShort = 'Axiora Code';
 			});
 		},
 	});
@@ -76,7 +76,7 @@ function renderDisappearanceDialog({ container, disposableStore }: ComponentFixt
 		ChatExternalSessionsMode.Last7Days,
 		new Date(now - 8 * 24 * 60 * 60 * 1000),
 		now,
-		'Code - OSS'
+		'Axiora Code'
 	);
 	if (typeof confirmation.detail !== 'string') {
 		throw new Error('Expected plain-text confirmation detail.');
