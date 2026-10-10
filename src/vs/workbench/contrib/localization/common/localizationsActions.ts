@@ -19,9 +19,17 @@ export class ConfigureDisplayLanguageAction extends Action2 {
 		super({
 			id: ConfigureDisplayLanguageAction.ID,
 			title: localize2('configureLocale', "Configure Display Language"),
-			menu: {
+			menu: [{
 				id: MenuId.CommandPalette
-			},
+			}, {
+				id: MenuId.GlobalActivity,
+				group: '2_configuration',
+				order: 6
+			}, {
+				id: MenuId.MenubarPreferencesMenu,
+				group: '2_configuration',
+				order: 6
+			}],
 			metadata: {
 				description: localize2('configureLocaleDescription', "Changes the locale of Axiora Code based on installed language packs. Common languages include French, Chinese, Spanish, Japanese, German, Korean, and more.")
 			}

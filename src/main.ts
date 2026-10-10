@@ -145,9 +145,13 @@ if (userLocale) {
 // If the locale is `qps-ploc`, the Microsoft
 // Pseudo Language Language Pack is being used.
 // In that case, use `en` as the Electron locale.
+// Axiora Code: the workbench layout is left-to-right only, so for right-to-left
+// display languages (e.g. Arabic) keep Chromium in `en` to avoid mirroring the
+// native window controls over the title bar. UI strings still come from the language pack.
 
 if (process.platform === 'win32' || process.platform === 'linux') {
-	const electronLocale = (!userLocale || userLocale === 'qps-ploc') ? 'en' : userLocale;
+	const isRtlLocale = !!userLocale && /^(ar|he|fa|ur)(-|$)/i.test(userLocale);
+	const electronLocale = (!userLocale || userLocale === 'qps-ploc' || isRtlLocale) ? 'en' : userLocale;
 	app.commandLine.appendSwitch('lang', electronLocale);
 }
 
