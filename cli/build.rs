@@ -189,7 +189,7 @@ fn apply_win32_version_resources() {
 	let name_long = product
 		.get("nameLong")
 		.and_then(|v| v.as_str())
-		.unwrap_or("Code - OSS");
+		.unwrap_or("Axiora Code");
 	let application_name = product
 		.get("applicationName")
 		.and_then(|v| v.as_str())

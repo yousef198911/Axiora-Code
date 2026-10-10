@@ -62,7 +62,7 @@ pub const APPLICATION_NAME: &str = match option_env!("VSCODE_CLI_APPLICATION_NAM
 /// Full name of the product with its version.
 pub const PRODUCT_NAME_LONG: &str = match option_env!("VSCODE_CLI_NAME_LONG") {
 	Some(n) => n,
-	None => "Code - OSS",
+	None => "Axiora Code",
 };
 
 /// Name of the application without quality information.
@@ -79,7 +79,7 @@ pub const QUALITYLESS_PRODUCT_NAME: &str = match option_env!("VSCODE_CLI_QUALITY
 /// passed `product.nameShort`).
 pub const PRODUCT_NAME_SHORT: &str = match option_env!("VSCODE_CLI_NAME_SHORT") {
 	Some(n) => n,
-	None => "Code - OSS",
+	None => "Axiora Code",
 };
 
 /// Name of the application without quality information.
