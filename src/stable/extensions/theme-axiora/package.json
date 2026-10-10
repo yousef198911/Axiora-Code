@@ -1,0 +1,5 @@
+{ "name":"theme-axiora","displayName":"Axiora Themes","description":"Axiora Dark and Axiora Light color themes","version":"1.0.0","publisher":"axiora","license":"MIT","engines":{"vscode":"*"},
+  "categories":["Themes"],
+  "contributes":{"themes":[
+    {"id":"Axiora Dark","label":"Axiora Dark","uiTheme":"vs-dark","path":"./themes/axiora-dark.json"},
+    {"id":"Axiora Light","label":"Axiora Light","uiTheme":"vs","path":"./themes/axiora-light.json"}]}}

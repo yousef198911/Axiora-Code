@@ -1,0 +1,11 @@
+{ "name":"axiora-core","displayName":"Axiora-Code Core","description":"Axiora-Code defaults, display language switch and welcome guide","version":"1.0.0","publisher":"axiora","license":"MIT",
+  "engines":{"vscode":"^1.90.0"},"main":"./extension.js","activationEvents":["onStartupFinished"],
+  "capabilities":{"virtualWorkspaces":true,"untrustedWorkspaces":{"supported":true}},
+  "contributes":{
+    "configuration":{"title":"Axiora-Code","properties":{
+      "axiora.language":{"type":"string","enum":["en","ar"],"enumItemLabels":["English","العربية (Arabic)"],"default":"en","scope":"application",
+        "markdownDescription":"Display language of the whole application / لغة واجهة التطبيق بالكامل. Changing this updates `argv.json` and asks to restart."},
+      "axiora.showWelcomeOnStartup":{"type":"boolean","default":true,"description":"Show the Axiora-Code welcome guide on first start."}}},
+    "configurationDefaults":{"workbench.colorTheme":"Axiora Dark","workbench.preferredDarkColorTheme":"Axiora Dark","workbench.preferredLightColorTheme":"Axiora Light"},
+    "commands":[{"command":"axiora.openWelcome","title":"Axiora-Code: Open Welcome Guide / دليل الترحيب"},
+                {"command":"axiora.switchLanguage","title":"Axiora-Code: Switch Display Language / تغيير لغة الواجهة"}]}}

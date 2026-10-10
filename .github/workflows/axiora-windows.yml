@@ -1,0 +1,53 @@
+name: Build Axiora-Code (Windows x64)
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 360
+    defaults:
+      run:
+        shell: bash
+    env:
+      VSCODE_ARCH: x64
+      SHOULD_BUILD_MSI: "no"
+      SHOULD_BUILD_MSI_NOUP: "no"
+      SHOULD_BUILD_REH: "no"
+      SHOULD_BUILD_REH_WEB: "no"
+      NODE_OPTIONS: --max-old-space-size=8192
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install Rust (for CLI)
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+      - name: Tools
+        run: |
+          choco install -y jq innosetup 7zip || true
+          echo "C:\\Program Files (x86)\\Inno Setup 6" >> $GITHUB_PATH
+      - name: Build (compile + package + installers)
+        run: ./dev/build.sh -p
+      - name: Collect artifacts
+        run: |
+          mkdir -p dist
+          find assets VSCode-win32-x64 build/windows -maxdepth 3 \( -name '*.exe' -o -name '*.zip' -o -name '*.msi' \) 2>/dev/null | grep -v node_modules | xargs -I{} cp {} dist/ || true
+          ls -la dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Axiora-Code-win32-x64
+          path: dist/*
+      - name: Release (on tag)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
