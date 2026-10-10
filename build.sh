@@ -17,6 +17,8 @@ if [[ "${SHOULD_BUILD}" == "yes" ]]; then
   export NODE_OPTIONS="--max-old-space-size=${MAX_OLD_SPACE_SIZE}"
   export VSCODE_PUBLISH_COUNTER=1
 
+  sed -i -E "s/--max-old-space-size=[0-9]+/--max-old-space-size=${MAX_OLD_SPACE_SIZE}/g" package.json
+  grep -o "max-old-space-size=[0-9]*" package.json | sort -u
   npm run gulp vscode-min-prepack
 
   if [[ "${OS_NAME}" == "osx" ]]; then

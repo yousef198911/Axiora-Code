@@ -18,7 +18,7 @@ jobs:
       SHOULD_BUILD_MSI_NOUP: "no"
       SHOULD_BUILD_REH: "no"
       SHOULD_BUILD_REH_WEB: "no"
-      NODE_OPTIONS: --max-old-space-size=8192
+      MAX_OLD_SPACE_SIZE: "12288"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -35,6 +35,13 @@ jobs:
         run: |
           choco install -y jq innosetup 7zip || true
           echo "C:\\Program Files (x86)\\Inno Setup 6" >> $GITHUB_PATH
+          ST=$(ls -d "/c/Program Files (x86)/Windows Kits/10/bin/"10.*/x64 | sort -V | tail -1)
+          echo "signtool dir: $ST"; ls "$ST/signtool.exe"
+          cygpath -w "$ST" >> $GITHUB_PATH
+      - name: Increase pagefile
+        shell: pwsh
+        run: |
+          Get-CimInstance Win32_PageFileUsage | Format-List
       - name: Build (compile + package + installers)
         run: ./dev/build.sh -p
       - name: Collect artifacts
