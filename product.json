@@ -161,7 +161,7 @@
 	"onboardingKeymaps": [
 		{
 			"id": "vscode",
-			"label": "VS Code",
+			"label": "Axiora Code",
 			"description": "Default keyboard mapping"
 		},
 		{

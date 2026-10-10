@@ -190,11 +190,11 @@ export class SetupTestsInvocation implements IIntentInvocation {
 		outputStream.markdown('\n\n');
 
 		if (extensionInfo) {
-			outputStream.markdown(l10n.t('I also recommend installing the {0} extension to make tests easy to run in VS Code:', extensionInfo.name));
+			outputStream.markdown(l10n.t('I also recommend installing the {0} extension to make tests easy to run in Axiora Code:', extensionInfo.name));
 			outputStream.markdown('\n\n');
 			outputStream.push(new ChatResponseExtensionsPart([extensionInfo.id]));
 		} else {
-			outputStream.markdown(l10n.t('You can also search for an extension to make tests easy to run in VS Code:'));
+			outputStream.markdown(l10n.t('You can also search for an extension to make tests easy to run in Axiora Code:'));
 			outputStream.button({
 				command: 'workbench.extensions.search',
 				title: l10n.t('Search Extensions'),

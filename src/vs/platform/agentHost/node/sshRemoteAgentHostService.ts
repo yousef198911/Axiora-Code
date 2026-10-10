@@ -2126,7 +2126,7 @@ export class SSHRemoteAgentHostMainService extends Disposable implements ISSHRem
 			return cliBin;
 		}
 
-		reportProgress(localize('sshProgressDownloadingCLI', "Installing VS Code CLI on remote..."));
+		reportProgress(localize('sshProgressDownloadingCLI', "Installing Axiora Code CLI on remote..."));
 		const url = buildCLIDownloadUrl(platform.os, platform.arch, this._quality, commit);
 
 		// Extract into a temp dir inside the install root so the final `mv`
@@ -2194,7 +2194,7 @@ export class SSHRemoteAgentHostMainService extends Disposable implements ISSHRem
 			return cliBin;
 		}
 
-		reportProgress(localize('sshProgressDownloadingCLI', "Installing VS Code CLI on remote..."));
+		reportProgress(localize('sshProgressDownloadingCLI', "Installing Axiora Code CLI on remote..."));
 		const url = buildCLIDownloadUrl(platform.os, platform.arch, this._quality);
 
 		const installCmd = [

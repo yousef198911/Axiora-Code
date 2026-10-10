@@ -96,7 +96,7 @@ suite('Markdown editor rich links', () => {
 			{
 				kind: 'pullRequest',
 				status: { kind: 'error', label: 'Authorization required' },
-				tooltip: 'Authorize GitHub repository access in VS Code to load this link. No GitHub session.',
+				tooltip: 'Authorize GitHub repository access in Axiora Code to load this link. No GitHub session.',
 				ariaLabel: 'GitHub pullRequest lookup failed: Authorization required',
 			},
 		);
