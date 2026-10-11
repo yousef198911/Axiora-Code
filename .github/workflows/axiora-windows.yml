@@ -1,0 +1,67 @@
+name: Build Axiora Code (Windows x64)
+# Manual build only. Produces a workflow artifact (portable zip + user setup); never publishes a Release.
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: windows-2022
+    timeout-minutes: 300
+    env:
+      VSCODE_ARCH: x64
+      npm_config_arch: x64
+      NODE_OPTIONS: --max-old-space-size=12288
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        shell: pwsh
+        env:
+          npm_config_foreground_scripts: "true"
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $ErrorActionPreference = "Stop"
+          node build/npm/preinstall.ts
+          if ($LASTEXITCODE -ne 0) { throw "preinstall failed" }
+          for ($i = 1; $i -le 3; $i++) {
+            npm ci
+            if ($LASTEXITCODE -eq 0) { break }
+            if ($i -eq 3) { throw "npm ci failed" }
+            Start-Sleep -Seconds 5
+          }
+      - name: Build (minified app)
+        shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          npm run gulp vscode-win32-x64-min
+          if ($LASTEXITCODE -ne 0) { throw "gulp vscode-win32-x64-min failed" }
+      - name: Inno updater + user setup
+        shell: pwsh
+        run: |
+          npm run gulp vscode-win32-x64-inno-updater
+          if ($LASTEXITCODE -ne 0) { throw "inno-updater failed" }
+          npm run gulp vscode-win32-x64-user-setup
+          if ($LASTEXITCODE -ne 0) { throw "user-setup failed" }
+      - name: Collect artifacts
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          New-Item -ItemType Directory -Force dist | Out-Null
+          $app = Resolve-Path ..\VSCode-win32-x64
+          Get-ChildItem $app | Format-Table Name, Length
+          Compress-Archive -Path "$app\*" -DestinationPath dist\AxioraCode-win32-x64.zip
+          Get-ChildItem -Recurse .build\win32-x64 -Filter *.exe | ForEach-Object { Copy-Item $_.FullName dist\ }
+          Get-ChildItem dist | ForEach-Object { "{0}  {1}  {2}" -f (Get-FileHash $_.FullName -Algorithm SHA256).Hash, $_.Length, $_.Name } | Tee-Object dist\SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Axiora-Code-win32-x64
+          path: dist/*
+          retention-days: 30

@@ -10,6 +10,7 @@ import { isCancellationError } from '../../../base/common/errors.js';
 import { Emitter, Event } from '../../../base/common/event.js';
 import { Disposable, IDisposable, MutableDisposable, toDisposable } from '../../../base/common/lifecycle.js';
 import { isMacintosh, isWindows } from '../../../base/common/platform.js';
+import { generateUuid } from '../../../base/common/uuid.js';
 import { getWindowsReleaseSync } from '../../../base/node/windowsVersion.js';
 import { IMeteredConnectionService } from '../../meteredConnection/common/meteredConnection.js';
 import { IConfigurationService } from '../../configuration/common/configuration.js';
@@ -24,10 +25,27 @@ import { ITelemetryService } from '../../telemetry/common/telemetry.js';
 import { AvailableForDownload, DisablementReason, IUpdate, IUpdateService, State, StateType, UpdateType } from '../common/update.js';
 
 const LAST_KNOWN_VERSION_STORAGE_KEY = 'abstractUpdateService/lastKnownVersion';
+const INSTALL_ID_STORAGE_KEY = 'axiora.update.installId';
+const INSTALL_ID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
 export interface IUpdateURLOptions {
 	readonly background?: boolean;
 	readonly internalOrg?: string;
+	/** Axiora: random anonymous per-install id (UUID v4, no PII) used by the update server for staged rollouts. */
+	readonly installId?: string;
+}
+
+export function isValidInstallId(value: unknown): value is string {
+	return typeof value === 'string' && INSTALL_ID_PATTERN.test(value);
+}
+
+/**
+ * Axiora: returns the base update URL. The `AXIORA_UPDATE_URL` environment variable overrides
+ * product.json `updateUrl` (used for local/staging testing of the update server).
+ */
+export function resolveUpdateBaseUrl(productUpdateUrl: string | undefined, env: { [key: string]: string | undefined } = process.env): string | undefined {
+	const override = env['AXIORA_UPDATE_URL']?.trim();
+	return (override ? override : productUpdateUrl)?.replace(/\/+$/, '');
 }
 
 export function createUpdateURL(baseUpdateUrl: string, platform: string, quality: string, commit: string, options?: IUpdateURLOptions): string {
@@ -38,6 +56,10 @@ export function createUpdateURL(baseUpdateUrl: string, platform: string, quality
 	}
 
 	url.searchParams.set('u', options?.internalOrg ?? 'none');
+
+	if (isValidInstallId(options?.installId)) {
+		url.searchParams.set('installId', options.installId);
+	}
 
 	return url.toString();
 }
@@ -203,7 +225,7 @@ export abstract class AbstractUpdateService extends Disposable implements IUpdat
 			return;
 		}
 
-		if (!this.productService.updateUrl || !this.productService.commit) {
+		if (!resolveUpdateBaseUrl(this.productService.updateUrl) || !this.productService.commit) {
 			this.setDisabledPermanently(DisablementReason.MissingConfiguration);
 			this.logService.info('update#ctor - updates are disabled as there is no update URL');
 			return;
@@ -374,8 +396,33 @@ export abstract class AbstractUpdateService extends Disposable implements IUpdat
 		this.scheduleCheckForUpdates(0, updateMode === 'default');
 	}
 
+	private _installId: string | undefined;
+
+	/**
+	 * Axiora: anonymous install id for staged rollouts. Created randomly on first use and kept in
+	 * application storage. It is not derived from hardware, user name or network data.
+	 */
+	protected getInstallId(): string | undefined {
+		if (this._installId) {
+			return this._installId;
+		}
+		try {
+			const stored = this.applicationStorageMainService.get(INSTALL_ID_STORAGE_KEY, StorageScope.APPLICATION);
+			if (isValidInstallId(stored)) {
+				this._installId = stored;
+			} else {
+				this._installId = generateUuid();
+				this.applicationStorageMainService.store(INSTALL_ID_STORAGE_KEY, this._installId, StorageScope.APPLICATION, StorageTarget.MACHINE);
+			}
+		} catch (error) {
+			this.logService.warn('update#getInstallId - storage unavailable', error);
+		}
+		return this._installId;
+	}
+
 	private async trackVersionChange(): Promise<void> {
 		await this.applicationStorageMainService.whenReady;
+		this.getInstallId();
 
 		interface ILastKnownVersion {
 			readonly version: string;
@@ -657,7 +704,7 @@ export abstract class AbstractUpdateService extends Disposable implements IUpdat
 			return undefined;
 		}
 
-		const url = this.buildUpdateFeedUrl(this.quality, commit ?? this.productService.commit!, { internalOrg: this.getInternalOrg() });
+		const url = this.buildUpdateFeedUrl(this.quality, commit ?? this.productService.commit!, { internalOrg: this.getInternalOrg(), installId: this.getInstallId() });
 
 		if (!url) {
 			return undefined;
