@@ -4,7 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import * as assert from 'assert';
-import { ExtensionHost, GitHubTarget, IFlowQuery, getFlows } from '../flows';
+import { DEVICE_CODE_DEFAULT_EXPIRES_IN_SECONDS, ExtensionHost, GitHubTarget, IFlowQuery, getFlows, nextDeviceCodeInterval } from '../flows';
 import { Config } from '../config';
 import * as vscode from 'vscode';
 
@@ -257,5 +257,18 @@ suite('getFlows', () => {
 			assert.strictEqual(flows.length, 1, `Expected 1 flow for WebWorker configuration, got ${flows.length}: ${flows.map(f => f.label).join(',')}`);
 			assert.strictEqual(flows[0].label, Flows.UrlHandlerFlow);
 		});
+	});
+});
+
+suite('device code polling helpers', () => {
+	test('slow_down adds 5 seconds when GitHub suggests nothing larger', () => {
+		assert.strictEqual(nextDeviceCodeInterval(5), 10);
+		assert.strictEqual(nextDeviceCodeInterval(5, 7), 10);
+	});
+	test('slow_down uses GitHub suggested interval when larger', () => {
+		assert.strictEqual(nextDeviceCodeInterval(5, 15), 15);
+	});
+	test('default expiry is 15 minutes', () => {
+		assert.strictEqual(DEVICE_CODE_DEFAULT_EXPIRES_IN_SECONDS, 900);
 	});
 });
