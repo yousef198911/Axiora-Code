@@ -179,7 +179,7 @@ export class OnboardingVariationA extends Disposable implements IOnboardingServi
 		this.overlay = append(container, $('.onboarding-a-overlay'));
 		this.overlay.setAttribute('role', 'dialog');
 		this.overlay.setAttribute('aria-modal', 'true');
-		this.overlay.setAttribute('aria-label', localize('onboarding.a.aria', "Welcome to Visual Studio Code"));
+		this.overlay.setAttribute('aria-label', localize('onboarding.a.aria', "Welcome to {0}", product.nameLong));
 
 		// Card
 		this.card = append(this.overlay, $('.onboarding-a-card'));
@@ -485,7 +485,7 @@ export class OnboardingVariationA extends Disposable implements IOnboardingServi
 		title.textContent = localize('onboarding.signIn.heroTitle', "Welcome to {0}", product.nameLong);
 
 		const subtitle = append(contentMain, $('p.onboarding-a-signin-subtitle'));
-		subtitle.textContent = localize('onboarding.signIn.heroSubtitle', "Sign in to use GitHub Copilot.");
+		subtitle.textContent = localize('onboarding.signIn.chooseAISubtitle', "Choose your AI: sign in to GitHub Copilot, or use your own API key or a local model.");
 
 		const actions = append(contentMain, $('.onboarding-a-signin-actions'));
 
@@ -506,6 +506,7 @@ export class OnboardingVariationA extends Disposable implements IOnboardingServi
 					break;
 				default:
 					this._renderDefaultSignInActions(actions);
+					this._renderAlternativeAIActions(contentMain);
 					break;
 			}
 		}
@@ -527,6 +528,23 @@ export class OnboardingVariationA extends Disposable implements IOnboardingServi
 		copilotDisclaimer.append(localize('onboarding.signIn.disclaimer.settingsPrefix', "You can change these "));
 		this._createInlineLink(copilotDisclaimer, localize('onboarding.signIn.disclaimer.settings', "settings"), this.defaultAccountService.resolveGitHubUrl(GitHubPaths.copilotSettings));
 		copilotDisclaimer.append(localize('onboarding.signIn.disclaimer.suffix', " anytime."));
+	}
+
+	/** Axiora Code: offer AI without a GitHub account (own API key or local model). */
+	private _renderAlternativeAIActions(container: HTMLElement): void {
+		const row = append(container, $('.onboarding-a-signin-actions.onboarding-a-choose-ai-actions'));
+		const addButton = (label: string, kind: 'byok' | 'local') => {
+			const button = this._registerStepFocusable(append(row, $<HTMLButtonElement>('button.onboarding-a-btn.onboarding-a-btn-secondary')));
+			button.type = 'button';
+			button.textContent = label;
+			this.stepDisposables.add(addDisposableListener(button, EventType.CLICK, () => {
+				this._logAction('signIn', undefined, kind);
+				this._dismiss('skip');
+				void this.commandService.executeCommand('workbench.action.chat.chooseYourAI', kind);
+			}));
+		};
+		addButton(localize('onboarding.chooseAI.byok', "Use My Own API Key"), 'byok');
+		addButton(localize('onboarding.chooseAI.local', "Use a Local Model (Ollama)"), 'local');
 	}
 
 	private _renderDefaultSignInActions(actions: HTMLElement): void {

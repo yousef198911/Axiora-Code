@@ -860,6 +860,10 @@ export class CopilotLanguageModelWrapper extends Disposable {
 				throw err;
 			}
 
+			if (isContextWindowExceededReason(result.reason)) {
+				throw new Error(vscode.l10n.t('The request is larger than the context window of model "{0}". Use a model with a larger context window, or for local models increase it (for example start Ollama with OLLAMA_CONTEXT_LENGTH=32768). Details: {1}', _endpoint.model, result.reason));
+			}
+
 			throw new Error(result.reason);
 		}
 
@@ -1059,4 +1063,12 @@ class LanguageModelOptions {
 		}
 		return result;
 	}
+}
+
+/**
+ * Axiora Code: detects provider errors (OpenAI-compatible servers such as Ollama, llama.cpp, vLLM) that
+ * mean the prompt does not fit into the model's context window.
+ */
+export function isContextWindowExceededReason(reason: string | undefined): boolean {
+	return !!reason && /exceed_context_size_error|context[ _-]?length[ _-]?exceeded|exceeds the available context size|maximum context length|context window/i.test(reason);
 }
