@@ -1,0 +1,8 @@
+{"report":"MASTER-PROJECT-EXECUTION-REPORT","date":"2026-10-11","base":"fd3e4150","checkpointBranch":"axiora/exec-checkpoint-2026-10-11","workBranch":"axiora/exec-work-2026-10-11","pushed":false,
+"verdicts":{"freshDependencyInstall":"PASS (Linux)","compile":"PASS (Linux)","developmentStartup":"PASS (Linux)","realEditorUI":"VERIFIED (Linux)","windowsFreshCloneStartup":"NOT VERIFIED","productionBuildLinux":"PASS (prior, eb3f78c5)","windowsInstaller":"NOT VERIFIED","windowsPortable":"NOT VERIFIED"},
+"tests":{"tsc":"PASS","eslintChanged":"PASS","hygiene":"PASS","terminalInitialHint":"5 pass","chatBrowser":{"pass":4547,"pending":15,"fail":10,"classification":"environmental/pre-existing, untouched upstream files"},"copilotConversationVitest":"20 pass"},
+"ai":{"defaultsHints":"TESTED","chooseYourAI":"VERIFIED (EN runtime; now primary in onboarding)","ollamaContextMessage":"IMPLEMENTED (server error signature confirmed; UI not observed)","continue":"NOT STARTED (user decision)"},
+"changes":["onboardingVariationA.ts: neutral AI choices first, BYOK primary, GitHub de-emphasized"],
+"implementationCompletion":{"percent":71.4,"label":"PROVISIONAL","confidence":"MEDIUM"},
+"releaseReadiness":{"percent":59.75,"confidence":"MEDIUM"},
+"blockers":["P1 Windows never built/tested","P1 revoke exposed GitHub token","P2 licenseUrl/reportIssueUrl upstream (private repo)","P2 Arabic not verified in dev mode"]}
