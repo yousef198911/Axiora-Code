@@ -38,7 +38,14 @@ On first use (sign-in command, opening the model picker, sending a Copilot reque
 5. extracts it unmodified (no links, no paths outside the target) into a temp dir and atomically renames it to
    `<globalStorage>/runtime/copilot-<platform>-<version>/` with a `.verified` marker.
 
-Downloads use the extension host's `fetch`, which follows the editor proxy settings (`http.proxy`).
+Fallback: only if npm is unreachable or returns an HTTP error, the standalone asset
+`copilot-<platform>.tar.gz` (`.zip` on Windows) is downloaded from the official GitHub Release
+`github/copilot-cli` `v<version>`. It must match both the release's `SHA256SUMS.txt` and the SHA-256 pinned in
+`src/runtime.ts` (`PINNED_RELEASE_SHA256`); redirects are only accepted to GitHub's release asset hosts.
+An integrity failure from npm never falls back.
+
+Downloads use the extension host's global `fetch`, which the editor patches to follow `http.proxy` / system
+proxy and system certificates (`http.fetchAdditionalSupport`, on by default). Not yet verified behind a real proxy.
 Offline or blocked downloads show a clear error. **Remove Copilot Runtime** deletes the cache.
 `axiora.copilot.runtimePath` can point to a runtime the user installed themselves.
 Declining or a failed download only makes Copilot unavailable; Chat, BYOK and Ollama are unaffected.

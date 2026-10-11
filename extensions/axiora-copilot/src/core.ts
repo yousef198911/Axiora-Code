@@ -32,6 +32,7 @@ export interface ModelInfoLike {
 	readonly maxOutputTokens: number;
 	readonly detail?: string;
 	readonly tooltip?: string;
+	readonly isUserSelectable?: boolean;
 	readonly capabilities: { readonly imageInput: boolean; readonly toolCalling: boolean };
 }
 
@@ -56,8 +57,12 @@ export function toModelInfos(models: readonly SdkModelLike[]): ModelInfoLike[] {
 			maxOutputTokens,
 			detail: typeof multiplier === 'number' ? `${multiplier}x` : undefined,
 			tooltip: `GitHub Copilot · ${m.name || m.id}`,
-			// The SDK runs its own agent loop; editor-provided tools are not forwarded.
-			capabilities: { imageInput: false, toolCalling: false }
+			// The SDK runs its own agent loop; editor-provided tools are not forwarded and the
+			// provider only ever streams text. `toolCalling: true` is still declared because the
+			// chat model picker only lists agent-mode-capable models in the default (Agent) mode;
+			// with `false` the Copilot models were filtered out of the picker entirely.
+			isUserSelectable: true,
+			capabilities: { imageInput: false, toolCalling: true }
 		});
 	}
 	return result;

@@ -18,7 +18,8 @@ suite('axiora-copilot core', () => {
 		assert.strictEqual(infos[0].maxOutputTokens, 8000);
 		assert.strictEqual(infos[0].detail, '0x');
 		assert.strictEqual(infos[1].name, 'bare');
-		assert.strictEqual(infos[1].capabilities.toolCalling, false);
+		assert.strictEqual(infos[1].capabilities.toolCalling, true);
+		assert.strictEqual(infos[1].isUserSelectable, true);
 	});
 
 	test('buildPrompt single turn', () => {
