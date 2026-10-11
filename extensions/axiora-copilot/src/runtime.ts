@@ -4,7 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 // On-demand download of the official GitHub Copilot CLI runtime (no `vscode` import, unit testable).
-// The runtime is NOT shipped with Axiora Code. It is fetched, after user consent, directly from the
+// The runtime is NOT shipped with Axiora Code. It is fetched automatically in the background on first use, directly from the
 // official npm registry package published by GitHub (@github/copilot-<platform>), verified against the
 // registry's sha512 `dist.integrity`, extracted unmodified and cached per platform + pinned version.
 
@@ -108,7 +108,7 @@ export function packageName(plat: string): string {
 	return `@github/copilot-${plat}`;
 }
 
-/** Approximate download size in MB shown in the consent prompt. */
+/** Approximate download size in MB (documentation / logs). */
 export function approxDownloadMb(plat: string): number {
 	return plat.startsWith('win32') ? 100 : 115;
 }

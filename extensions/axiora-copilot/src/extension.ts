@@ -6,7 +6,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
-import { approxDownloadMb, CLI_LICENSE_URL, downloadRuntime, findVerifiedRuntime, platformId, removeRuntimes, RuntimeError } from './runtime';
+import { downloadRuntime, findVerifiedRuntime, platformId, removeRuntimes, RuntimeError } from './runtime';
 import { buildPrompt, ChatRole, classifyError, ErrorKind, estimateTokens, isAllowedToken, ModelInfoLike, PlainMessage, redactSecrets, SIGN_IN_SCOPES, SILENT_SCOPE_SETS, toModelInfos } from './core';
 
 // The Copilot SDK is loaded lazily so that a missing platform runtime never breaks activation.
@@ -19,7 +19,6 @@ const CONFIG = 'axiora.copilot';
 let log: vscode.LogOutputChannel;
 let extContext: vscode.ExtensionContext;
 /** Set when the user declined the runtime download in this window; avoids repeated prompts. */
-let declinedThisSession = false;
 
 function runtimeCacheRoot(): string {
 	return path.join(extContext.globalStorageUri.fsPath, 'runtime');
@@ -37,11 +36,19 @@ function pinnedRuntimeVersion(): string {
 
 class RuntimeUnavailable extends Error { }
 
+/** In-flight background download (shared by all callers) and the time of the last failure. */
+let downloading: Promise<string> | undefined;
+let lastFailure = 0;
+const RETRY_AFTER_MS = 10 * 60 * 1000;
+
 /**
  * Returns the path of the Copilot CLI runtime: the `axiora.copilot.runtimePath` override, or a verified
- * cached download. If missing and `interactive`, asks for consent and downloads it from the official source.
+ * cached download. If missing (and Copilot is enabled), the official runtime is downloaded automatically
+ * in the background from GitHub's npm package, verified and installed atomically. There is no dialog:
+ * progress is shown subtly in the status bar and failures are logged. After a failure, automatic retries
+ * wait {@link RETRY_AFTER_MS}; `force` (the "Download Copilot Runtime" command) retries immediately.
  */
-async function ensureRuntime(interactive: boolean): Promise<string> {
+async function ensureRuntime(force: boolean): Promise<string> {
 	const override = vscode.workspace.getConfiguration(CONFIG).get<string>('runtimePath', '').trim();
 	if (override) {
 		if (!fs.existsSync(override)) {
@@ -58,69 +65,48 @@ async function ensureRuntime(interactive: boolean): Promise<string> {
 	if (cached) {
 		return cached;
 	}
-	if (!interactive || declinedThisSession) {
+	if (!copilotEnabled()) {
+		throw new RuntimeUnavailable(message('disabled'));
+	}
+	if (!downloading && !force && lastFailure && Date.now() - lastFailure < RETRY_AFTER_MS) {
 		throw new RuntimeUnavailable(message('runtimeMissing'));
 	}
-	const mb = approxDownloadMb(plat);
-	const download = vscode.l10n.t('Download');
-	const license = vscode.l10n.t('View License');
-	let choice: string | undefined;
-	do {
-		choice = await vscode.window.showInformationMessage(
-			vscode.l10n.t('GitHub Copilot needs its official runtime'),
-			{
-				modal: true,
-				detail: vscode.l10n.t('Axiora Code will download the GitHub Copilot CLI runtime {0} (about {1} MB) directly from GitHub\'s official npm package @github/copilot-{2} (registry.npmjs.org) and verify its checksum. It is provided by GitHub under the GitHub Copilot CLI License ({3}), not by Axiora Code. Chat, your own API keys and Ollama work without it.', version, mb, plat, CLI_LICENSE_URL)
-					+ '\n\n' + 'يحتاج GitHub Copilot إلى تنزيل محرّكه الرسمي (حوالي ' + mb + ' ميغابايت) مباشرة من حزمة GitHub الرسمية على npm، مع التحقق من سلامته. يوفّره GitHub بموجب ترخيصه الخاص، وليس Axiora Code. الدردشة ومفاتيحك الخاصة وOllama تعمل بدونه.'
-			},
-			download, license);
-		if (choice === license) {
-			void vscode.env.openExternal(vscode.Uri.parse(CLI_LICENSE_URL));
-		}
-	} while (choice === license);
-	if (choice !== download) {
-		declinedThisSession = true;
-		log.info('User declined the Copilot runtime download.');
-		throw new RuntimeUnavailable(vscode.l10n.t('GitHub Copilot is unavailable because its runtime was not downloaded. Run "Download Copilot Runtime" to install it later.'));
-	}
-	return vscode.window.withProgress({
-		location: vscode.ProgressLocation.Notification,
-		title: vscode.l10n.t('Downloading GitHub Copilot runtime from GitHub (npm) / جارٍ تنزيل محرّك Copilot'),
-		cancellable: true,
-	}, async (progress, token) => {
-		const ac = new AbortController();
-		const sub = token.onCancellationRequested(() => ac.abort());
-		let lastPct = 0;
+	downloading ??= backgroundDownload(plat, version).finally(() => { downloading = undefined; });
+	return downloading;
+}
+
+function backgroundDownload(plat: string, version: string): Promise<string> {
+	log.info(`Downloading the official GitHub Copilot runtime ${version} (${plat}) from GitHub's npm package in the background.`);
+	return Promise.resolve(vscode.window.withProgress({
+		location: vscode.ProgressLocation.Window,
+		title: vscode.l10n.t('Preparing GitHub Copilot / تجهيز Copilot'),
+	}, async progress => {
+		let lastPct = -1;
 		try {
 			const exe = await downloadRuntime({
-				cacheRoot: runtimeCacheRoot(), plat, version, signal: ac.signal,
+				cacheRoot: runtimeCacheRoot(), plat, version,
 				onProgress: (received, total) => {
-					if (total) {
-						const pct = Math.floor(received * 100 / total);
-						if (pct > lastPct) {
-							progress.report({ increment: pct - lastPct, message: `${Math.round(received / 1048576)} / ${Math.round(total / 1048576)} MB` });
-							lastPct = pct;
-						}
-					} else {
-						progress.report({ message: `${Math.round(received / 1048576)} MB` });
+					const pct = total ? Math.floor(received * 100 / total) : -1;
+					if (pct !== lastPct) {
+						lastPct = pct;
+						progress.report({ message: total ? `${pct}%` : `${Math.round(received / 1048576)} MB` });
 					}
 				},
 			});
-			log.info(`Copilot runtime ${version} (${plat}) downloaded and verified (sha512).`);
+			lastFailure = 0;
+			log.info(`Copilot runtime ${version} (${plat}) downloaded and verified.`);
 			return exe;
 		} catch (e) {
+			lastFailure = Date.now();
 			const kind = e instanceof RuntimeError ? e.kind : 'unknown';
 			log.error(`Runtime download failed (${kind}): ${redactSecrets(String((e as Error)?.message ?? e))}`);
-			const text = kind === 'offline' ? vscode.l10n.t('Could not download the Copilot runtime: no connection to registry.npmjs.org. Check your internet connection or proxy (http.proxy) and try again.')
-				: kind === 'cancelled' ? vscode.l10n.t('Copilot runtime download cancelled.')
-					: kind === 'integrity' ? vscode.l10n.t('The downloaded Copilot runtime failed the integrity check and was discarded.')
-						: vscode.l10n.t('Could not download the Copilot runtime: {0}', String((e as Error)?.message ?? e));
-			void vscode.window.showErrorMessage(text);
-			throw new RuntimeUnavailable(text);
-		} finally {
-			sub.dispose();
+			throw new RuntimeUnavailable(kind === 'offline'
+				? vscode.l10n.t('GitHub Copilot is unavailable: its runtime could not be downloaded (no connection). It will be retried later.')
+				: kind === 'integrity'
+					? vscode.l10n.t('GitHub Copilot is unavailable: the downloaded runtime failed the integrity check and was discarded.')
+					: vscode.l10n.t('GitHub Copilot is unavailable: its runtime could not be downloaded ({0}).', kind));
 		}
-	});
+	}));
 }
 
 function message(kind: ErrorKind | 'tokenRejected' | 'disabled'): string {
@@ -419,7 +405,6 @@ export function activate(context: vscode.ExtensionContext): void {
 			}
 			const s = await getGitHubSession(true);
 			if (s) {
-				declinedThisSession = false;
 				try {
 					await ensureRuntime(true);
 				} catch {
@@ -435,13 +420,12 @@ export function activate(context: vscode.ExtensionContext): void {
 				void vscode.window.showWarningMessage(message('disabled'));
 				return;
 			}
-			declinedThisSession = false;
 			try {
 				await ensureRuntime(true);
 				provider.refresh();
 				void vscode.window.showInformationMessage(vscode.l10n.t('The GitHub Copilot runtime is installed and verified.'));
 			} catch (e) {
-				log.info(String((e as Error)?.message ?? e));
+				void vscode.window.showWarningMessage(String((e as Error)?.message ?? e));
 			}
 		}),
 		vscode.commands.registerCommand('axiora.copilot.removeRuntime', async () => {

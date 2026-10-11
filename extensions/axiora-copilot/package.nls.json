@@ -14,5 +14,5 @@
   "config.enabled": "Enable GitHub Copilot (Copilot SDK) in Axiora Code. When off, Copilot models are removed from the Chat model picker and the Copilot runtime is not started. Chat, your own API keys (BYOK) and Ollama keep working.",
   "command.downloadRuntime": "Download Copilot Runtime (from GitHub) / تنزيل محرّك Copilot",
   "command.removeRuntime": "Remove Copilot Runtime / حذف محرّك Copilot",
-  "config.runtimePath": "Optional path to a GitHub Copilot CLI executable you installed yourself. When empty, the official runtime is downloaded from GitHub (npm package @github/copilot-<platform>) on first use, after your consent, and cached in the extension's storage."
+  "config.runtimePath": "Optional path to a GitHub Copilot CLI executable you installed yourself. When empty, the official runtime is downloaded from GitHub (npm package @github/copilot-<platform>) automatically in the background on first use (only while Copilot is enabled), verified and cached in the extension's storage."
 }

@@ -103,9 +103,9 @@ suite('axiora-copilot runtime downloader', () => {
 		await assert.rejects(downloadRuntime({ cacheRoot: root, plat: 'linux-x64', version: '1.2.3', fetchImpl: aborting, signal: ac.signal }), (e: RuntimeError) => e.kind === 'cancelled');
 	});
 
-	test('consent declined: no network call, no files', () => {
-		// The extension only calls downloadRuntime after an explicit "Download" choice; without it the
-		// cache stays empty and the runtime is reported missing.
+	test('nothing downloaded: no files, runtime reported missing', () => {
+		// Until the background download succeeds (or when axiora.copilot.enabled is false and nothing is
+		// downloaded) the cache stays empty and the runtime is reported missing.
 		assert.strictEqual(findVerifiedRuntime(root, 'linux-x64', '1.2.3'), undefined);
 		assert.throws(() => findVerifiedRuntime(root, 'linux-x64', '../1'));
 	});
