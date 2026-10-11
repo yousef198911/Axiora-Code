@@ -123,9 +123,18 @@ async function fetchWithFallbacks(availableFetchers: readonly Fetcher[], url: st
 	return { response: await availableFetchers[0].fetch(url, options) };
 }
 
+const SENSITIVE_URL_PARAMS = /([?&](?:device_code|code|code_verifier|client_secret|access_token|refresh_token)=)[^&#]*/gi;
+
+/**
+ * Replaces values of sensitive query parameters (e.g. device_code) so they are never written to logs.
+ */
+export function redactSensitiveUrlParams(url: string): string {
+	return url.replace(SENSITIVE_URL_PARAMS, '$1<redacted>');
+}
+
 async function tryFetch(fetcher: Fetcher, url: string, options: FetchOptions, logService: Log): Promise<{ ok: boolean; response: FetchResponse } | { ok: false; err: any }> {
 	try {
-		logService.debug(`FetcherService: trying fetcher ${fetcher.name} for ${url}`);
+		logService.debug(`FetcherService: trying fetcher ${fetcher.name} for ${redactSensitiveUrlParams(url)}`);
 		const response = await fetcher.fetch(url, options);
 		if (!response.ok) {
 			logService.info(`FetcherService: ${fetcher.name} failed with status: ${response.status} ${response.statusText}`);

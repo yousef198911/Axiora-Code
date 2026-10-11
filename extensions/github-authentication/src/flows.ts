@@ -20,6 +20,7 @@ interface IGitHubDeviceCodeResponse {
 	user_code: string;
 	verification_uri: string;
 	interval: number;
+	expires_in?: number;
 }
 
 interface IFlowOptions {
@@ -384,6 +385,21 @@ class LocalServerFlow implements IFlow {
 	}
 }
 
+export const DEVICE_CODE_DEFAULT_EXPIRES_IN_SECONDS = 900;
+
+/** Interval to use after a `slow_down` response: GitHub's value if larger, otherwise +5s. */
+export function nextDeviceCodeInterval(current: number, suggested?: number): number {
+	const bumped = current + 5;
+	return typeof suggested === 'number' && suggested > bumped ? suggested : bumped;
+}
+
+function waitOrCancel(ms: number, token: { isCancellationRequested: boolean; onCancellationRequested: (listener: () => void) => { dispose(): void } }): Promise<void> {
+	return new Promise(resolve => {
+		const timer = setTimeout(() => { listener.dispose(); resolve(); }, ms);
+		const listener = token.onCancellationRequested(() => { clearTimeout(timer); listener.dispose(); resolve(); });
+	});
+}
+
 class DeviceCodeFlow implements IFlow {
 	label = l10n.t('device code');
 	options: IFlowOptions = {
@@ -475,10 +491,13 @@ class DeviceCodeFlow implements IFlow {
 				query: `client_id=${Config.gitHubClientId}&device_code=${json.device_code}&grant_type=urn:ietf:params:oauth:grant-type:device_code`
 			});
 
-			// Try for 2 minutes
-			const attempts = 120 / json.interval;
-			for (let i = 0; i < attempts; i++) {
-				await new Promise(resolve => setTimeout(resolve, json.interval * 1000));
+			// Poll until the device code expires (GitHub's expires_in, fallback 15 minutes),
+			// respecting the interval and slow_down responses.
+			let interval = Math.max(1, json.interval || 5);
+			const expiresInSeconds = json.expires_in && json.expires_in > 0 ? json.expires_in : DEVICE_CODE_DEFAULT_EXPIRES_IN_SECONDS;
+			const deadline = Date.now() + expiresInSeconds * 1000;
+			while (Date.now() + interval * 1000 <= deadline) {
+				await waitOrCancel(interval * 1000, token);
 				if (token.isCancellationRequested) {
 					throw new Error(USER_CANCELLATION_ERROR);
 				}
@@ -504,6 +523,12 @@ class DeviceCodeFlow implements IFlow {
 				const accessTokenJson = await accessTokenResult.json();
 
 				if (accessTokenJson.error === 'authorization_pending') {
+					continue;
+				}
+
+				if (accessTokenJson.error === 'slow_down') {
+					interval = nextDeviceCodeInterval(interval, accessTokenJson.interval);
+					logger.info(`Device code polling asked to slow down; interval is now ${interval}s`);
 					continue;
 				}
 
