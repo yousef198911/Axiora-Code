@@ -4,7 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import * as vscode from 'vscode';
-import { buildPrompt, ChatRole, classifyError, ErrorKind, estimateTokens, ModelInfoLike, PlainMessage, redactSecrets, SIGN_IN_SCOPES, SILENT_SCOPE_SETS, toModelInfos } from './core';
+import { buildPrompt, ChatRole, classifyError, ErrorKind, estimateTokens, isAllowedToken, ModelInfoLike, PlainMessage, redactSecrets, SIGN_IN_SCOPES, SILENT_SCOPE_SETS, toModelInfos } from './core';
 
 // The Copilot SDK is loaded lazily so that a missing platform runtime never breaks activation.
 type Sdk = typeof import('@github/copilot-sdk');
@@ -15,13 +15,15 @@ const CONFIG = 'axiora.copilot';
 
 let log: vscode.LogOutputChannel;
 
-function message(kind: ErrorKind): string {
+function message(kind: ErrorKind | 'tokenRejected' | 'disabled'): string {
 	switch (kind) {
 		case 'signInRequired': return vscode.l10n.t('Sign in to GitHub to use Copilot in Axiora Code. Run "Sign in to GitHub for Copilot" from the Command Palette.');
 		case 'noSubscription': return vscode.l10n.t('Your GitHub account does not have access to GitHub Copilot. Enable Copilot Free or a paid plan at github.com/settings/copilot, then try again.');
 		case 'rateLimited': return vscode.l10n.t('GitHub Copilot usage limit reached. Wait a while or check your plan, then try again.');
 		case 'network': return vscode.l10n.t('Could not reach GitHub Copilot. Check your internet connection and try again.');
+		case 'tokenRejected': return vscode.l10n.t('This GitHub sign-in uses a token type that Copilot in Axiora Code does not accept. Sign out of GitHub and sign in again with Axiora Code.');
 		case 'runtimeMissing': return vscode.l10n.t('The Copilot runtime is not available for this platform in this build of Axiora Code.');
+		case 'disabled': return vscode.l10n.t('GitHub Copilot is turned off in Axiora Code settings (axiora.copilot.enabled).');
 		default: return vscode.l10n.t('GitHub Copilot request failed.');
 	}
 }
@@ -81,6 +83,15 @@ class CopilotSdkHost implements vscode.Disposable {
 	}
 }
 
+/** Returns the GitHub access token of the session if it is an accepted type; never logs the token. */
+function acceptedToken(session: vscode.AuthenticationSession): string {
+	if (!isAllowedToken(session.accessToken)) {
+		log.warn('GitHub session token type is not accepted for Copilot (expected gho_/ghu_/github_pat_).');
+		throw new Error(message('tokenRejected'));
+	}
+	return session.accessToken;
+}
+
 async function getGitHubSession(createIfNone: boolean): Promise<vscode.AuthenticationSession | undefined> {
 	for (const scopes of SILENT_SCOPE_SETS) {
 		try {
@@ -96,8 +107,12 @@ async function getGitHubSession(createIfNone: boolean): Promise<vscode.Authentic
 	return undefined;
 }
 
+function copilotEnabled(): boolean {
+	return vscode.workspace.getConfiguration(CONFIG).get<boolean>('enabled', true);
+}
+
 function engineEnabled(): boolean {
-	return vscode.workspace.getConfiguration(CONFIG).get<string>('engine', 'sdk') === 'sdk';
+	return copilotEnabled() && vscode.workspace.getConfiguration(CONFIG).get<string>('engine', 'sdk') === 'sdk';
 }
 
 function toPlain(messages: readonly vscode.LanguageModelChatRequestMessage[]): PlainMessage[] {
@@ -143,7 +158,7 @@ class CopilotSdkProvider implements vscode.LanguageModelChatProvider<vscode.Lang
 			return [];
 		}
 		try {
-			const client = await this.host.getClient(session.accessToken);
+			const client = await this.host.getClient(acceptedToken(session));
 			const models = await client.listModels();
 			this.cache = toModelInfos(models);
 			log.info(`Copilot SDK models: ${this.cache.map(m => m.id).join(', ')}`);
@@ -159,6 +174,9 @@ class CopilotSdkProvider implements vscode.LanguageModelChatProvider<vscode.Lang
 	}
 
 	async provideLanguageModelChatResponse(model: vscode.LanguageModelChatInformation, messages: readonly vscode.LanguageModelChatRequestMessage[], _options: vscode.ProvideLanguageModelChatResponseOptions, progress: vscode.Progress<vscode.LanguageModelResponsePart>, token: vscode.CancellationToken): Promise<void> {
+		if (!engineEnabled()) {
+			throw new Error(message('disabled'));
+		}
 		const session = await getGitHubSession(true);
 		if (!session) {
 			throw new Error(message('signInRequired'));
@@ -167,7 +185,7 @@ class CopilotSdkProvider implements vscode.LanguageModelChatProvider<vscode.Lang
 		const allowTools = vscode.workspace.getConfiguration(CONFIG).get<boolean>('allowAgentTools', false);
 		let sdkSession: import('@github/copilot-sdk').CopilotSession | undefined;
 		try {
-			const client = await this.host.getClient(session.accessToken);
+			const client = await this.host.getClient(acceptedToken(session));
 			sdkSession = await client.createSession({
 				clientName: 'Axiora Code',
 				model: model.id,
@@ -243,7 +261,30 @@ export function activate(context: vscode.ExtensionContext): void {
 	log = vscode.window.createOutputChannel('GitHub Copilot (Axiora)', { log: true });
 	const host = new CopilotSdkHost();
 	const provider = new CopilotSdkProvider(host);
-	context.subscriptions.push(log, host, vscode.lm.registerLanguageModelChatProvider(VENDOR, provider));
+	context.subscriptions.push(log, host);
+
+	// The provider is only registered while `axiora.copilot.enabled` is true. When it is turned off
+	// the provider is unregistered and the Copilot runtime process is stopped. Nothing else in the
+	// editor (Chat view, BYOK providers, Ollama) depends on this extension.
+	let registration: vscode.Disposable | undefined;
+	const applyEnabled = () => {
+		if (copilotEnabled()) {
+			if (!registration) {
+				registration = vscode.lm.registerLanguageModelChatProvider(VENDOR, provider);
+				log.info('Axiora Copilot SDK provider registered.');
+			}
+			provider.refresh();
+		} else {
+			if (registration) {
+				registration.dispose();
+				registration = undefined;
+				log.info('Axiora Copilot SDK provider unregistered (axiora.copilot.enabled = false).');
+			}
+			void host.stop();
+		}
+	};
+	context.subscriptions.push({ dispose: () => registration?.dispose() });
+	applyEnabled();
 
 	context.subscriptions.push(
 		vscode.authentication.onDidChangeSessions(e => {
@@ -253,11 +294,20 @@ export function activate(context: vscode.ExtensionContext): void {
 			}
 		}),
 		vscode.workspace.onDidChangeConfiguration(e => {
-			if (e.affectsConfiguration(`${CONFIG}.engine`)) {
+			if (e.affectsConfiguration(`${CONFIG}.enabled`)) {
+				applyEnabled();
+			} else if (e.affectsConfiguration(`${CONFIG}.engine`)) {
+				if (!engineEnabled()) {
+					void host.stop();
+				}
 				provider.refresh();
 			}
 		}),
 		vscode.commands.registerCommand('axiora.copilot.signIn', async () => {
+			if (!copilotEnabled()) {
+				void vscode.window.showWarningMessage(message('disabled'));
+				return;
+			}
 			const s = await getGitHubSession(true);
 			if (s) {
 				provider.refresh();
@@ -272,7 +322,6 @@ export function activate(context: vscode.ExtensionContext): void {
 			await vscode.workspace.getConfiguration(CONFIG).update('engine', 'sdk', vscode.ConfigurationTarget.Global);
 		}),
 	);
-	log.info('Axiora Copilot SDK provider registered.');
 }
 
 export function deactivate(): void { }
