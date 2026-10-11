@@ -58,6 +58,12 @@
     "configuration": {
       "title": "%category%",
       "properties": {
+        "axiora.copilot.enabled": {
+          "type": "boolean",
+          "default": true,
+          "order": 0,
+          "description": "%config.enabled%"
+        },
         "axiora.copilot.engine": {
           "type": "string",
           "enum": [

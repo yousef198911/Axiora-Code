@@ -112,6 +112,15 @@ export function redactSecrets(text: string): string {
 	return text.replace(/\b(gh[opusr]_|github_pat_)[A-Za-z0-9_]+/g, '$1[redacted]');
 }
 
+/**
+ * Only GitHub user tokens are ever handed to the Copilot runtime: OAuth app tokens (gho_),
+ * GitHub App user-to-server tokens (ghu_) and fine-grained personal access tokens (github_pat_).
+ * Classic PATs (ghp_), server-to-server (ghs_) and refresh tokens (ghr_) are rejected.
+ */
+export function isAllowedToken(token: string | undefined): token is string {
+	return typeof token === 'string' && /^(gho_|ghu_|github_pat_)[A-Za-z0-9_]+$/.test(token);
+}
+
 /** Rough token estimate (≈4 characters per token). */
 export function estimateTokens(text: string): number {
 	return Math.ceil(text.length / 4);

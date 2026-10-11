@@ -13,7 +13,8 @@
 			"config.engine": "المحرك الذي يوفّر نماذج GitHub Copilot في Axiora Code.",
 			"config.engine.sdk": "Copilot SDK الرسمي من GitHub مع تطبيق Axiora Code في GitHub (الافتراضي).",
 			"config.engine.legacy": "محرك Copilot القديم المدمج. تُخفى نماذج Copilot SDK. يتطلب إعادة تفعيل المحرك القديم (راجع README).",
-			"config.allowAgentTools": "السماح لأدوات Copilot SDK المدمجة (تعديل الملفات، الطرفية، الويب). معطّل افتراضياً؛ وعند تعطيله يجيب Copilot في الدردشة فقط ويُرفض كل طلب صلاحية."
+			"config.allowAgentTools": "السماح لأدوات Copilot SDK المدمجة (تعديل الملفات، الطرفية، الويب). معطّل افتراضياً؛ وعند تعطيله يجيب Copilot في الدردشة فقط ويُرفض كل طلب صلاحية.",
+			"config.enabled": "تفعيل GitHub Copilot (عبر Copilot SDK) في Axiora Code. عند التعطيل تُزال نماذج Copilot من قائمة اختيار النموذج في الدردشة ولا يُشغَّل محرك Copilot. تبقى الدردشة ومفاتيحك الخاصة (BYOK) وOllama تعمل."
 		},
 		"bundle": {
 			"Sign in to GitHub to use Copilot in Axiora Code. Run \"Sign in to GitHub for Copilot\" from the Command Palette.": "سجّل الدخول إلى GitHub لاستخدام Copilot في Axiora Code. شغّل الأمر \"تسجيل الدخول إلى GitHub لاستخدام Copilot\" من لوحة الأوامر.",
@@ -22,7 +23,9 @@
 			"Could not reach GitHub Copilot. Check your internet connection and try again.": "تعذّر الاتصال بـ GitHub Copilot. تحقق من اتصالك بالإنترنت وحاول مرة أخرى.",
 			"The Copilot runtime is not available for this platform in this build of Axiora Code.": "محرك Copilot غير متوفر لهذا النظام في هذه النسخة من Axiora Code.",
 			"GitHub Copilot request failed.": "فشل طلب GitHub Copilot.",
-			"Signed in to GitHub as {0}. Copilot models are now available in the Chat model picker.": "تم تسجيل الدخول إلى GitHub باسم {0}. نماذج Copilot متاحة الآن في قائمة اختيار النموذج في الدردشة."
+			"Signed in to GitHub as {0}. Copilot models are now available in the Chat model picker.": "تم تسجيل الدخول إلى GitHub باسم {0}. نماذج Copilot متاحة الآن في قائمة اختيار النموذج في الدردشة.",
+			"This GitHub sign-in uses a token type that Copilot in Axiora Code does not accept. Sign out of GitHub and sign in again with Axiora Code.": "تسجيل الدخول الحالي إلى GitHub يستخدم نوع تصريح لا يقبله Copilot في Axiora Code. سجّل الخروج من GitHub ثم سجّل الدخول مجدداً عبر Axiora Code.",
+			"GitHub Copilot is turned off in Axiora Code settings (axiora.copilot.enabled).": "GitHub Copilot معطّل في إعدادات Axiora Code (axiora.copilot.enabled)."
 		}
 	}
 }

@@ -4,7 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import * as assert from 'assert';
-import { buildPrompt, classifyError, redactSecrets, toModelInfos } from '../core';
+import { buildPrompt, classifyError, isAllowedToken, redactSecrets, toModelInfos } from '../core';
 
 suite('axiora-copilot core', () => {
 	test('toModelInfos maps limits and drops disabled models', () => {
@@ -48,5 +48,14 @@ suite('axiora-copilot core', () => {
 
 	test('redactSecrets', () => {
 		assert.strictEqual(redactSecrets('token gho_ABCdef123 and github_pat_11AA_bb'), 'token gho_[redacted] and github_pat_[redacted]');
+	});
+
+	test('isAllowedToken', () => {
+		assert.strictEqual(isAllowedToken('gho_' + 'A1b2C3'), true);
+		assert.strictEqual(isAllowedToken('ghu_' + 'A1b2C3'), true);
+		assert.strictEqual(isAllowedToken('github_pat_' + '11AA_bb'), true);
+		for (const t of ['ghp_' + 'abc', 'ghs_' + 'abc', 'ghr_' + 'abc', 'gho_', 'gho_abc def', 'Bearer gho_abc', '', undefined]) {
+			assert.strictEqual(isAllowedToken(t), false, String(t));
+		}
 	});
 });
