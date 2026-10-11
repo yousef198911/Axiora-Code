@@ -2,6 +2,7 @@ src/**
 out/test/**
 tsconfig.json
 **/*.map
-node_modules/@github/copilot-sdk-linuxmusl-*/**
-node_modules/@github/copilot-sdk-darwin-*/**
-node_modules/@github/copilot-sdk-*-arm64/**
+# The GitHub Copilot CLI runtime is never shipped with Axiora Code. It is downloaded from GitHub's
+# official npm package on first use (see src/runtime.ts). Exclude every platform runtime package.
+node_modules/@github/copilot-sdk-*/**
+node_modules/@github/copilot-*-*/**

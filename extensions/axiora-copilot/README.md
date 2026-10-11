@@ -25,12 +25,30 @@ BYOK providers and Ollama.
 Switch engines with **GitHub Copilot (Axiora): Switch to the Legacy Copilot Engine** /
 **Switch to the Copilot SDK Engine** (setting `axiora.copilot.engine`: `sdk` | `legacy`).
 
+## Copilot runtime (downloaded on first use, not shipped)
+
+The Copilot SDK talks to the GitHub Copilot CLI runtime. **Axiora Code does not ship this runtime.**
+On first use (sign-in command, opening the model picker, sending a Copilot request, or
+**Download Copilot Runtime**) the user is asked for consent; on "Download" the extension:
+
+1. reads `copilotCliVersion` from the bundled `@github/copilot-sdk/package.json` (pinned version, today `1.0.95`);
+2. fetches metadata for GitHub's official npm package `@github/copilot-<platform>` from `https://registry.npmjs.org`;
+3. downloads the tarball (only from the same registry host, HTTPS) with a cancellable progress bar;
+4. verifies it against the registry `dist.integrity` (sha512) and discards it on mismatch;
+5. extracts it unmodified (no links, no paths outside the target) into a temp dir and atomically renames it to
+   `<globalStorage>/runtime/copilot-<platform>-<version>/` with a `.verified` marker.
+
+Downloads use the extension host's `fetch`, which follows the editor proxy settings (`http.proxy`).
+Offline or blocked downloads show a clear error. **Remove Copilot Runtime** deletes the cache.
+`axiora.copilot.runtimePath` can point to a runtime the user installed themselves.
+Declining or a failed download only makes Copilot unavailable; Chat, BYOK and Ollama are unaffected.
+
 ## Licenses and notices
 
 - `SDK-LICENSE.txt` – GitHub Copilot SDK (`@github/copilot-sdk` 1.0.19), MIT License, Copyright GitHub, Inc.
-- `CLI-LICENSE.md` – GitHub Copilot CLI License, exact text of `LICENSE.md` from the npm package
-  `@github/copilot@1.0.95` (https://www.npmjs.com/package/@github/copilot), the CLI version contained in
-  the bundled runtime `@github/copilot-sdk-<platform>@1.0.19`. The runtime is redistributed **unmodified**,
-  solely as part of Axiora Code (an editor with material functionality beyond the runtime), not on a
-  standalone basis. All copyright, trademark and attribution notices in the runtime are retained.
+  This is the only GitHub package shipped with this extension (JavaScript only).
+- `CLI-LICENSE.md` – reference copy of the GitHub Copilot CLI License (exact `LICENSE.md` of the npm package
+  `@github/copilot@1.0.95`; current text: https://github.com/github/copilot-cli/blob/main/LICENSE.md).
+  The CLI runtime is **not** contained in or redistributed with Axiora Code: the user downloads it directly from
+  GitHub's npm package, which carries its own `LICENSE.md`, after being shown this license link in the consent prompt.
 - "GitHub" and "Copilot" are trademarks of GitHub, Inc., used only to identify the service.
