@@ -51,6 +51,8 @@ class TestUpdateService extends AbstractUpdateService {
 	private _postInitializeGate: Promise<void> | undefined;
 	blockPostInitialize(gate: Promise<void>): void { this._postInitializeGate = gate; }
 
+	installIdForTest(): string | undefined { return this.getInstallId(); }
+
 	private _checkCount = 0;
 	get checkCount(): number { return this._checkCount; }
 
@@ -176,10 +178,11 @@ suite('AbstractUpdateService', () => {
 			target: 'user'
 		} as unknown as IProductService;
 
+		const storage = new Map<string, string>();
 		const applicationStorageMainService = {
 			whenReady: Promise.resolve(),
-			get: () => undefined,
-			store: () => { }
+			get: (key: string) => storage.get(key),
+			store: (key: string, value: string) => { storage.set(key, value); }
 		} as unknown as IApplicationStorageMainService;
 
 		meteredConnectionService = store.add(new TestMeteredConnectionService(options?.isConnectionMetered ?? false, options?.meteredConnectionInitialization));
@@ -499,6 +502,14 @@ suite('AbstractUpdateService', () => {
 		} finally {
 			clock.restore();
 		}
+	});
+
+	test('Axiora: creates one anonymous install id on first run and reuses it', async () => {
+		const service = createService('default');
+		await service.whenInitialized;
+		const id = service.installIdForTest();
+		assert.ok(id && /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(id));
+		assert.strictEqual(service.installIdForTest(), id);
 	});
 
 	test('permanent disablement ignores runtime mode changes', async () => {

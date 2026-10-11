@@ -113,7 +113,8 @@ function buildWin32Setup(arch: string, target: string): task.CallbackTask {
 			Quality: quality
 		};
 
-		if (quality === 'stable' || quality === 'insider') {
+		// Axiora: only reference the appx context-menu package when product.json defines win32ContextMenu.
+		if ((quality === 'stable' || quality === 'insider') && (product as { win32ContextMenu?: unknown }).win32ContextMenu) {
 			definitions['AppxPackage'] = `${quality === 'stable' ? 'code' : 'code_insider'}_${arch}.appx`;
 			definitions['AppxPackageDll'] = `${quality === 'stable' ? 'code' : 'code_insider'}_explorer_command_${arch}.dll`;
 			definitions['AppxPackageName'] = `${product.win32AppUserModelId}`;

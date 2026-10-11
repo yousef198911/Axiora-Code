@@ -15,7 +15,7 @@ import { asJson, IRequestService } from '../../request/common/request.js';
 import { IApplicationStorageMainService } from '../../storage/electron-main/storageMainService.js';
 import { ITelemetryService } from '../../telemetry/common/telemetry.js';
 import { AvailableForDownload, IUpdate, State, StateType, UpdateType } from '../common/update.js';
-import { AbstractUpdateService, createUpdateURL, IUpdateURLOptions } from './abstractUpdateService.js';
+import { AbstractUpdateService, createUpdateURL, resolveUpdateBaseUrl, IUpdateURLOptions } from './abstractUpdateService.js';
 
 export class LinuxUpdateService extends AbstractUpdateService {
 
@@ -35,7 +35,7 @@ export class LinuxUpdateService extends AbstractUpdateService {
 	}
 
 	protected buildUpdateFeedUrl(quality: string, commit: string, options?: IUpdateURLOptions): string {
-		return createUpdateURL(this.productService.updateUrl!, `linux-${process.arch}`, quality, commit, options);
+		return createUpdateURL(resolveUpdateBaseUrl(this.productService.updateUrl)!, `linux-${process.arch}`, quality, commit, options);
 	}
 
 	protected doCheckForUpdates(explicit: boolean, _pendingCommit?: string): void {
@@ -45,7 +45,7 @@ export class LinuxUpdateService extends AbstractUpdateService {
 
 		const internalOrg = this.getInternalOrg();
 		const background = !explicit && !internalOrg;
-		const url = this.buildUpdateFeedUrl(this.quality, this.productService.commit!, { background, internalOrg });
+		const url = this.buildUpdateFeedUrl(this.quality, this.productService.commit!, { background, internalOrg, installId: this.getInstallId() });
 		this.setState(State.CheckingForUpdates(explicit));
 
 		this.requestService.request({ url, callSite: 'updateService.linux.checkForUpdates' }, CancellationToken.None)

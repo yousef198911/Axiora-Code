@@ -1,5 +1,7 @@
 {
 	"nameShort": "Axiora Code",
+	"quality": "stable",
+	"updateUrl": "https://updates.axiora-code.example",
 	"nameLong": "Axiora Code",
 	"applicationName": "axiora-code",
 	"dataFolderName": ".axiora-code",

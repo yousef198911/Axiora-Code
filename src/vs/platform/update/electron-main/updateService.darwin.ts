@@ -18,7 +18,7 @@ import { IApplicationStorageMainService } from '../../storage/electron-main/stor
 import { ITelemetryService } from '../../telemetry/common/telemetry.js';
 import { AvailableForDownload, IUpdate, State, StateType, UpdateType } from '../common/update.js';
 import { IMeteredConnectionService } from '../../meteredConnection/common/meteredConnection.js';
-import { AbstractUpdateService, createUpdateURL, getUpdateRequestHeaders, IUpdateURLOptions, UpdateErrorClassification } from './abstractUpdateService.js';
+import { AbstractUpdateService, createUpdateURL, resolveUpdateBaseUrl, getUpdateRequestHeaders, IUpdateURLOptions, UpdateErrorClassification } from './abstractUpdateService.js';
 
 export class DarwinUpdateService extends AbstractUpdateService implements IRelaunchHandler {
 
@@ -95,7 +95,7 @@ export class DarwinUpdateService extends AbstractUpdateService implements IRelau
 
 	protected buildUpdateFeedUrl(quality: string, commit: string, options?: IUpdateURLOptions): string | undefined {
 		const assetID = this.productService.darwinUniversalAssetId ?? (process.arch === 'x64' ? 'darwin' : 'darwin-arm64');
-		const url = createUpdateURL(this.productService.updateUrl!, assetID, quality, commit, options);
+		const url = createUpdateURL(resolveUpdateBaseUrl(this.productService.updateUrl)!, assetID, quality, commit, options);
 		const headers = getUpdateRequestHeaders(this.productService.version);
 		try {
 			this.logService.trace('update#buildUpdateFeedUrl - setting feed URL for Electron autoUpdater', { url, assetID, quality, commit, headers });
@@ -117,7 +117,7 @@ export class DarwinUpdateService extends AbstractUpdateService implements IRelau
 
 		const internalOrg = this.getInternalOrg();
 		const background = !explicit && !internalOrg;
-		const url = this.buildUpdateFeedUrl(this.quality, pendingCommit ?? this.productService.commit!, { background, internalOrg });
+		const url = this.buildUpdateFeedUrl(this.quality, pendingCommit ?? this.productService.commit!, { background, internalOrg, installId: this.getInstallId() });
 
 		if (!url) {
 			this.setState(State.Idle(UpdateType.Archive));
@@ -198,7 +198,7 @@ export class DarwinUpdateService extends AbstractUpdateService implements IRelau
 
 	protected override async doDownloadUpdate(state: AvailableForDownload): Promise<void> {
 		// Rebuild feed URL and trigger download via Electron's auto-updater
-		this.buildUpdateFeedUrl(this.quality!, state.update.version, { internalOrg: this.getInternalOrg() });
+		this.buildUpdateFeedUrl(this.quality!, state.update.version, { internalOrg: this.getInternalOrg(), installId: this.getInstallId() });
 		this.setState(State.CheckingForUpdates(true));
 		electron.autoUpdater.checkForUpdates();
 	}
