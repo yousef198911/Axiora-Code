@@ -41,6 +41,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          # patchWin32DependenciesTask spawns signtool.exe; add the Windows SDK bin dir to PATH.
+          $st = Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\bin\*\x64\signtool.exe" -ErrorAction SilentlyContinue | Sort-Object FullName -Descending | Select-Object -First 1
+          if (-not $st) { throw "signtool.exe not found in Windows SDK" }
+          $env:PATH = "$($st.DirectoryName);$env:PATH"
+          Write-Host "Using signtool: $($st.FullName)"
           npm run gulp vscode-win32-x64-min
           if ($LASTEXITCODE -ne 0) { throw "gulp vscode-win32-x64-min failed" }
       - name: Inno updater + user setup
