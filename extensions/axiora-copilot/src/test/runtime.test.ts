@@ -9,7 +9,7 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import * as zlib from 'zlib';
-import { approxDownloadMb, downloadRuntime, extractTgz, findVerifiedRuntime, platformId, removeRuntimes, RuntimeError, safeJoin, verifyIntegrity } from '../runtime';
+import { approxDownloadMb, downloadRuntime, extractTgz, extractZip, parseSha256Sums, releaseAssetName, findVerifiedRuntime, platformId, removeRuntimes, RuntimeError, safeJoin, verifyIntegrity } from '../runtime';
 
 function tarEntry(name: string, data: Buffer, type = '0'): Buffer {
 	const h = Buffer.alloc(512);
@@ -108,5 +108,72 @@ suite('axiora-copilot runtime downloader', () => {
 		// cache stays empty and the runtime is reported missing.
 		assert.strictEqual(findVerifiedRuntime(root, 'linux-x64', '1.2.3'), undefined);
 		assert.throws(() => findVerifiedRuntime(root, 'linux-x64', '../1'));
+	});
+	function zipOne(name: string, data: Buffer): Buffer {
+		const comp = zlib.deflateRawSync(data);
+		const nameB = Buffer.from(name);
+		const local = Buffer.alloc(30); local.writeUInt32LE(0x04034b50, 0); local.writeUInt16LE(8, 8);
+		local.writeUInt32LE(comp.length, 18); local.writeUInt32LE(data.length, 22); local.writeUInt16LE(nameB.length, 26);
+		const cd = Buffer.alloc(46); cd.writeUInt32LE(0x02014b50, 0); cd.writeUInt16LE(8, 10);
+		cd.writeUInt32LE(comp.length, 20); cd.writeUInt32LE(data.length, 24); cd.writeUInt16LE(nameB.length, 28); cd.writeUInt32LE(0, 42);
+		const cdOff = local.length + nameB.length + comp.length;
+		const eocd = Buffer.alloc(22); eocd.writeUInt32LE(0x06054b50, 0); eocd.writeUInt16LE(1, 8); eocd.writeUInt16LE(1, 10);
+		eocd.writeUInt32LE(cd.length + nameB.length, 12); eocd.writeUInt32LE(cdOff, 16);
+		return Buffer.concat([local, nameB, comp, cd, nameB, eocd]);
+	}
+	const sha256 = (b: Buffer) => crypto.createHash('sha256').update(b).digest('hex');
+	function npmDown(): typeof fetch { return (async () => { throw new TypeError('fetch failed'); }) as unknown as typeof fetch; }
+	function releases(asset: Buffer, assetName: string, sum: string): typeof fetch {
+		return (async (url: string | URL) => {
+			const u = String(url);
+			if (u.includes('registry.npmjs.org')) { throw new TypeError('fetch failed'); }
+			if (u.endsWith('/SHA256SUMS.txt')) { return new Response(`${sum}  ${assetName}\nffff  other\n`); }
+			if (u.endsWith('/' + assetName)) { return new Response(new Uint8Array(asset)); }
+			return new Response('nope', { status: 404 });
+		}) as unknown as typeof fetch;
+	}
+
+	test('sha256sums parsing and asset names', () => {
+		const m = parseSha256Sums(`${'a'.repeat(64)}  copilot-linux-x64.tar.gz\r\n${'b'.repeat(64)} *copilot-win32-x64.zip\ngarbage`);
+		assert.strictEqual(m.get('copilot-linux-x64.tar.gz'), 'a'.repeat(64));
+		assert.strictEqual(m.get('copilot-win32-x64.zip'), 'b'.repeat(64));
+		assert.strictEqual(m.size, 2);
+		assert.strictEqual(releaseAssetName('win32-x64'), 'copilot-win32-x64.zip');
+		assert.strictEqual(releaseAssetName('linux-x64'), 'copilot-linux-x64.tar.gz');
+	});
+
+	test('zip extraction and path safety', () => {
+		const dest = path.join(root, 'z');
+		extractZip(zipOne('copilot.exe', Buffer.from('exe')), dest);
+		assert.strictEqual(fs.readFileSync(path.join(dest, 'copilot.exe'), 'utf8'), 'exe');
+		assert.throws(() => extractZip(zipOne('../evil.exe', Buffer.from('x')), path.join(root, 'z2')), (e: RuntimeError) => e.kind === 'unsafe');
+	});
+
+	test('fallback: npm unreachable -> GitHub Releases tar.gz verified by SHA256SUMS', async () => {
+		const asset = tgz([tarEntry('copilot', Buffer.from('#!/bin/sh\n'))]);
+		const exe = await downloadRuntime({ cacheRoot: root, plat: 'linux-x64', version: '1.2.3', fetchImpl: releases(asset, 'copilot-linux-x64.tar.gz', sha256(asset)) });
+		assert.ok(fs.existsSync(exe));
+		assert.match(fs.readFileSync(path.join(path.dirname(exe), '.verified'), 'utf8'), /GitHub Releases/);
+	});
+
+	test('fallback: windows zip asset', async () => {
+		const asset = zipOne('copilot.exe', Buffer.from('MZ'));
+		const exe = await downloadRuntime({ cacheRoot: root, plat: 'win32-x64', version: '1.2.3', fetchImpl: releases(asset, 'copilot-win32-x64.zip', sha256(asset)) });
+		assert.strictEqual(path.basename(exe), 'copilot.exe');
+	});
+
+	test('fallback: tampered release asset is rejected and nothing is installed', async () => {
+		const asset = tgz([tarEntry('copilot', Buffer.from('x'))]);
+		await assert.rejects(downloadRuntime({ cacheRoot: root, plat: 'linux-x64', version: '1.2.3', fetchImpl: releases(asset, 'copilot-linux-x64.tar.gz', 'c'.repeat(64)) }), (e: RuntimeError) => e.kind === 'integrity');
+		assert.strictEqual(findVerifiedRuntime(root, 'linux-x64', '1.2.3'), undefined);
+	});
+
+	test('fallback: SHA256SUMS that disagrees with the pinned checksum is rejected', async () => {
+		const asset = tgz([tarEntry('copilot', Buffer.from('x'))]);
+		await assert.rejects(downloadRuntime({ cacheRoot: root, plat: 'linux-x64', version: '1.0.95', fetchImpl: releases(asset, 'copilot-linux-x64.tar.gz', sha256(asset)) }), (e: RuntimeError) => e.kind === 'integrity');
+	});
+
+	test('fallback: both sources offline -> offline error', async () => {
+		await assert.rejects(downloadRuntime({ cacheRoot: root, plat: 'linux-x64', version: '1.2.3', fetchImpl: npmDown() }), (e: RuntimeError) => e.kind === 'offline');
 	});
 });
