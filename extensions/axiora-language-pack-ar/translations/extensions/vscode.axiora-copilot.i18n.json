@@ -17,7 +17,7 @@
 			"config.enabled": "تفعيل GitHub Copilot (عبر Copilot SDK) في Axiora Code. عند التعطيل تُزال نماذج Copilot من قائمة اختيار النموذج في الدردشة ولا يُشغَّل محرك Copilot. تبقى الدردشة ومفاتيحك الخاصة (BYOK) وOllama تعمل.",
 			"command.downloadRuntime": "تنزيل محرّك Copilot (من GitHub)",
 			"command.removeRuntime": "حذف محرّك Copilot",
-			"config.runtimePath": "مسار اختياري لمحرّك GitHub Copilot CLI ثبّتّه بنفسك. إذا تُرك فارغاً، يُنزَّل المحرّك الرسمي من GitHub (حزمة npm ‏@github/copilot-<platform>) عند أول استخدام بعد موافقتك، ويُحفظ في مساحة تخزين الإضافة."
+			"config.runtimePath": "مسار اختياري لمحرّك GitHub Copilot CLI ثبّتّه بنفسك. إذا تُرك فارغاً، يُنزَّل المحرّك الرسمي من GitHub (حزمة npm ‏@github/copilot-<platform>) تلقائياً في الخلفية عند أول استخدام (فقط عندما يكون Copilot مفعّلاً)، ويُتحقق منه ويُحفظ في مساحة تخزين الإضافة."
 		},
 		"bundle": {
 			"Sign in to GitHub to use Copilot in Axiora Code. Run \"Sign in to GitHub for Copilot\" from the Command Palette.": "سجّل الدخول إلى GitHub لاستخدام Copilot في Axiora Code. شغّل الأمر \"تسجيل الدخول إلى GitHub لاستخدام Copilot\" من لوحة الأوامر.",
@@ -40,7 +40,11 @@
 			"The GitHub Copilot runtime is installed and verified.": "تم تثبيت محرّك GitHub Copilot والتحقق منه.",
 			"Could not remove the Copilot runtime: {0}": "تعذّر حذف محرّك Copilot: {0}",
 			"The Copilot runtime set in axiora.copilot.runtimePath was not found: {0}": "لم يُعثر على محرّك Copilot المحدد في axiora.copilot.runtimePath: {0}",
-			"GitHub Copilot is not available on this platform ({0}-{1}).": "GitHub Copilot غير متاح على هذا النظام ({0}-{1})."
+			"GitHub Copilot is not available on this platform ({0}-{1}).": "GitHub Copilot غير متاح على هذا النظام ({0}-{1}).",
+			"Preparing GitHub Copilot / تجهيز Copilot": "تجهيز GitHub Copilot",
+			"GitHub Copilot is unavailable: its runtime could not be downloaded (no connection). It will be retried later.": "GitHub Copilot غير متاح: تعذّر تنزيل محرّكه (لا يوجد اتصال). ستُعاد المحاولة لاحقاً.",
+			"GitHub Copilot is unavailable: the downloaded runtime failed the integrity check and was discarded.": "GitHub Copilot غير متاح: فشل المحرّك المُنزَّل في فحص السلامة وتم حذفه.",
+			"GitHub Copilot is unavailable: its runtime could not be downloaded ({0}).": "GitHub Copilot غير متاح: تعذّر تنزيل محرّكه ({0})."
 		}
 	}
 }
