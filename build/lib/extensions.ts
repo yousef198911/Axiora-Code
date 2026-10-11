@@ -31,7 +31,10 @@ const root = path.dirname(path.dirname(import.meta.dirname));
 // const sourceMappingURLBase = `https://main.vscode-cdn.net/sourcemaps/${commit}`;
 
 function minifyExtensionResources(input: Stream): Stream {
-	const jsonFilter = filter(['**/*.json', '**/*.code-snippets'], { restore: true });
+	// The GitHub Copilot runtime (@github/copilot-sdk-<platform>) must be redistributed unmodified
+	// (GitHub Copilot CLI License, section 2), so its files are never rewritten; the SDK is kept
+	// byte-identical too so packaged files can be verified against the npm tarballs.
+	const jsonFilter = filter(['**/*.json', '**/*.code-snippets', '!**/node_modules/@github/copilot-sdk*/**'], { restore: true });
 	return input
 		.pipe(jsonFilter)
 		.pipe(buffer())
