@@ -15,7 +15,6 @@ import { IQuickInputService, IQuickPickItem, IQuickPickSeparator } from '../../.
 import { IWorkspaceTrustManagementService, IWorkspaceTrustRequestService } from '../../../../../platform/workspace/common/workspaceTrust.js';
 import { Event } from '../../../../../base/common/event.js';
 import { raceTimeout } from '../../../../../base/common/async.js';
-import { IExtensionsWorkbenchService } from '../../../extensions/common/extensions.js';
 import { ILanguageModelsService } from '../../common/languageModels.js';
 import { CHAT_CATEGORY, CHAT_SETUP_ACTION_ID } from '../actions/chatActions.js';
 import { ChatViewId } from '../chat.js';
@@ -29,8 +28,6 @@ export type ChooseYourAIKind = 'byok' | 'local' | 'copilot';
 interface IChooseYourAIItem extends IQuickPickItem {
 	readonly run: () => Promise<void>;
 }
-
-const CONTINUE_EXTENSION_ID = 'Continue.continue';
 
 /**
  * Lets the user pick how AI should work in Axiora Code: their own API key,
@@ -58,7 +55,6 @@ registerAction2(class ChooseYourAIAction extends Action2 {
 		const commandService = accessor.get(ICommandService);
 		const dialogService = accessor.get(IDialogService);
 		const languageModelsService = accessor.get(ILanguageModelsService);
-		const extensionsWorkbenchService = accessor.get(IExtensionsWorkbenchService);
 
 		const workspaceTrustManagementService = accessor.get(IWorkspaceTrustManagementService);
 		const workspaceTrustRequestService = accessor.get(IWorkspaceTrustRequestService);
@@ -130,8 +126,6 @@ registerAction2(class ChooseYourAIAction extends Action2 {
 		items.push({ label: localize('chooseYourAI.ollama', "Ollama (Local)"), description: localize('chooseYourAI.ollama.description', "Runs on your computer, no account needed"), run: setupLocal });
 		items.push({ type: 'separator', label: localize('chooseYourAI.copilotSeparator', "GitHub Copilot") });
 		items.push({ label: localize('chooseYourAI.copilot', "GitHub Copilot"), description: localize('chooseYourAI.copilot.description', "Sign in with a GitHub account"), run: async () => { await commandService.executeCommand(CHAT_SETUP_ACTION_ID); } });
-		items.push({ type: 'separator', label: localize('chooseYourAI.extensionsSeparator', "Other assistants") });
-		items.push({ label: localize('chooseYourAI.continue', "Continue extension (Open VSX)"), description: localize('chooseYourAI.continue.description', "Optional separate assistant with local codebase indexing"), run: async () => { await extensionsWorkbenchService.openSearch(`@id:${CONTINUE_EXTENSION_ID}`); } });
 
 		if (kind === 'local') {
 			return setupLocal();
