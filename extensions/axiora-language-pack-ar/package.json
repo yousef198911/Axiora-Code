@@ -134,6 +134,10 @@
 						"path": "./translations/extensions/vscode.git.i18n.json"
 					},
 					{
+						"id": "vscode.axiora-copilot",
+						"path": "./translations/extensions/vscode.axiora-copilot.i18n.json"
+					},
+					{
 						"id": "vscode.github-authentication",
 						"path": "./translations/extensions/vscode.github-authentication.i18n.json"
 					},

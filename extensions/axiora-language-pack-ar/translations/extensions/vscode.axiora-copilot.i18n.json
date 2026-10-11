@@ -1,0 +1,50 @@
+{
+	"version": "1.0.0",
+	"contents": {
+		"package": {
+			"displayName": "GitHub Copilot لـ Axiora Code",
+			"description": "يستخدم GitHub Copilot عبر Copilot SDK الرسمي، مع تسجيل الدخول بتطبيق Axiora Code في GitHub. يُنزَّل محرّك Copilot من GitHub عند أول استخدام.",
+			"provider.displayName": "GitHub Copilot",
+			"category": "GitHub Copilot (Axiora)",
+			"command.signIn": "تسجيل الدخول إلى GitHub لاستخدام Copilot",
+			"command.refreshModels": "تحديث نماذج Copilot",
+			"command.useLegacyEngine": "التبديل إلى محرك Copilot القديم",
+			"command.useSdkEngine": "التبديل إلى محرك Copilot SDK",
+			"config.engine": "المحرك الذي يوفّر نماذج GitHub Copilot في Axiora Code.",
+			"config.engine.sdk": "Copilot SDK الرسمي من GitHub مع تطبيق Axiora Code في GitHub (الافتراضي).",
+			"config.engine.legacy": "محرك Copilot القديم المدمج. تُخفى نماذج Copilot SDK. يتطلب إعادة تفعيل المحرك القديم (راجع README).",
+			"config.allowAgentTools": "السماح لأدوات Copilot SDK المدمجة (تعديل الملفات، الطرفية، الويب). معطّل افتراضياً؛ وعند تعطيله يجيب Copilot في الدردشة فقط ويُرفض كل طلب صلاحية.",
+			"config.enabled": "تفعيل GitHub Copilot (عبر Copilot SDK) في Axiora Code. عند التعطيل تُزال نماذج Copilot من قائمة اختيار النموذج في الدردشة ولا يُشغَّل محرك Copilot. تبقى الدردشة ومفاتيحك الخاصة (BYOK) وOllama تعمل.",
+			"command.downloadRuntime": "تنزيل محرّك Copilot (من GitHub)",
+			"command.removeRuntime": "حذف محرّك Copilot",
+			"config.runtimePath": "مسار اختياري لمحرّك GitHub Copilot CLI ثبّتّه بنفسك. إذا تُرك فارغاً، يُنزَّل المحرّك الرسمي من GitHub (حزمة npm ‏@github/copilot-<platform>) تلقائياً في الخلفية عند أول استخدام (فقط عندما يكون Copilot مفعّلاً)، ويُتحقق منه ويُحفظ في مساحة تخزين الإضافة."
+		},
+		"bundle": {
+			"Sign in to GitHub to use Copilot in Axiora Code. Run \"Sign in to GitHub for Copilot\" from the Command Palette.": "سجّل الدخول إلى GitHub لاستخدام Copilot في Axiora Code. شغّل الأمر \"تسجيل الدخول إلى GitHub لاستخدام Copilot\" من لوحة الأوامر.",
+			"Your GitHub account does not have access to GitHub Copilot. Enable Copilot Free or a paid plan at github.com/settings/copilot, then try again.": "حسابك في GitHub لا يملك صلاحية GitHub Copilot. فعّل Copilot المجاني أو خطة مدفوعة من github.com/settings/copilot، ثم حاول مرة أخرى.",
+			"GitHub Copilot usage limit reached. Wait a while or check your plan, then try again.": "وصلت إلى حد استخدام GitHub Copilot. انتظر قليلاً أو راجع خطتك، ثم حاول مرة أخرى.",
+			"Could not reach GitHub Copilot. Check your internet connection and try again.": "تعذّر الاتصال بـ GitHub Copilot. تحقق من اتصالك بالإنترنت وحاول مرة أخرى.",
+			"GitHub Copilot request failed.": "فشل طلب GitHub Copilot.",
+			"Signed in to GitHub as {0}. Copilot models are now available in the Chat model picker.": "تم تسجيل الدخول إلى GitHub باسم {0}. نماذج Copilot متاحة الآن في قائمة اختيار النموذج في الدردشة.",
+			"This GitHub sign-in uses a token type that Copilot in Axiora Code does not accept. Sign out of GitHub and sign in again with Axiora Code.": "تسجيل الدخول الحالي إلى GitHub يستخدم نوع تصريح لا يقبله Copilot في Axiora Code. سجّل الخروج من GitHub ثم سجّل الدخول مجدداً عبر Axiora Code.",
+			"GitHub Copilot is turned off in Axiora Code settings (axiora.copilot.enabled).": "GitHub Copilot معطّل في إعدادات Axiora Code (axiora.copilot.enabled).",
+			"GitHub Copilot needs its official runtime, which is downloaded from GitHub on first use. Run \"Download Copilot Runtime\" from the Command Palette.": "يحتاج GitHub Copilot إلى محرّكه الرسمي، ويُنزَّل من GitHub عند أول استخدام. شغّل الأمر \"تنزيل محرّك Copilot\" من لوحة الأوامر.",
+			"GitHub Copilot needs its official runtime": "يحتاج GitHub Copilot إلى محرّكه الرسمي",
+			"Download": "تنزيل",
+			"View License": "عرض الترخيص",
+			"GitHub Copilot is unavailable because its runtime was not downloaded. Run \"Download Copilot Runtime\" to install it later.": "GitHub Copilot غير متاح لأن محرّكه لم يُنزَّل. شغّل الأمر \"تنزيل محرّك Copilot\" لتثبيته لاحقاً.",
+			"Could not download the Copilot runtime: no connection to registry.npmjs.org. Check your internet connection or proxy (http.proxy) and try again.": "تعذّر تنزيل محرّك Copilot: لا يوجد اتصال بـ registry.npmjs.org. تحقق من اتصالك بالإنترنت أو إعداد البروكسي (http.proxy) وحاول مرة أخرى.",
+			"Copilot runtime download cancelled.": "أُلغي تنزيل محرّك Copilot.",
+			"The downloaded Copilot runtime failed the integrity check and was discarded.": "فشل التحقق من سلامة محرّك Copilot المنزَّل، وتم حذفه.",
+			"Could not download the Copilot runtime: {0}": "تعذّر تنزيل محرّك Copilot: {0}",
+			"The GitHub Copilot runtime is installed and verified.": "تم تثبيت محرّك GitHub Copilot والتحقق منه.",
+			"Could not remove the Copilot runtime: {0}": "تعذّر حذف محرّك Copilot: {0}",
+			"The Copilot runtime set in axiora.copilot.runtimePath was not found: {0}": "لم يُعثر على محرّك Copilot المحدد في axiora.copilot.runtimePath: {0}",
+			"GitHub Copilot is not available on this platform ({0}-{1}).": "GitHub Copilot غير متاح على هذا النظام ({0}-{1}).",
+			"Preparing GitHub Copilot / تجهيز Copilot": "تجهيز GitHub Copilot",
+			"GitHub Copilot is unavailable: its runtime could not be downloaded (no connection). It will be retried later.": "GitHub Copilot غير متاح: تعذّر تنزيل محرّكه (لا يوجد اتصال). ستُعاد المحاولة لاحقاً.",
+			"GitHub Copilot is unavailable: the downloaded runtime failed the integrity check and was discarded.": "GitHub Copilot غير متاح: فشل المحرّك المُنزَّل في فحص السلامة وتم حذفه.",
+			"GitHub Copilot is unavailable: its runtime could not be downloaded ({0}).": "GitHub Copilot غير متاح: تعذّر تنزيل محرّكه ({0})."
+		}
+	}
+}
