@@ -1,6 +1,6 @@
 Template: @@NAME@@/add-microsoft-repo
 Type: boolean
-Default: true
+Default: false
 Description: Add Microsoft apt repository for Visual Studio Code?
- The installer would like to add the Microsoft repository and signing
- key to update VS Code through apt.
+ Not used by Axiora Code: the Microsoft repository and signing key are
+ never added for this package (kept only for Code - OSS build compatibility).

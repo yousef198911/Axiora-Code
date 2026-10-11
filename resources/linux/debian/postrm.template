@@ -20,6 +20,11 @@ if [ -e '/usr/share/debconf/confmodule' ]; then
 	. /usr/share/debconf/confmodule
 	db_get @@NAME@@/add-microsoft-repo || true
 fi
+# Axiora Code never adds the Microsoft apt repository, so never remove it either
+# (it may belong to a separately installed Visual Studio Code).
+if [ "@@NAME@@" = "axiora-code" ] || [ "@@NAME@@" = "code-oss" ]; then
+	RET=false
+fi
 if [ "$RET" = "true" ]; then
 	eval $(apt-config shell APT_SOURCE_PARTS Dir::Etc::sourceparts/d)
 	CODE_SOURCE_PART=${APT_SOURCE_PARTS}vscode.sources

@@ -17,6 +17,9 @@ const VALID_DESKTOP_CALLBACK_SCHEMES = [
 	// list until we can figure out a way to fix this behavior in browsers.
 	// 'code-oss',
 	'vscode-wsl',
+	// Axiora Code ('axiora-code') is intentionally not listed: being a "supported client"
+	// hides the PAT flow on github.com and only enables the URL-handler flow, which needs
+	// a client secret via vscode.dev/redirect. Axiora Code signs in with Device Code (+ PAT).
 ];
 
 export function isSupportedClient(uri: Uri): boolean {

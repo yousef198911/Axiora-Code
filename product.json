@@ -8,8 +8,8 @@
 	"sharedDataFolderName": ".axiora-code-shared",
 	"win32MutexName": "axioracode",
 	"licenseName": "MIT",
-	"licenseUrl": "https://github.com/microsoft/vscode/blob/main/LICENSE.txt",
-	"serverLicenseUrl": "https://github.com/microsoft/vscode/blob/main/LICENSE.txt",
+	"licenseUrl": "https://github.com/yousef198911/Axiora-Code/blob/main/LICENSE.txt",
+	"serverLicenseUrl": "https://github.com/yousef198911/Axiora-Code/blob/main/LICENSE.txt",
 	"serverGreeting": [],
 	"serverLicense": [],
 	"serverLicensePrompt": "",
@@ -33,7 +33,7 @@
 	"linuxDesktopName": "com.axiora.AxioraCode",
 	"linuxIconName": "axiora-code",
 	"licenseFileName": "LICENSE.txt",
-	"reportIssueUrl": "https://github.com/microsoft/vscode/issues/new",
+	"reportIssueUrl": "https://github.com/yousef198911/Axiora-Code/issues/new",
 	"nodejsArtifactFeed": "",
 	"electronArtifactFeed": "",
 	"urlProtocol": "axiora-code",
@@ -259,6 +259,5 @@
 	"builtInExtensionsEnabledWithAutoUpdates": [
 		"GitHub.copilot-chat"
 	],
-	"sessionsWindowAllowedExtensions": [],
-	"voiceWsUrl": "wss://falcon-caas.mai.microsoft.com/voice-code/api/v1/realtime/voice"
+	"sessionsWindowAllowedExtensions": []
 }
