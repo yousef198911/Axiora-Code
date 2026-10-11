@@ -1,0 +1,97 @@
+{
+  "name": "axiora-copilot",
+  "displayName": "%displayName%",
+  "description": "%description%",
+  "publisher": "vscode",
+  "license": "MIT",
+  "version": "10.0.0",
+  "engines": {
+    "vscode": "^1.104.0"
+  },
+  "icon": "media/icon.png",
+  "categories": [
+    "AI",
+    "Chat"
+  ],
+  "capabilities": {
+    "virtualWorkspaces": true,
+    "untrustedWorkspaces": {
+      "supported": true
+    }
+  },
+  "extensionDependencies": [
+    "vscode.github-authentication"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "languageModelChatProviders": [
+      {
+        "vendor": "axiora-copilot",
+        "displayName": "%provider.displayName%"
+      }
+    ],
+    "commands": [
+      {
+        "command": "axiora.copilot.signIn",
+        "title": "%command.signIn%",
+        "category": "%category%"
+      },
+      {
+        "command": "axiora.copilot.refreshModels",
+        "title": "%command.refreshModels%",
+        "category": "%category%"
+      },
+      {
+        "command": "axiora.copilot.useLegacyEngine",
+        "title": "%command.useLegacyEngine%",
+        "category": "%category%"
+      },
+      {
+        "command": "axiora.copilot.useSdkEngine",
+        "title": "%command.useSdkEngine%",
+        "category": "%category%"
+      }
+    ],
+    "configuration": {
+      "title": "%category%",
+      "properties": {
+        "axiora.copilot.engine": {
+          "type": "string",
+          "enum": [
+            "sdk",
+            "legacy"
+          ],
+          "enumDescriptions": [
+            "%config.engine.sdk%",
+            "%config.engine.legacy%"
+          ],
+          "default": "sdk",
+          "description": "%config.engine%"
+        },
+        "axiora.copilot.allowAgentTools": {
+          "type": "boolean",
+          "default": false,
+          "description": "%config.allowAgentTools%"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "gulp compile-extension:axiora-copilot",
+    "watch": "gulp watch-extension:axiora-copilot",
+    "test": "node ../../node_modules/mocha/bin/mocha --ui tdd out/test/*.test.js"
+  },
+  "dependencies": {
+    "@github/copilot-sdk": "1.0.19"
+  },
+  "devDependencies": {
+    "@types/node": "22.x"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yousef198911/Axiora-Code.git"
+  }
+}

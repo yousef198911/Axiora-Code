@@ -1,0 +1,28 @@
+{
+	"version": "1.0.0",
+	"contents": {
+		"package": {
+			"displayName": "GitHub Copilot لـ Axiora Code",
+			"description": "يستخدم GitHub Copilot عبر Copilot SDK الرسمي، مع تسجيل الدخول بتطبيق Axiora Code في GitHub.",
+			"provider.displayName": "GitHub Copilot",
+			"category": "GitHub Copilot (Axiora)",
+			"command.signIn": "تسجيل الدخول إلى GitHub لاستخدام Copilot",
+			"command.refreshModels": "تحديث نماذج Copilot",
+			"command.useLegacyEngine": "التبديل إلى محرك Copilot القديم",
+			"command.useSdkEngine": "التبديل إلى محرك Copilot SDK",
+			"config.engine": "المحرك الذي يوفّر نماذج GitHub Copilot في Axiora Code.",
+			"config.engine.sdk": "Copilot SDK الرسمي من GitHub مع تطبيق Axiora Code في GitHub (الافتراضي).",
+			"config.engine.legacy": "محرك Copilot القديم المدمج. تُخفى نماذج Copilot SDK. يتطلب إعادة تفعيل المحرك القديم (راجع README).",
+			"config.allowAgentTools": "السماح لأدوات Copilot SDK المدمجة (تعديل الملفات، الطرفية، الويب). معطّل افتراضياً؛ وعند تعطيله يجيب Copilot في الدردشة فقط ويُرفض كل طلب صلاحية."
+		},
+		"bundle": {
+			"Sign in to GitHub to use Copilot in Axiora Code. Run \"Sign in to GitHub for Copilot\" from the Command Palette.": "سجّل الدخول إلى GitHub لاستخدام Copilot في Axiora Code. شغّل الأمر \"تسجيل الدخول إلى GitHub لاستخدام Copilot\" من لوحة الأوامر.",
+			"Your GitHub account does not have access to GitHub Copilot. Enable Copilot Free or a paid plan at github.com/settings/copilot, then try again.": "حسابك في GitHub لا يملك صلاحية GitHub Copilot. فعّل Copilot المجاني أو خطة مدفوعة من github.com/settings/copilot، ثم حاول مرة أخرى.",
+			"GitHub Copilot usage limit reached. Wait a while or check your plan, then try again.": "وصلت إلى حد استخدام GitHub Copilot. انتظر قليلاً أو راجع خطتك، ثم حاول مرة أخرى.",
+			"Could not reach GitHub Copilot. Check your internet connection and try again.": "تعذّر الاتصال بـ GitHub Copilot. تحقق من اتصالك بالإنترنت وحاول مرة أخرى.",
+			"The Copilot runtime is not available for this platform in this build of Axiora Code.": "محرك Copilot غير متوفر لهذا النظام في هذه النسخة من Axiora Code.",
+			"GitHub Copilot request failed.": "فشل طلب GitHub Copilot.",
+			"Signed in to GitHub as {0}. Copilot models are now available in the Chat model picker.": "تم تسجيل الدخول إلى GitHub باسم {0}. نماذج Copilot متاحة الآن في قائمة اختيار النموذج في الدردشة."
+		}
+	}
+}

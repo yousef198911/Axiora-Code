@@ -1,0 +1,14 @@
+{
+  "displayName": "GitHub Copilot for Axiora Code",
+  "description": "Uses GitHub Copilot through the official Copilot SDK, signed in with the Axiora Code GitHub app.",
+  "provider.displayName": "GitHub Copilot",
+  "category": "GitHub Copilot (Axiora)",
+  "command.signIn": "Sign in to GitHub for Copilot",
+  "command.refreshModels": "Refresh Copilot Models",
+  "command.useLegacyEngine": "Switch to the Legacy Copilot Engine",
+  "command.useSdkEngine": "Switch to the Copilot SDK Engine",
+  "config.engine": "Which engine provides GitHub Copilot models in Axiora Code.",
+  "config.engine.sdk": "Official GitHub Copilot SDK with the Axiora Code GitHub app (default).",
+  "config.engine.legacy": "Legacy built-in Copilot engine. Copilot SDK models are hidden. Requires re-enabling the legacy engine (see README).",
+  "config.allowAgentTools": "Allow the Copilot SDK's own built-in tools (file edits, shell, web). Off by default; when off, Copilot only answers in chat and every tool permission request is denied."
+}

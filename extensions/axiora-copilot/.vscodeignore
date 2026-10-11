@@ -1,0 +1,7 @@
+src/**
+out/test/**
+tsconfig.json
+**/*.map
+node_modules/@github/copilot-sdk-linuxmusl-*/**
+node_modules/@github/copilot-sdk-darwin-*/**
+node_modules/@github/copilot-sdk-*-arm64/**
