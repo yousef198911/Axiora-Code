@@ -24655,7 +24655,7 @@
 			"light": "حديث فاتح"
 		},
 		"vs/workbench/contrib/welcomeOnboarding/browser/onboardingVariationA": {
-			"onboarding.a.aria": "مرحبًا بك في VS Code",
+			"onboarding.a.aria": "مرحبًا بك في {0}",
 			"onboarding.aiPref.hint": "يمكنك تغيير هذا الإعداد في أي وقت في الإعدادات.",
 			"onboarding.aiPref.label": "اختر أسلوب تعاون الذكاء الاصطناعي المناسب لك",
 			"onboarding.aiPref.selected.alert": "{0} محدد",
@@ -24677,7 +24677,7 @@
 			"onboarding.personalize.tip.p": "ص",
 			"onboarding.personalize.tip.prefix": "نصيحة: اضغط",
 			"onboarding.personalize.tip.shift": "Shift",
-			"onboarding.personalize.tip.suffix": "للوصول إلى جميع أوامر VS Code.",
+			"onboarding.personalize.tip.suffix": " للوصول إلى جميع أوامر {0}.",
 			"onboarding.sessions.agentMode": "مساعد",
 			"onboarding.sessions.agentMode.desc": "وصف الهدف. يقوم الوكيل بتخطيط النهج وتعديل الملفات وتنفيذ الأوامر والتصحيح الذاتي. يمكنك المراجعة والموافقة كما تذهب.",
 			"onboarding.sessions.agentsTutorial": "البرنامج التعليمي للوكيل",
@@ -24715,12 +24715,15 @@
 			"onboarding.signIn.github.aria": "المتابعة باستخدام GitHub",
 			"onboarding.signIn.google": "المتابعة باستخدام Google",
 			"onboarding.signIn.heroSubtitle": "سجّل الدخول لمتابعة التطوير المدعوم بالذكاء الاصطناعي.",
-			"onboarding.signIn.heroTitle": "مرحبًا بك في VS Code",
+			"onboarding.signIn.heroTitle": "مرحبًا بك في {0}",
 			"onboarding.signIn.signedIn": "أنت متصل. يمكنك المتابعة إلى الخطوة التالية.",
 			"onboarding.step.agentSessions.subtitle.before": "نصيحة: اضغط",
 			"onboarding.step.aria": "الخطوة {0} ​​إلى {1}: {2}",
 			"onboarding.stepOf": "{0} من {1}",
-			"onboarding.theme.selected.alert": "{0} المواضيع المحددة"
+			"onboarding.theme.selected.alert": "{0} المواضيع المحددة",
+			"onboarding.signIn.chooseAISubtitle": "اختر الذكاء الاصطناعي: سجّل الدخول إلى GitHub Copilot، أو استخدم مفتاح API الخاص بك أو نموذجًا محليًا.",
+			"onboarding.chooseAI.byok": "استخدام مفتاح API الخاص بي",
+			"onboarding.chooseAI.local": "استخدام نموذج محلي (Ollama)"
 		},
 		"vs/workbench/contrib/welcomeOnboarding/browser/welcomeOnboarding.contribution": {
 			"welcomeOnboarding2026": "مرحبًا بكم في التكامل 2026"
@@ -29200,6 +29203,30 @@
 			"autoModeResolution.nonReasoning": "بدون استدلال",
 			"autoModeResolution.reasoning": "استدلال",
 			"autoModeResolution.title": "تم التوجيه إلى {0}"
+		},
+		"vs/workbench/contrib/chat/browser/chatManagement/chooseYourAI.contribution": {
+			"chooseYourAI": "اختر الذكاء الاصطناعي",
+			"chooseYourAI.local.message": "استخدام نموذج محلي عبر Ollama",
+			"chooseYourAI.local.detail": "1. ثبّت Ollama من ollama.com ونزّل نموذجًا، مثلًا: ollama pull qwen2.5-coder:7b\n2. وضع الوكيل يرسل طلبات كبيرة. شغّل Ollama بنافذة سياق أكبر، مثلًا: OLLAMA_CONTEXT_LENGTH=32768 ollama serve\n3. تابع وأكّد عنوان Ollama (الافتراضي http://localhost:11434).\n\nلا حاجة إلى أي حساب، وتبقى شيفرتك على جهازك.",
+			"chooseYourAI.local.continue": "&&متابعة",
+			"chooseYourAI.byok": "استخدام مفتاح API الخاص بك",
+			"chooseYourAI.byok.description": "مفتاح API",
+			"chooseYourAI.customEndpoint": "نقطة نهاية مخصصة",
+			"chooseYourAI.customEndpoint.description": "أي خادم متوافق مع OpenAI",
+			"chooseYourAI.localSeparator": "نموذج محلي",
+			"chooseYourAI.ollama": "Ollama (محلي)",
+			"chooseYourAI.ollama.description": "يعمل على جهازك دون الحاجة إلى حساب",
+			"chooseYourAI.copilotSeparator": "GitHub Copilot",
+			"chooseYourAI.copilot": "GitHub Copilot",
+			"chooseYourAI.copilot.description": "تسجيل الدخول بحساب GitHub",
+			"chooseYourAI.extensionsSeparator": "مساعدات أخرى",
+			"chooseYourAI.continue": "إضافة Continue (من Open VSX)",
+			"chooseYourAI.continue.description": "مساعد منفصل اختياري مع فهرسة محلية للشيفرة",
+			"chooseYourAI.title": "اختر الذكاء الاصطناعي",
+			"chooseYourAI.placeholder.byok": "اختر مزوّد مفتاح API الخاص بك",
+			"chooseYourAI.placeholder": "استخدم مفتاح API الخاص بك أو نموذجًا محليًا أو GitHub Copilot",
+			"chooseYourAI.trust": "مزوّدو نماذج الذكاء الاصطناعي معطّلون في الوضع المقيّد. ثق بهذا المجلد لإعداد الذكاء الاصطناعي.",
+			"chooseYourAI.providerUnavailable": "مزوّد نماذج الذكاء الاصطناعي غير متاح بعد. يرجى المحاولة مرة أخرى بعد قليل."
 		}
 	}
 }

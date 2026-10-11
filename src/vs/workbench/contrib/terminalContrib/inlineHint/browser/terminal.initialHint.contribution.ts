@@ -31,7 +31,7 @@ import { TerminalInitialHintSettingId } from '../common/terminalInitialHintConfi
 import './media/terminalInitialHint.css';
 import { TerminalSuggestCommandId } from '../../suggest/common/terminal.suggest.js';
 import { TerminalSuggestSettingId } from '../../suggest/common/terminalSuggestConfiguration.js';
-import { IChatEntitlementService } from '../../../../services/chat/common/chatEntitlementService.js';
+import { ChatEntitlement, IChatEntitlementService } from '../../../../services/chat/common/chatEntitlementService.js';
 
 const $ = dom.$;
 
@@ -270,8 +270,12 @@ class TerminalInitialHintWidget extends Disposable {
 
 		const aiFeaturesHidden = this._chatEntitlementService.sentiment.hidden;
 
-		// Copilot CLI hint (only shown when AI features are enabled)
-		if (!aiFeaturesHidden) {
+		// Copilot CLI hint (only shown when AI features are enabled and the user has a Copilot plan; Axiora Code
+		// does not advertise the Copilot CLI to users who have not signed up for Copilot)
+		const entitlement = this._chatEntitlementService.entitlement;
+		const hasCopilotPlan = entitlement === ChatEntitlement.Free || entitlement === ChatEntitlement.EDU || entitlement === ChatEntitlement.Pro
+			|| entitlement === ChatEntitlement.ProPlus || entitlement === ChatEntitlement.Business || entitlement === ChatEntitlement.Enterprise;
+		if (!aiFeaturesHidden && hasCopilotPlan) {
 			const handleCopilotCliClick = () => {
 				this._telemetryService.publicLog2<WorkbenchActionExecutedEvent, WorkbenchActionExecutedClassification>('workbenchActionExecuted', {
 					id: 'terminalCopilotCli.hintAction',
@@ -294,7 +298,7 @@ class TerminalInitialHintWidget extends Disposable {
 		}
 
 		// Suggest hint - only shown when AI features are hidden (otherwise the Copilot CLI hint takes precedence)
-		const suggestEnabled = aiFeaturesHidden && this._configurationService.getValue<boolean>(TerminalSuggestSettingId.Enabled);
+		const suggestEnabled = (aiFeaturesHidden || !hasCopilotPlan) && this._configurationService.getValue<boolean>(TerminalSuggestSettingId.Enabled);
 		const suggestKeybinding = suggestEnabled ? this._keybindingService.lookupKeybinding(TerminalSuggestCommandId.TriggerSuggest) : undefined;
 		const suggestKeybindingLabel = suggestKeybinding?.getLabel();
 		if (suggestKeybinding && suggestKeybindingLabel) {

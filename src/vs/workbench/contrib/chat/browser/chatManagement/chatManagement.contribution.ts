@@ -80,7 +80,7 @@ Registry.as<IEditorFactoryRegistry>(EditorExtensions.EditorFactory).registerEdit
 /**
  * Enable + activate the Copilot Chat extension if installed but disabled.
  */
-async function ensureChatExtensionEnabled(accessor: ServicesAccessor): Promise<void> {
+export async function ensureChatExtensionEnabled(accessor: ServicesAccessor): Promise<void> {
 	const chatExtensionId = accessor.get(IProductService).defaultChatAgent?.chatExtensionId;
 	if (!chatExtensionId) {
 		return;

@@ -424,6 +424,10 @@
 					{
 						"id": "vscode.yaml",
 						"path": "./translations/extensions/vscode.yaml.i18n.json"
+					},
+					{
+						"id": "GitHub.copilot-chat",
+						"path": "./translations/extensions/GitHub.copilot-chat.i18n.json"
 					}
 				]
 			}
