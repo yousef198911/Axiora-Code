@@ -381,28 +381,19 @@ export function activate(context: vscode.ExtensionContext): void {
 	const provider = new CopilotSdkProvider(host);
 	context.subscriptions.push(log, host);
 
-	// The provider is only registered while `axiora.copilot.enabled` is true. When it is turned off
-	// the provider is unregistered and the Copilot runtime process is stopped. Nothing else in the
-	// editor (Chat view, BYOK providers, Ollama) depends on this extension.
-	let registration: vscode.Disposable | undefined;
+	// The provider stays registered so the editor gets an authoritative (empty) model list when
+	// `axiora.copilot.enabled` is turned off; unregistering left stale cached Copilot models in the Chat
+	// model picker. When disabled the provider reports no models and the Copilot runtime process is
+	// stopped. Nothing else in the editor (Chat view, BYOK providers, Ollama) depends on this extension.
+	context.subscriptions.push(vscode.lm.registerLanguageModelChatProvider(VENDOR, provider));
+	log.info('Axiora Copilot SDK provider registered.');
 	const applyEnabled = () => {
-		if (copilotEnabled()) {
-			if (!registration) {
-				registration = vscode.lm.registerLanguageModelChatProvider(VENDOR, provider);
-				log.info('Axiora Copilot SDK provider registered.');
-			}
-			provider.refresh();
-		} else {
-			if (registration) {
-				registration.dispose();
-				registration = undefined;
-				log.info('Axiora Copilot SDK provider unregistered (axiora.copilot.enabled = false).');
-			}
+		if (!copilotEnabled()) {
 			void host.stop();
+			log.info('Copilot disabled (axiora.copilot.enabled = false): models removed, runtime stopped.');
 		}
+		provider.refresh();
 	};
-	context.subscriptions.push({ dispose: () => registration?.dispose() });
-	applyEnabled();
 
 	context.subscriptions.push(
 		vscode.authentication.onDidChangeSessions(e => {
