@@ -172,7 +172,8 @@
 	},
 	"trustedExtensionAuthAccess": {
 		"github": [
-			"GitHub.copilot-chat"
+			"GitHub.copilot-chat",
+			"vscode.axiora-copilot"
 		],
 		"github-enterprise": [
 			"GitHub.copilot-chat"
