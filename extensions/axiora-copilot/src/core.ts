@@ -101,7 +101,7 @@ export function classifyError(err: unknown): ErrorKind {
 	if (/ENOTFOUND|ECONNREFUSED|ECONNRESET|ETIMEDOUT|network|fetch failed|socket hang up/i.test(text)) {
 		return 'network';
 	}
-	if (/Could not resolve @github\/copilot-sdk-|missing required Copilot CLI runtime|Unsupported Copilot CLI/i.test(text)) {
+	if (/Could not resolve @github\/copilot-sdk-|missing required Copilot CLI runtime|Unsupported Copilot CLI|Path to Copilot CLI is required/i.test(text)) {
 		return 'runtimeMissing';
 	}
 	return 'unknown';
@@ -127,14 +127,19 @@ export function estimateTokens(text: string): number {
 }
 
 /** Scope sets tried silently, in order, to reuse an existing Axiora GitHub sign-in. */
+// The first set is the one Axiora's built-in GitHub/Git integration uses, so an existing editor
+// sign-in is reused without a new device-code flow.
 export const SILENT_SCOPE_SETS: readonly (readonly string[])[] = [
+	['repo', 'workflow', 'user:email', 'read:user'],
 	['read:user'],
 	['user:email'],
-	['repo', 'workflow', 'user:email', 'read:user'],
 	['read:user', 'user:email', 'repo', 'workflow'],
 	['repo', 'workflow'],
 	['repo'],
 ];
 
-/** Scopes requested when the user explicitly signs in for Copilot. */
-export const SIGN_IN_SCOPES: readonly string[] = ['read:user'];
+/**
+ * Scopes requested when the user explicitly signs in for Copilot: the same scopes as the editor's
+ * GitHub integration (extensions/github/src/auth.ts), so a single sign-in serves Git and Copilot.
+ */
+export const SIGN_IN_SCOPES: readonly string[] = ['repo', 'workflow', 'user:email', 'read:user'];

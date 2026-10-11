@@ -45,6 +45,16 @@
         "category": "%category%"
       },
       {
+        "command": "axiora.copilot.downloadRuntime",
+        "title": "%command.downloadRuntime%",
+        "category": "%category%"
+      },
+      {
+        "command": "axiora.copilot.removeRuntime",
+        "title": "%command.removeRuntime%",
+        "category": "%category%"
+      },
+      {
         "command": "axiora.copilot.useLegacyEngine",
         "title": "%command.useLegacyEngine%",
         "category": "%category%"
@@ -81,6 +91,13 @@
           "type": "boolean",
           "default": false,
           "description": "%config.allowAgentTools%"
+        },
+        "axiora.copilot.runtimePath": {
+          "type": "string",
+          "default": "",
+          "scope": "machine",
+          "order": 1,
+          "description": "%config.runtimePath%"
         }
       }
     }

@@ -1,6 +1,6 @@
 {
   "displayName": "GitHub Copilot for Axiora Code",
-  "description": "Uses GitHub Copilot through the official Copilot SDK, signed in with the Axiora Code GitHub app.",
+  "description": "Uses GitHub Copilot through the official Copilot SDK, signed in with the Axiora Code GitHub app. The Copilot runtime is downloaded from GitHub on first use.",
   "provider.displayName": "GitHub Copilot",
   "category": "GitHub Copilot (Axiora)",
   "command.signIn": "Sign in to GitHub for Copilot",
@@ -11,5 +11,8 @@
   "config.engine.sdk": "Official GitHub Copilot SDK with the Axiora Code GitHub app (default).",
   "config.engine.legacy": "Legacy built-in Copilot engine. Copilot SDK models are hidden. Requires re-enabling the legacy engine (see README).",
   "config.allowAgentTools": "Allow the Copilot SDK's own built-in tools (file edits, shell, web). Off by default; when off, Copilot only answers in chat and every tool permission request is denied.",
-  "config.enabled": "Enable GitHub Copilot (Copilot SDK) in Axiora Code. When off, Copilot models are removed from the Chat model picker and the Copilot runtime is not started. Chat, your own API keys (BYOK) and Ollama keep working."
+  "config.enabled": "Enable GitHub Copilot (Copilot SDK) in Axiora Code. When off, Copilot models are removed from the Chat model picker and the Copilot runtime is not started. Chat, your own API keys (BYOK) and Ollama keep working.",
+  "command.downloadRuntime": "Download Copilot Runtime (from GitHub) / تنزيل محرّك Copilot",
+  "command.removeRuntime": "Remove Copilot Runtime / حذف محرّك Copilot",
+  "config.runtimePath": "Optional path to a GitHub Copilot CLI executable you installed yourself. When empty, the official runtime is downloaded from GitHub (npm package @github/copilot-<platform>) on first use, after your consent, and cached in the extension's storage."
 }
