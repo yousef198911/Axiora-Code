@@ -5,7 +5,7 @@ Depends: @@DEPENDS@@
 Recommends: @@RECOMMENDS@@
 Priority: optional
 Architecture: @@ARCHITECTURE@@
-Maintainer: Microsoft Corporation <vscode-linux@microsoft.com>
+Maintainer: Axiora <noreply@github.com>
 Homepage: https://code.visualstudio.com/
 Installed-Size: @@INSTALLEDSIZE@@
 Provides: visual-studio-@@NAME@@
