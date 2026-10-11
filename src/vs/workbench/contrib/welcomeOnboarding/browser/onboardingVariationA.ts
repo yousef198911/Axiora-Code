@@ -505,8 +505,9 @@ export class OnboardingVariationA extends Disposable implements IOnboardingServi
 					this._renderEnterpriseSignInProgress(actions);
 					break;
 				default:
+					// Axiora Code: neutral AI choices come first; GitHub Copilot sign-in stays available below.
+					this._renderAlternativeAIActions(contentMain, actions);
 					this._renderDefaultSignInActions(actions);
-					this._renderAlternativeAIActions(contentMain);
 					break;
 			}
 		}
@@ -531,10 +532,11 @@ export class OnboardingVariationA extends Disposable implements IOnboardingServi
 	}
 
 	/** Axiora Code: offer AI without a GitHub account (own API key or local model). */
-	private _renderAlternativeAIActions(container: HTMLElement): void {
-		const row = append(container, $('.onboarding-a-signin-actions.onboarding-a-choose-ai-actions'));
-		const addButton = (label: string, kind: 'byok' | 'local') => {
-			const button = this._registerStepFocusable(append(row, $<HTMLButtonElement>('button.onboarding-a-btn.onboarding-a-btn-secondary')));
+	private _renderAlternativeAIActions(container: HTMLElement, before: HTMLElement): void {
+		const row = $('.onboarding-a-signin-actions.onboarding-a-choose-ai-actions');
+		container.insertBefore(row, before);
+		const addButton = (label: string, kind: 'byok' | 'local', primary?: boolean) => {
+			const button = this._registerStepFocusable(append(row, $<HTMLButtonElement>(primary ? 'button.onboarding-a-btn.onboarding-a-btn-primary' : 'button.onboarding-a-btn.onboarding-a-btn-secondary')));
 			button.type = 'button';
 			button.textContent = label;
 			this.stepDisposables.add(addDisposableListener(button, EventType.CLICK, () => {
@@ -543,13 +545,13 @@ export class OnboardingVariationA extends Disposable implements IOnboardingServi
 				void this.commandService.executeCommand('workbench.action.chat.chooseYourAI', kind);
 			}));
 		};
-		addButton(localize('onboarding.chooseAI.byok', "Use My Own API Key"), 'byok');
+		addButton(localize('onboarding.chooseAI.byok', "Use My Own API Key"), 'byok', true);
 		addButton(localize('onboarding.chooseAI.local', "Use a Local Model (Ollama)"), 'local');
 	}
 
 	private _renderDefaultSignInActions(actions: HTMLElement): void {
 		const githubBtn = this._registerStepFocusable(this._createSignInButton(actions, 'github', localize('onboarding.signIn.github', "Continue with GitHub"), {
-			emphasized: true,
+			emphasized: false,
 			label: localize('onboarding.signIn.github.aria', "Continue with GitHub")
 		}));
 		this.stepDisposables.add(addDisposableListener(githubBtn, EventType.CLICK, () => {
