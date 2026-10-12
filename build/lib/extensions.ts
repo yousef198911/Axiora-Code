@@ -132,7 +132,30 @@ function fromLocalNormal(extensionPath: string): Stream {
 	const vsce = require('@vscode/vsce') as typeof import('@vscode/vsce');
 	const result = es.through();
 
-	vsce.listFiles({ cwd: extensionPath, packageManager: vsce.PackageManager.Npm })
+	// Axiora: extensions without an esbuild config (e.g. axiora-copilot, which must ship its runtime
+	// node_modules unbundled) are packaged file-by-file. Their TypeScript output (out/) is not
+	// produced by any other step of a production build, so compile it here before listing files.
+	const compileFirst = (): Promise<void> => {
+		const tsconfigPath = path.join(extensionPath, 'tsconfig.json');
+		let main: string | undefined;
+		try {
+			main = JSON.parse(fs.readFileSync(path.join(extensionPath, 'package.json'), 'utf8')).main;
+		} catch {
+			main = undefined;
+		}
+		if (!main || !/^(\.\/)?out\//.test(main) || !fs.existsSync(tsconfigPath)) {
+			return Promise.resolve();
+		}
+		return spawnTsgo(tsconfigPath, { taskName: `compiling extension ${path.basename(extensionPath)} (tsgo)` }).then(() => {
+			const mainFile = path.join(extensionPath, main!.endsWith('.js') ? main! : `${main}.js`);
+			if (!fs.existsSync(mainFile)) {
+				throw new Error(`Extension ${path.basename(extensionPath)}: compiled entry point ${main} was not produced`);
+			}
+		});
+	};
+
+	compileFirst()
+		.then(() => vsce.listFiles({ cwd: extensionPath, packageManager: vsce.PackageManager.Npm }))
 		.then(fileNames => {
 			const files = fileNames
 				.map(fileName => path.join(extensionPath, fileName))
