@@ -89,7 +89,7 @@
         },
         "axiora.copilot.allowAgentTools": {
           "type": "boolean",
-          "default": false,
+          "default": true,
           "description": "%config.allowAgentTools%"
         },
         "axiora.copilot.runtimePath": {

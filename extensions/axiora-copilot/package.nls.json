@@ -10,7 +10,7 @@
   "config.engine": "Which engine provides GitHub Copilot models in Axiora Code.",
   "config.engine.sdk": "Official GitHub Copilot SDK with the Axiora Code GitHub app (default).",
   "config.engine.legacy": "Legacy built-in Copilot engine. Copilot SDK models are hidden. Requires re-enabling the legacy engine (see README).",
-  "config.allowAgentTools": "Allow the Copilot SDK's own built-in tools (file edits, shell, web). Off by default; when off, Copilot only answers in chat and every tool permission request is denied.",
+  "config.allowAgentTools": "Agent mode: Copilot can list, read and search files in the open workspace folder, and can create/edit files and run commands there only after you approve each action in a dialog. Nothing outside the workspace folder is accessible, and the Copilot SDK's own built-in tools stay disabled. In untrusted workspaces only reading is allowed. / وضع الوكيل: يقرأ ملفات المشروع، ويعدّلها ويشغّل الأوامر فقط بعد موافقتك.",
   "config.enabled": "Enable GitHub Copilot (Copilot SDK) in Axiora Code. When off, Copilot models are removed from the Chat model picker and the Copilot runtime is not started. Chat, your own API keys (BYOK) and Ollama keep working.",
   "command.downloadRuntime": "Download Copilot Runtime (from GitHub) / تنزيل محرّك Copilot",
   "command.removeRuntime": "Remove Copilot Runtime / حذف محرّك Copilot",

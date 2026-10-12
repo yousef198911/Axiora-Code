@@ -7,6 +7,8 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { downloadRuntime, findVerifiedRuntime, platformId, removeRuntimes, RuntimeError } from './runtime';
+import { createAgentTools } from './agentTools';
+import { AGENT_SYSTEM_PROMPT } from './agentCore';
 import { buildPrompt, ChatRole, classifyError, ErrorKind, estimateTokens, isAllowedToken, ModelInfoLike, PlainMessage, redactSecrets, SIGN_IN_SCOPES, SILENT_SCOPE_SETS, toModelInfos } from './core';
 
 // The Copilot SDK is loaded lazily so that a missing platform runtime never breaks activation.
@@ -229,6 +231,27 @@ function toPlain(messages: readonly vscode.LanguageModelChatRequestMessage[]): P
 	});
 }
 
+/** Workspace folder for Agent mode, or undefined when Agent mode is off or no local folder is open. */
+function agentWorkspaceRoot(): string | undefined {
+	if (!vscode.workspace.getConfiguration(CONFIG).get<boolean>('allowAgentTools', true)) {
+		return undefined;
+	}
+	const f = vscode.workspace.workspaceFolders?.[0];
+	return f?.uri.scheme === 'file' ? f.uri.fsPath : undefined;
+}
+
+/** Modal approval dialog. Only the explicit "Allow" button approves; Esc/close/cancellation deny. */
+async function confirmAction(title: string, detail: string, token: vscode.CancellationToken): Promise<boolean> {
+	if (token.isCancellationRequested) {
+		return false;
+	}
+	const allow = vscode.l10n.t('Allow / سماح');
+	const choice = await vscode.window.showWarningMessage(title, { modal: true, detail }, allow);
+	const approved = choice === allow && !token.isCancellationRequested;
+	log.info(`Agent approval: ${approved ? 'allowed' : 'declined'} (${title.split(' / ')[0]})`);
+	return approved;
+}
+
 class CopilotSdkProvider implements vscode.LanguageModelChatProvider<vscode.LanguageModelChatInformation> {
 	private readonly _onDidChange = new vscode.EventEmitter<void>();
 	readonly onDidChangeLanguageModelChatInformation = this._onDidChange.event;
@@ -281,11 +304,22 @@ class CopilotSdkProvider implements vscode.LanguageModelChatProvider<vscode.Lang
 		if (!session) {
 			throw new Error(message('signInRequired'));
 		}
-		const { system, prompt } = buildPrompt(toPlain(messages));
-		const allowTools = vscode.workspace.getConfiguration(CONFIG).get<boolean>('allowAgentTools', false);
+		const built = buildPrompt(toPlain(messages));
+		const prompt = built.prompt;
+		const agentRoot = agentWorkspaceRoot();
+		const system = agentRoot ? [AGENT_SYSTEM_PROMPT, built.system].filter(Boolean).join('\n\n') : built.system;
 		const started = Date.now();
 		log.info(`Request started: model=${model.id}, messages=${messages.length}, promptChars=${prompt.length}`);
 		let sdkSession: import('@github/copilot-sdk').CopilotSession | undefined;
+		const agentTools = agentRoot ? createAgentTools({
+			root: agentRoot,
+			confirm: (_kind, title, detail) => confirmAction(title, detail, token),
+			report: text => progress.report(new vscode.LanguageModelTextPart(`\n\n> ${text}\n\n`)),
+			isCancelled: () => token.isCancellationRequested,
+			writeFile: async (abs, content) => { await vscode.workspace.fs.writeFile(vscode.Uri.file(abs), Buffer.from(content, 'utf8')); },
+			restrictToReadOnly: !vscode.workspace.isTrusted,
+		}) : [];
+		log.info(`Agent tools: ${agentTools.length ? agentTools.map(t => t.name).join(', ') : 'off'}`);
 		try {
 			const client = await this.host.getClient(acceptedToken(session), true);
 			sdkSession = await client.createSession({
@@ -293,8 +327,12 @@ class CopilotSdkProvider implements vscode.LanguageModelChatProvider<vscode.Lang
 				model: model.id,
 				streaming: true,
 				systemMessage: system ? { mode: 'append', content: system } : undefined,
-				// Safety: no SDK built-in tools unless explicitly allowed; permission prompts are always denied.
-				...(allowTools ? {} : { availableTools: [], excludedTools: ['builtin:*', 'mcp:*'] }),
+				// Safety: the SDK's own built-in and MCP tools are never enabled. In Agent mode only Axiora's
+				// workspace tools are offered: reads are confined to the workspace folder, and every file
+				// write and every command waits for an explicit approval in a modal dialog.
+				...(agentTools.length
+					? { tools: agentTools, availableTools: agentTools.map(t => t.name), excludedTools: ['builtin:*', 'mcp:*'] }
+					: { availableTools: [], excludedTools: ['builtin:*', 'mcp:*'] }),
 				onPermissionRequest: () => ({ kind: 'denied-no-approval-rule-and-could-not-request-from-user' }),
 			});
 			const s = sdkSession;
