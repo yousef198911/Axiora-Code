@@ -22,6 +22,18 @@ suite('axiora-copilot core', () => {
 		assert.strictEqual(infos[1].isUserSelectable, true);
 	});
 
+	test('toModelInfos gives virtual models (auto) a usable input budget', () => {
+		const infos = toModelInfos([
+			{ id: 'auto', name: 'Auto', capabilities: { limits: { max_context_window_tokens: 0, max_output_tokens: 16000 } } },
+			{ id: 'auto2', name: 'Auto', capabilities: { limits: { max_prompt_tokens: 0, max_context_window_tokens: 0, max_output_tokens: 0 } } },
+			{ id: 'auto3', name: 'Auto', capabilities: { limits: { max_context_window_tokens: 16000, max_output_tokens: 16000 } } },
+		]);
+		for (const i of infos) {
+			assert.ok(i.maxInputTokens >= 4096, `${i.id} maxInputTokens=${i.maxInputTokens}`);
+			assert.ok(i.maxOutputTokens > 0, `${i.id} maxOutputTokens=${i.maxOutputTokens}`);
+		}
+	});
+
 	test('buildPrompt single turn', () => {
 		assert.deepStrictEqual(buildPrompt([{ role: 'system', text: 'S' }, { role: 'user', text: 'hi' }]), { system: 'S', prompt: 'hi' });
 	});
