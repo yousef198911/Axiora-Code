@@ -283,6 +283,8 @@ class CopilotSdkProvider implements vscode.LanguageModelChatProvider<vscode.Lang
 		}
 		const { system, prompt } = buildPrompt(toPlain(messages));
 		const allowTools = vscode.workspace.getConfiguration(CONFIG).get<boolean>('allowAgentTools', false);
+		const started = Date.now();
+		log.info(`Request started: model=${model.id}, messages=${messages.length}, promptChars=${prompt.length}`);
 		let sdkSession: import('@github/copilot-sdk').CopilotSession | undefined;
 		try {
 			const client = await this.host.getClient(acceptedToken(session), true);
@@ -333,6 +335,11 @@ class CopilotSdkProvider implements vscode.LanguageModelChatProvider<vscode.Lang
 			}
 			if (!streamed && finalText) {
 				progress.report(new vscode.LanguageModelTextPart(finalText));
+			}
+			const gotText = streamed || !!finalText;
+			log.info(`Request finished: model=${model.id}, text=${gotText ? 'yes' : 'no'}, ms=${Date.now() - started}`);
+			if (!gotText && !token.isCancellationRequested) {
+				throw new Error(`The model "${model.id}" returned no text.`);
 			}
 		} catch (e) {
 			if (token.isCancellationRequested) {

@@ -36,6 +36,14 @@ export interface ModelInfoLike {
 	readonly capabilities: { readonly imageInput: boolean; readonly toolCalling: boolean };
 }
 
+const DEFAULT_CONTEXT_TOKENS = 128000;
+const DEFAULT_OUTPUT_TOKENS = 16000;
+const MIN_INPUT_TOKENS = 4096;
+
+function validLimit(n: number | undefined): number | undefined {
+	return typeof n === 'number' && Number.isFinite(n) && n > 0 ? Math.floor(n) : undefined;
+}
+
 /** Converts Copilot SDK models into language model chat information. Disabled-by-policy models are dropped. */
 export function toModelInfos(models: readonly SdkModelLike[]): ModelInfoLike[] {
 	const result: ModelInfoLike[] = [];
@@ -43,10 +51,15 @@ export function toModelInfos(models: readonly SdkModelLike[]): ModelInfoLike[] {
 		if (m.policy?.state === 'disabled') {
 			continue;
 		}
+		// Virtual models such as `auto` report missing or zero limits. A tiny input budget (it used to
+		// become 1) makes the chat prompt renderer fail silently, so the request never reaches us.
 		const limits = m.capabilities?.limits ?? {};
-		const context = limits.max_context_window_tokens ?? 128000;
-		const maxOutputTokens = limits.max_output_tokens ?? 16000;
-		const maxInputTokens = limits.max_prompt_tokens ?? Math.max(1, context - maxOutputTokens);
+		const context = validLimit(limits.max_context_window_tokens) ?? DEFAULT_CONTEXT_TOKENS;
+		const maxOutputTokens = Math.min(validLimit(limits.max_output_tokens) ?? DEFAULT_OUTPUT_TOKENS, Math.floor(context / 2));
+		let maxInputTokens = validLimit(limits.max_prompt_tokens) ?? (context - maxOutputTokens);
+		if (maxInputTokens < MIN_INPUT_TOKENS) {
+			maxInputTokens = DEFAULT_CONTEXT_TOKENS - DEFAULT_OUTPUT_TOKENS;
+		}
 		const multiplier = m.billing?.multiplier;
 		result.push({
 			id: m.id,
