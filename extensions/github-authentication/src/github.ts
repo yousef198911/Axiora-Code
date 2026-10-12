@@ -738,6 +738,7 @@ export class GitHubSessionEngine implements vscode.AuthenticationProvider, vscod
 					this._logger.info(`Verified session with the following scopes: ${scopesStr}`);
 				} catch (e) {
 					if (e.message === 'Unauthorized') {
+						this._logger.warn(`Dropping stored session (scopes: ${scopesStr}): GitHub rejected the token as Unauthorized.`);
 						return undefined;
 					}
 				}
