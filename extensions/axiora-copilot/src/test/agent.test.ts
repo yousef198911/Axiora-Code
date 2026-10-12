@@ -7,7 +7,7 @@ import * as assert from 'assert';
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
-import { AgentToolError, applyEdit, globToRegExp, isInside, resolveInWorkspace, sliceLines } from '../agentCore';
+import { AGENT_SYSTEM_PROMPT, AgentToolError, ApprovalDecision, ApprovalGate, applyEdit, globToRegExp, isInside, resolveInWorkspace, sliceLines } from '../agentCore';
 import { AgentHost, AgentToolDef, createAgentTools } from '../agentTools';
 
 suite('axiora-copilot agent', () => {
@@ -78,7 +78,7 @@ suite('axiora-copilot agent', () => {
 		assert.ok(!globToRegExp('*.ts').test('src/a.ts'));
 	});
 
-	test('read tools work without approval and skip node_modules', async () => {
+	test('read tools work after approval and skip node_modules', async () => {
 		const t = tools();
 		const read = await t.get('read_file')!.handler({ path: 'src/a.ts' });
 		assert.strictEqual(read.resultType, 'success');
@@ -88,7 +88,70 @@ suite('axiora-copilot agent', () => {
 		assert.doesNotMatch(list.textResultForLlm, /node_modules/);
 		const search = await t.get('search_text')!.handler({ query: 'CONST B' });
 		assert.strictEqual(search.textResultForLlm, 'src/a.ts:2: const b = 2;');
-		assert.strictEqual(confirms.length, 0);
+		assert.deepStrictEqual(confirms.map(c => c.kind), ['read', 'read', 'read']);
+	});
+
+	test('denied reads return nothing', async () => {
+		answer = false;
+		const t = tools();
+		for (const [name, args] of [['read_file', { path: 'src/a.ts' }], ['list_files', {}], ['search_text', { query: 'const' }]] as const) {
+			const r = await t.get(name)!.handler(args);
+			assert.strictEqual(r.resultType, 'denied', name);
+			assert.doesNotMatch(r.textResultForLlm, /const a|a\.ts:/, name);
+		}
+	});
+
+	test('ApprovalGate: once asks every time, session remembers per kind, deny/undefined/throw deny', async () => {
+		const answers: (ApprovalDecision | undefined | Error)[] = [];
+		const asked: string[] = [];
+		const gate = new ApprovalGate(async kind => {
+			asked.push(kind);
+			const a = answers.shift();
+			if (a instanceof Error) {
+				throw a;
+			}
+			return a;
+		});
+		answers.push('once', 'once');
+		assert.strictEqual(await gate.approve('read', 't', 'd'), true);
+		assert.strictEqual(await gate.approve('read', 't', 'd'), true);
+		assert.strictEqual(asked.length, 2);
+		answers.push('deny', undefined, new Error('x'));
+		assert.strictEqual(await gate.approve('write', 't', 'd'), false);
+		assert.strictEqual(await gate.approve('write', 't', 'd'), false);
+		assert.strictEqual(await gate.approve('write', 't', 'd'), false);
+		answers.push('session');
+		assert.strictEqual(await gate.approve('command', 't', 'd'), true);
+		const before = asked.length;
+		assert.strictEqual(await gate.approve('command', 't', 'd'), true);
+		assert.strictEqual(asked.length, before, 'session approval must not ask again');
+		assert.ok(gate.isAlwaysAllowed('command') && !gate.isAlwaysAllowed('write'));
+		answers.push('deny');
+		assert.strictEqual(await gate.approve('write', 't', 'd'), false, 'session for command must not cover write');
+		assert.strictEqual(await gate.approve('command', 't', 'd', () => true), false, 'cancelled always denies');
+		gate.reset();
+		answers.push('deny');
+		assert.strictEqual(await gate.approve('command', 't', 'd'), false);
+	});
+
+	test('tools wired to ApprovalGate: "always this session" stops prompting for that kind only', async () => {
+		const asked: string[] = [];
+		const queue: ApprovalDecision[] = ['session', 'deny'];
+		const gate = new ApprovalGate(async kind => { asked.push(kind); return queue.shift(); });
+		const t = new Map(createAgentTools({ root, confirm: (k, ti, d) => gate.approve(k, ti, d), report: () => { }, isCancelled: () => false }).map(x => [x.name, x]));
+		assert.strictEqual((await t.get('read_file')!.handler({ path: 'src/a.ts' })).resultType, 'success');
+		assert.strictEqual((await t.get('search_text')!.handler({ query: 'a' })).resultType, 'success');
+		assert.strictEqual((await t.get('list_files')!.handler({})).resultType, 'success');
+		assert.strictEqual((await t.get('write_file')!.handler({ path: 'x.txt', content: 'x' })).resultType, 'denied');
+		assert.deepStrictEqual(asked, ['read', 'write']);
+		assert.ok(!fs.existsSync(path.join(root, 'x.txt')));
+	});
+
+	test('system prompt names Axiora Code and every tool', () => {
+		assert.match(AGENT_SYSTEM_PROMPT, /Axiora Code/);
+		for (const name of createAgentTools({ root, confirm: async () => false, report: () => { }, isCancelled: () => false }).map(x => x.name)) {
+			assert.ok(AGENT_SYSTEM_PROMPT.includes(name), name);
+		}
 	});
 
 	test('reading outside the workspace fails', async () => {
@@ -115,9 +178,10 @@ suite('axiora-copilot agent', () => {
 		assert.deepStrictEqual(confirms.map(c => c.kind), ['write', 'write', 'write', 'write']);
 	});
 
-	test('writing outside the workspace is refused before asking', async () => {
+	test('reading/writing outside the workspace is refused before asking', async () => {
 		const r = await tools().get('write_file')!.handler({ path: path.join(outside, 'x.txt'), content: 'x' });
 		assert.strictEqual(r.resultType, 'failure');
+		assert.strictEqual((await tools().get('read_file')!.handler({ path: path.join(outside, 'key.txt') })).resultType, 'failure');
 		assert.strictEqual(confirms.length, 0);
 		assert.ok(!fs.existsSync(path.join(outside, 'x.txt')));
 	});

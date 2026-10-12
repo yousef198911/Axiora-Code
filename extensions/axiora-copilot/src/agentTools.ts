@@ -5,7 +5,7 @@
 
 // Axiora Agent mode tools, handed to the Copilot SDK as custom tools. No `vscode` import: the editor
 // integration (approval dialog, progress text, cancellation) is injected through {@link AgentHost} so
-// the tools can be unit tested. Every write and every command requires `confirm` to return true.
+// the tools can be unit tested. Every action (read, write, command) requires `confirm` to return true.
 
 import * as cp from 'child_process';
 import * as fs from 'fs';
@@ -16,7 +16,7 @@ export interface AgentHost {
 	/** Workspace folder; all tools are confined to it. */
 	readonly root: string;
 	/** Asks the user. Must resolve true only on an explicit approval. */
-	confirm(kind: 'write' | 'command', title: string, detail: string): Promise<boolean>;
+	confirm(kind: 'read' | 'write' | 'command', title: string, detail: string): Promise<boolean>;
 	/** Short progress line shown in the chat response. */
 	report(text: string): void;
 	readonly isCancelled: () => boolean;
@@ -131,6 +131,9 @@ export function createAgentTools(host: AgentHost): AgentToolDef[] {
 			handler: wrap(async a => {
 				const dir = resolveInWorkspace(root, typeof a.path === 'string' && a.path ? a.path : '.');
 				const re = typeof a.pattern === 'string' && a.pattern ? globToRegExp(a.pattern) : undefined;
+				if (!await host.confirm('read', `List files in ${rel(dir)}? / عرض الملفات؟`, `${rel(dir)}${re ? `  (${a.pattern})` : ''}`)) {
+					return denied(`list ${rel(dir)}`);
+				}
 				const out: string[] = [];
 				walk(root, dir, (_abs, r, isDir) => {
 					if (!re || re.test(r)) {
@@ -149,6 +152,9 @@ export function createAgentTools(host: AgentHost): AgentToolDef[] {
 			skipPermission: true,
 			handler: wrap(async a => {
 				const abs = resolveInWorkspace(root, a.path);
+				if (!await host.confirm('read', `Read ${rel(abs)}? / قراءة الملف؟`, rel(abs))) {
+					return denied(`read ${rel(abs)}`);
+				}
 				const text = readText(abs);
 				host.report(`📄 ${rel(abs)}`);
 				return ok(truncate(sliceLines(text, a.start_line, a.end_line), MAX_READ_CHARS));
@@ -170,6 +176,9 @@ export function createAgentTools(host: AgentHost): AgentToolDef[] {
 					throw new AgentToolError(`Invalid regular expression: ${(e as Error).message}`);
 				}
 				const glob = typeof a.pattern === 'string' && a.pattern ? globToRegExp(a.pattern) : undefined;
+				if (!await host.confirm('read', 'Search the workspace? / البحث في المشروع؟', `${a.query}${glob ? `  (${a.pattern})` : ''}`)) {
+					return denied(`search "${a.query}"`);
+				}
 				const out: string[] = [];
 				walk(root, root, (abs, r, isDir) => {
 					if (isDir || (glob && !glob.test(r)) || host.isCancelled()) {
