@@ -36,6 +36,15 @@ jobs:
             if ($i -eq 3) { throw "npm ci failed" }
             Start-Sleep -Seconds 5
           }
+      - name: Inject GitHub OAuth client secret
+        shell: pwsh
+        env:
+          AXIORA_GITHUB_CLIENT_SECRET: ${{ secrets.AXIORA_GITHUB_CLIENT_SECRET }}
+        run: |
+          $ErrorActionPreference = "Stop"
+          if (-not $env:AXIORA_GITHUB_CLIENT_SECRET) { Write-Warning "AXIORA_GITHUB_CLIENT_SECRET not set; browser sign-in disabled (device code only)"; exit 0 }
+          node -e "const fs=require('fs');const p='extensions/github-authentication/src/config.ts';const s=fs.readFileSync(p,'utf8');const ph='__AXIORA_GITHUB_CLIENT_SECRET__';if(!s.includes(ph))throw new Error('placeholder missing');fs.writeFileSync(p,s.replace(ph,()=>process.env.AXIORA_GITHUB_CLIENT_SECRET));console.log('client secret injected')"
+          if ($LASTEXITCODE -ne 0) { throw "secret injection failed" }
       - name: Build (minified app)
         shell: pwsh
         env:

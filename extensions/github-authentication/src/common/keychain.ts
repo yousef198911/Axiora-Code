@@ -15,7 +15,11 @@ export class Keychain {
 
 	async setToken(token: string): Promise<void> {
 		try {
-			return await this.context.secrets.store(this.serviceId, token);
+			await this.context.secrets.store(this.serviceId, token);
+			// Diagnostics (no secret values): confirm the write is readable back.
+			const readBack = await this.context.secrets.get(this.serviceId);
+			this.Logger.info(`Secret storage write for '${this.serviceId}': ${token.length} chars, read-back ${readBack === token ? 'OK' : readBack === undefined ? 'MISSING' : 'MISMATCH'}.`);
+			return;
 		} catch (e) {
 			// Ignore
 			this.Logger.error(`Setting token failed: ${e}`);
@@ -25,6 +29,7 @@ export class Keychain {
 	async getToken(): Promise<string | null | undefined> {
 		try {
 			const secret = await this.context.secrets.get(this.serviceId);
+			this.Logger.info(`Secret storage read for '${this.serviceId}': ${secret === undefined ? 'no entry' : secret === '[]' ? 'empty session list' : `${secret.length} chars`}.`);
 			if (secret && secret !== '[]') {
 				this.Logger.trace('Token acquired from secret storage.');
 			}

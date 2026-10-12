@@ -83,6 +83,10 @@ export class LoopbackAuthServer implements ILoopbackServer {
 			this._startingRedirect.searchParams.delete('state');
 		}
 	}
+	/** The redirect_uri sent to the authorize endpoint (must be reused for the token exchange). */
+	public get redirectUri(): string | undefined {
+		return this._startingRedirect.searchParams.get('redirect_uri') ?? undefined;
+	}
 	public get state(): string | undefined {
 		return this._startingRedirect.searchParams.get('state') ?? undefined;
 	}
@@ -115,7 +119,11 @@ export class LoopbackAuthServer implements ILoopbackServer {
 				case '/callback': {
 					const code = reqUrl.searchParams.get('code') ?? undefined;
 					const state = reqUrl.searchParams.get('state') ?? undefined;
-					const nonce = (reqUrl.searchParams.get('nonce') ?? '').replace(/ /g, '+');
+					let nonce = (reqUrl.searchParams.get('nonce') ?? '').replace(/ /g, '+');
+					if (!nonce && state) {
+						// Direct loopback redirect: the nonce travels inside the state value.
+						try { nonce = new URL(state).searchParams.get('nonce') ?? ''; } catch { /* invalid state */ }
+					}
 					if (!code || !state || !nonce) {
 						res.writeHead(400);
 						res.end();
@@ -174,6 +182,14 @@ export class LoopbackAuthServer implements ILoopbackServer {
 
 				// set state which will be used to redirect back to vscode
 				this.state = `http://127.0.0.1:${this.port}/callback?nonce=${encodeURIComponent(this.nonce)}`;
+
+				// Axiora Code: GitHub redirects straight to this loopback server (no vscode.dev proxy).
+				// The OAuth App registers http://127.0.0.1/callback; GitHub accepts any port for a
+				// loopback redirect URI, so bind the redirect to the port we actually listen on.
+				const redirect = this._startingRedirect.searchParams.get('redirect_uri');
+				if (redirect && /^http:\/\/127\.0\.0\.1(?::\d+)?\/callback$/.test(redirect)) {
+					this._startingRedirect.searchParams.set('redirect_uri', `http://127.0.0.1:${this.port}/callback`);
+				}
 
 				resolve(this.port);
 			});

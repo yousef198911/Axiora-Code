@@ -357,6 +357,7 @@ class LocalServerFlow implements IFlow {
 			});
 			const server = new LoopbackAuthServer(path.join(__dirname, '../media'), loginUrl.toString(true), callbackUri.toString(true), env.isAppPortable);
 			const port = await server.start();
+			const effectiveRedirectUri = server.redirectUri ? Uri.parse(server.redirectUri) : redirectUri;
 
 			let codeToExchange;
 			try {
@@ -376,7 +377,7 @@ class LocalServerFlow implements IFlow {
 			const accessToken = await exchangeCodeForToken(
 				logger,
 				baseUri.with({ path: '/login/oauth/access_token' }),
-				redirectUri,
+				effectiveRedirectUri,
 				codeToExchange,
 				codeVerifier,
 				enterpriseUri);
