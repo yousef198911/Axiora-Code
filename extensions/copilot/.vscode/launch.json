@@ -50,7 +50,7 @@
 		{
 			"type": "node",
 			"request": "launch",
-			"name": "Launch Copilot Extension - Watch Mode - Axiora Code",
+			"name": "Launch Copilot Extension - Watch Mode - Code OSS",
 			"runtimeExecutable": "${workspaceFolder}/../vscode/scripts/code.sh",
 			"windows": {
 				"runtimeExecutable": "${workspaceFolder}/../vscode/scripts/code.bat",
@@ -328,7 +328,7 @@
 			}
 		},
 		{
-			"name": "Attach to Extension Host - Axiora Code",
+			"name": "Attach to Extension Host - Code OSS",
 			"type": "node",
 			"request": "attach",
 			"restart": true,

@@ -25,7 +25,7 @@
   * [API updates](#api-updates)
     * [Making breaking changes to API](#making-breaking-changes-to-api)
     * [Making additive changes to API](#making-additive-changes-to-api)
-  * [Running with Axiora Code](#running-with-code-oss)
+  * [Running with Code OSS](#running-with-code-oss)
 
 # Creating good issues
 
@@ -323,14 +323,14 @@ Examples of API changes:
 - Adding a new API proposal
 - Adding a new method to an existing interface
 
-## Running with Axiora Code
+## Running with Code OSS
 
 ### Desktop
 
-You can run the extension from Axiora Code Desktop, provided that you follow along these steps:
+You can run the extension from Code OSS Desktop, provided that you follow along these steps:
 - Create a top level `product.overrides.json` in the `vscode` repository
 - Add below contents as JSON
-- Run the extension launch configuration in Axiora Code
+- Run the extension launch configuration in Code OSS
 
 ```json
 {
@@ -344,7 +344,7 @@ You can run the extension from Axiora Code Desktop, provided that you follow alo
 
 ### Web
 
-Axiora Code for Web unfortunately does not support the `product.overrides.json` trick. You have to manually copy the
+Code OSS for Web unfortunately does not support the `product.overrides.json` trick. You have to manually copy the
 contents of the `defaultChatAgent` property into the `src/vs/platform/product/common/product.ts` file [here](https://github.com/microsoft/vscode/blob/d499211732305086bbac4e603392e540dee05bd2/src/vs/platform/product/common/product.ts#L72).
 
 For example:
@@ -352,8 +352,8 @@ For example:
 ```ts
 Object.assign(product, {
 		version: '1.102.0-dev',
-		nameShort: 'Axiora Code Dev',
-		nameLong: 'Axiora Code Dev',
+		nameShort: 'Code - OSS Dev',
+		nameLong: 'Code - OSS Dev',
 		applicationName: 'code-oss',
 		dataFolderName: '.vscode-oss',
 		urlProtocol: 'code-oss',
