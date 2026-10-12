@@ -131,9 +131,55 @@ export function globToRegExp(glob: string): RegExp {
 	return new RegExp(`^${re}$`, 'i');
 }
 
+export type ApprovalKind = 'read' | 'write' | 'command';
+export type ApprovalDecision = 'once' | 'session' | 'deny';
+
+/**
+ * Per-action approval with "allow once / always this session / deny". Anything other than an explicit
+ * 'once' or 'session' answer (undefined, Esc, error) denies. 'session' approvals are remembered per kind
+ * for the lifetime of this gate (one editor window session).
+ */
+export class ApprovalGate {
+	private readonly sessionAllowed = new Set<ApprovalKind>();
+	constructor(private readonly ask: (kind: ApprovalKind, title: string, detail: string) => Promise<ApprovalDecision | undefined>) { }
+
+	isAlwaysAllowed(kind: ApprovalKind): boolean {
+		return this.sessionAllowed.has(kind);
+	}
+
+	reset(): void {
+		this.sessionAllowed.clear();
+	}
+
+	async approve(kind: ApprovalKind, title: string, detail: string, isCancelled: () => boolean = () => false): Promise<boolean> {
+		if (isCancelled()) {
+			return false;
+		}
+		if (this.sessionAllowed.has(kind)) {
+			return true;
+		}
+		let decision: ApprovalDecision | undefined;
+		try {
+			decision = await this.ask(kind, title, detail);
+		} catch {
+			decision = undefined;
+		}
+		if (isCancelled()) {
+			return false;
+		}
+		if (decision === 'session') {
+			this.sessionAllowed.add(kind);
+			return true;
+		}
+		return decision === 'once';
+	}
+}
+
 export const AGENT_SYSTEM_PROMPT = [
 	'You are the AI assistant inside Axiora Code, a code editor built on Code-OSS.',
-	'You can work directly in the user\'s open workspace folder with these tools: list_files, read_file, search_text (read-only, no approval needed), and write_file, edit_file, run_command (each one is shown to the user and runs only after the user approves it).',
+	'You are running in Agent mode and you DO have tools to work directly in the user\'s open workspace folder: list_files and search_text (find files and text), read_file (read a file), write_file (create or overwrite a file), edit_file (replace exact text in a file), and run_command (run a shell command in the workspace folder).',
+	'Use these tools whenever the task involves the user\'s code; never claim you cannot read or change workspace files.',
+	'Each action is shown to the user, who can allow it once, allow that kind of action for the rest of the session, or deny it.',
 	'Paths are relative to the workspace folder; you cannot access anything outside it.',
 	'Read files before editing them. Prefer edit_file for small changes. If the user declines an action, do not retry it; explain and continue or ask.',
 	'Keep the user informed briefly about what you are doing.',
