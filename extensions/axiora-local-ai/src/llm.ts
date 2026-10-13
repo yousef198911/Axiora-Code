@@ -6,6 +6,13 @@ import * as vscode from 'vscode';
 export interface ChatMessage { role: 'system' | 'user' | 'assistant'; content: string }
 
 let secrets: vscode.SecretStorage | undefined;
+/** Approximate token usage per model (chars/4), for the usage report. */
+export const usage = new Map<string, { input: number; output: number; requests: number }>();
+function track(model: string, input: string, output: string) {
+	const u = usage.get(model) ?? { input: 0, output: 0, requests: 0 };
+	u.input += Math.ceil(input.length / 4); u.output += Math.ceil(output.length / 4); u.requests++;
+	usage.set(model, u);
+}
 export function initLlm(s: vscode.SecretStorage) { secrets = s; }
 
 function cfg() {
@@ -33,14 +40,18 @@ export async function complete(prefix: string, suffix: string, model: string, ma
 			body: JSON.stringify({ model, prompt: prefix, suffix, stream: false, raw: false, options: { num_predict: maxTokens, temperature: 0.1, stop: ['\n\n\n'] } })
 		});
 		if (!r.ok) { throw new Error(`Ollama ${r.status}: ${await r.text()}`); }
-		return ((await r.json()) as { response?: string }).response ?? '';
+		const res = ((await r.json()) as { response?: string }).response ?? '';
+		track(model, prefix + suffix, res);
+		return res;
 	}
 	const r = await fetch(`${baseUrl}/completions`, {
 		method: 'POST', headers: await headers(), signal,
 		body: JSON.stringify({ model, prompt: prefix, suffix, max_tokens: maxTokens, temperature: 0.1 })
 	});
 	if (!r.ok) { throw new Error(`Provider ${r.status}: ${await r.text()}`); }
-	return ((await r.json()) as { choices?: { text?: string }[] }).choices?.[0]?.text ?? '';
+	const res = ((await r.json()) as { choices?: { text?: string }[] }).choices?.[0]?.text ?? '';
+	track(model, prefix + suffix, res);
+	return res;
 }
 
 /** Streaming chat. Calls onChunk for every text delta, returns full text. */
@@ -69,6 +80,7 @@ export async function chat(messages: ChatMessage[], onChunk: (s: string) => void
 			} catch { /* partial line */ }
 		}
 	}
+	track(chatModel, messages.map(m => m.content).join(''), full);
 	return full;
 }
 

@@ -272,6 +272,11 @@
         "command": "axiora.sessions.delete",
         "title": "Delete Editor Session...",
         "category": "Sessions"
+      },
+      {
+        "command": "axiora.ai.showUsage",
+        "title": "Show Token Usage and Cost",
+        "category": "Axiora AI"
       }
     ],
     "menus": {
@@ -454,6 +459,16 @@
           "type": "boolean",
           "default": true,
           "description": "Apply .editorconfig settings (indentation, line endings, trailing whitespace, final newline) without an extension."
+        },
+        "axiora.ai.costPer1kInputTokens": {
+          "type": "number",
+          "default": 0,
+          "description": "Price per 1K input tokens for cost estimates (0 for local models)."
+        },
+        "axiora.ai.costPer1kOutputTokens": {
+          "type": "number",
+          "default": 0,
+          "description": "Price per 1K output tokens for cost estimates."
         }
       }
     },
