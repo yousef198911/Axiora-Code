@@ -825,6 +825,12 @@
         "command": "axiora.cli.install",
         "title": "Install Headless CLI Agent (axiora-agent)",
         "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.html.preview",
+        "title": "Open Live Preview",
+        "category": "HTML",
+        "icon": "$(open-preview)"
       }
     ],
     "menus": {
@@ -1025,6 +1031,11 @@
           "command": "axiora.scripts.runCurrent",
           "group": "navigation",
           "when": "resourcePath =~ /(axiora-scripts|\\.axiora\\/scripts)\\/[^/]+\\.js$/"
+        },
+        {
+          "command": "axiora.html.preview",
+          "group": "navigation",
+          "when": "editorLangId == html"
         }
       ],
       "explorer/context": [
@@ -1075,6 +1086,11 @@
         {
           "command": "axiora.deploy.upload",
           "group": "7_deploy@1"
+        },
+        {
+          "command": "axiora.html.preview",
+          "group": "navigation@98",
+          "when": "resourceExtname == .html || resourceExtname == .htm"
         }
       ],
       "scm/resourceState/context": [
@@ -1973,6 +1989,11 @@
         "command": "axiora.nextEdit.dismiss",
         "key": "escape",
         "when": "editorTextFocus && axiora.nextEditPending"
+      },
+      {
+        "command": "axiora.html.preview",
+        "key": "ctrl+k v",
+        "when": "editorLangId == html"
       }
     ],
     "languages": [
