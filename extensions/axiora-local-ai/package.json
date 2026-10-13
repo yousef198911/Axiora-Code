@@ -257,6 +257,21 @@
         "command": "axiora.git.blamePrevious",
         "title": "Show File Before the Commit That Changed This Line (Blame Previous Revision)",
         "category": "Git"
+      },
+      {
+        "command": "axiora.sessions.save",
+        "title": "Save Editor Session As...",
+        "category": "Sessions"
+      },
+      {
+        "command": "axiora.sessions.open",
+        "title": "Open Editor Session...",
+        "category": "Sessions"
+      },
+      {
+        "command": "axiora.sessions.delete",
+        "title": "Delete Editor Session...",
+        "category": "Sessions"
       }
     ],
     "menus": {
