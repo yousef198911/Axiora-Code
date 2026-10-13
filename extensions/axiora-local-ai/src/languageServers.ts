@@ -11,9 +11,10 @@ import * as cp from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as zlib from 'zlib';
+import * as os from 'os';
 import { LanguageClient, LanguageClientOptions, ServerOptions } from 'vscode-languageclient/node';
 
-type Install = { kind: 'npm'; pkg: string; bin: string } | { kind: 'go'; pkg: string; bin: string } | { kind: 'github'; repo: string; asset: (tag: string) => RegExp; bin: string };
+type Install = { kind: 'path'; bin: string; hint: string } | { kind: 'url'; url: () => string; bin: string; requires?: string } | { kind: 'cmd'; cmd: string[]; bin: string; requires: string } | { kind: 'npm'; pkg: string; bin: string } | { kind: 'go'; pkg: string; bin: string } | { kind: 'github'; repo: string; asset: (tag: string) => RegExp; bin: string };
 export type Server = { id: string; name: string; languages: string[]; install: Install; args: string[]; conflicts: string[]; detect?: string };
 export const SERVERS: Server[] = [
 	{ id: 'pyright', name: 'Pyright', languages: ['python'], install: { kind: 'npm', pkg: 'pyright', bin: 'pyright-langserver' }, args: ['--stdio'], conflicts: ['ms-python.vscode-pylance', 'ms-pyright.pyright', 'detachhead.basedpyright'] },
@@ -24,6 +25,14 @@ export const SERVERS: Server[] = [
 	{ id: 'rust-analyzer', name: 'rust-analyzer', languages: ['rust'], install: { kind: 'github', repo: 'rust-lang/rust-analyzer', asset: () => new RegExp(`^rust-analyzer-${{ x64: 'x86_64', arm64: 'aarch64' }[process.arch as 'x64'] ?? 'x86_64'}-${{ linux: 'unknown-linux-gnu', darwin: 'apple-darwin', win32: 'pc-windows-msvc' }[process.platform as 'linux'] ?? 'unknown-linux-gnu'}\\.(gz|zip)$`), bin: 'rust-analyzer' }, args: [], conflicts: ['rust-lang.rust-analyzer'] },
 	{ id: 'clangd', name: 'clangd', languages: ['c', 'cpp', 'objective-c', 'objective-cpp'], install: { kind: 'github', repo: 'clangd/clangd', asset: t => new RegExp(`^clangd-${{ linux: 'linux', darwin: 'mac', win32: 'windows' }[process.platform as 'linux'] ?? 'linux'}-${t.replace(/^v/, '').replace(/\./g, '\\.')}\\.zip$`), bin: 'clangd' }, args: ['--background-index'], conflicts: ['llvm-vs-code-extensions.vscode-clangd', 'ms-vscode.cpptools'] },
 	{ id: 'lua', name: 'Lua Language Server', languages: ['lua'], install: { kind: 'github', repo: 'LuaLS/lua-language-server', asset: t => new RegExp(`^lua-language-server-${t.replace(/\./g, '\\.')}-${{ linux: 'linux', darwin: 'darwin', win32: 'win32' }[process.platform as 'linux'] ?? 'linux'}-${process.arch === 'arm64' ? 'arm64' : 'x64'}\\.(tar\\.gz|zip)$`), bin: path.join('bin', 'lua-language-server') }, args: [], conflicts: ['sumneko.lua'] },
+	// --- written for the owner's machines (toolchains not on the build box) ---
+	{ id: 'jdtls', name: 'Eclipse JDT Language Server (Java, Spring)', languages: ['java'], install: { kind: 'url', url: () => 'https://download.eclipse.org/jdtls/snapshots/jdt-language-server-latest.tar.gz', bin: path.join('bin', 'jdtls'), requires: 'java' }, args: ['-data', path.join(os.tmpdir(), 'axiora-jdtls-ws')], conflicts: ['redhat.java'] },
+	{ id: 'kotlin', name: 'Kotlin Language Server', languages: ['kotlin'], install: { kind: 'github', repo: 'fwcd/kotlin-language-server', asset: () => /^server\.zip$/, bin: path.join('server', 'bin', 'kotlin-language-server') }, args: [], conflicts: ['fwcd.kotlin'] },
+	{ id: 'terraform-ls', name: 'Terraform Language Server', languages: ['terraform', 'tf'], install: { kind: 'github', repo: 'hashicorp/terraform-ls', asset: t => new RegExp(`^terraform-ls_${t.replace(/^v/, '').replace(/\./g, '\\.')}_${{ linux: 'linux', darwin: 'darwin', win32: 'windows' }[process.platform as 'linux'] ?? 'linux'}_${process.arch === 'arm64' ? 'arm64' : 'amd64'}\\.zip$`), bin: 'terraform-ls' }, args: ['serve'], conflicts: ['hashicorp.terraform'] },
+	{ id: 'r', name: 'R languageserver', languages: ['r'], install: { kind: 'cmd', cmd: ['Rscript', '-e', "install.packages('languageserver', repos='https://cloud.r-project.org', lib=Sys.getenv('R_LIBS_USER'))"], bin: 'R', requires: 'Rscript' }, args: ['--slave', '-e', 'languageserver::run()'], conflicts: ['reditorsupport.r'] },
+	{ id: 'sourcekit', name: 'SourceKit-LSP (Swift)', languages: ['swift'], install: { kind: 'path', bin: 'sourcekit-lsp', hint: 'Install Xcode (macOS) or the Swift toolchain from swift.org (Linux/Windows).' }, args: [], conflicts: ['swiftlang.swift-vscode', 'sswg.swift-lang'] },
+	{ id: 'qmlls', name: 'QML Language Server (Qt)', languages: ['qml'], install: { kind: 'path', bin: 'qmlls', hint: 'Install Qt 6.5+ and add its bin folder (with qmlls) to PATH.' }, args: [], conflicts: ['theqtcompany.qt-qml'] },
+	{ id: 'kotlin-android', name: 'Gradle/Android (via jdtls + kotlin)', languages: ['groovy'], install: { kind: 'path', bin: 'gradle-language-server', hint: 'Optional: install gradle-language-server from microsoft/vscode-gradle.' }, args: [], conflicts: ['vscjava.vscode-gradle'] },
 ];
 const exe = (b: string) => process.platform === 'win32' && !/\.\w+$/.test(b) ? `${b}${b.includes('node_modules') ? '.cmd' : '.exe'}` : b;
 const sh = (cmd: string, args: string[], opts: cp.SpawnOptions, out: vscode.OutputChannel) => new Promise<void>((res, rej) => {
@@ -37,7 +46,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 	const root = path.join(ctx.globalStorageUri.fsPath, 'lsp'); fs.mkdirSync(root, { recursive: true });
 	const cfg = () => vscode.workspace.getConfiguration('axiora.lsp');
 	const dir = (s: Server) => path.join(root, s.id);
-	const binPath = (s: Server) => { const i = s.install; if (i.kind === 'npm') { return path.join(dir(s), 'node_modules', '.bin', exe(i.bin)); } if (i.kind === 'go') { return path.join(dir(s), 'bin', exe(i.bin)); } return path.join(dir(s), exe(i.bin)); };
+	const binPath = (s: Server) => { const i = s.install; if (i.kind === 'path') { const d = (process.env.PATH ?? '').split(path.delimiter).find(x => fs.existsSync(path.join(x, exe(i.bin)))); return d ? path.join(d, exe(i.bin)) : path.join(dir(s), exe(i.bin)); } if (i.kind === 'cmd') { const d = (process.env.PATH ?? '').split(path.delimiter).find(x => fs.existsSync(path.join(x, exe(i.bin)))); return fs.existsSync(path.join(dir(s), 'INSTALLED')) && d ? path.join(d, exe(i.bin)) : path.join(dir(s), 'missing'); } if (i.kind === 'npm') { return path.join(dir(s), 'node_modules', '.bin', exe(i.bin)); } if (i.kind === 'go') { return path.join(dir(s), 'bin', exe(i.bin)); } return path.join(dir(s), exe(i.bin)); };
 	const installed = (s: Server) => fs.existsSync(binPath(s));
 	const conflict = (s: Server) => s.conflicts.find(id => vscode.extensions.getExtension(id));
 	const clients = new Map<string, LanguageClient>(); const status = new Map<string, vscode.LanguageStatusItem>(); const busy = new Set<string>();
@@ -65,6 +74,17 @@ export function activate(ctx: vscode.ExtensionContext) {
 		} else if (i.kind === 'go') {
 			if (!onPath('go')) { throw new Error(`${s.name} needs the Go toolchain (https://go.dev/dl) — "go" was not found on PATH.`); }
 			await sh('go', ['install', i.pkg], { cwd: d, env: { ...process.env, GOBIN: path.join(d, 'bin') } }, out);
+		} else if (i.kind === 'path') {
+			throw new Error(`${s.name}: "${i.bin}" not found on PATH. ${i.hint}`);
+		} else if (i.kind === 'cmd') {
+			if (!onPath(i.requires)) { throw new Error(`${s.name} needs "${i.requires}" on PATH.`); }
+			await sh(i.cmd[0], i.cmd.slice(1), { cwd: d }, out); fs.writeFileSync(path.join(d, 'INSTALLED'), new Date().toISOString());
+		} else if (i.kind === 'url') {
+			if (i.requires && !onPath(i.requires)) { throw new Error(`${s.name} needs "${i.requires}" (JDK 21+) on PATH.`); }
+			const u = i.url(); out.appendLine(`downloading ${u}`); const r = await fetch(u); if (!r.ok) { throw new Error(`download failed: HTTP ${r.status}`); }
+			const f = path.join(d, path.basename(u)); fs.writeFileSync(f, Buffer.from(await r.arrayBuffer()));
+			await sh('tar', ['-xzf', f, '-C', d], {}, out); fs.rmSync(f, { force: true });
+			if (process.platform !== 'win32' && fs.existsSync(binPath(s))) { fs.chmodSync(binPath(s), 0o755); }
 		} else {
 			const a = await latestAsset(i.repo, i.asset); out.appendLine(`downloading ${a.browser_download_url}`);
 			const r = await fetch(a.browser_download_url); if (!r.ok) { throw new Error(`download failed: HTTP ${r.status}`); }
