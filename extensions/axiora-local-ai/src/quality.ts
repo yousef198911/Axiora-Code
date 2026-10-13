@@ -121,11 +121,11 @@ export function activate(ctx: vscode.ExtensionContext) {
 		await vscode.commands.executeCommand('vscode.diff', doc.uri, pd.uri, `Refactor preview: ${what}`);
 		const test = vscode.workspace.getConfiguration('axiora.solo').get<string>('testCommand', '') || (await vscode.workspace.findFiles('package.json', undefined, 1)).length && 'npm test --silent' || '';
 		const a = await vscode.window.showInformationMessage(`Apply refactoring${test ? ` and verify with "${test}"` : ''}?`, 'Apply', 'Discard'); if (a !== 'Apply') { return; }
-		const ed2 = new vscode.WorkspaceEdit(); ed2.replace(doc.uri, range, after); await vscode.workspace.applyEdit(ed2); await doc.save();
+		const orig = doc.getText(); const ed2 = new vscode.WorkspaceEdit(); ed2.replace(doc.uri, range, after); await vscode.workspace.applyEdit(ed2); await doc.save();
 		if (!test) { vscode.window.showInformationMessage('Refactoring applied (no test command configured — set axiora.solo.testCommand to verify automatically).'); return; }
 		const ok = await run('bash', ['-lc', `${test} 2>&1`], r.fsPath).then(() => true, () => false);
 		if (ok) { vscode.window.showInformationMessage('Refactoring applied — tests still pass ✓'); return; }
-		const back = new vscode.WorkspaceEdit(); back.replace(doc.uri, new vscode.Range(range.start, range.start.translate(after.split('\n').length - 1, 0)).with(undefined, doc.positionAt(doc.offsetAt(range.start) + after.length)), before); await vscode.workspace.applyEdit(back); await doc.save();
+		const back = new vscode.WorkspaceEdit(); back.replace(doc.uri, new vscode.Range(0, 0, doc.lineCount, 0), orig); await vscode.workspace.applyEdit(back); await doc.save();
 		vscode.window.showWarningMessage('Tests failed after the refactoring — it was rolled back.');
 	});
 	// ---- property tests: run + counterexample
