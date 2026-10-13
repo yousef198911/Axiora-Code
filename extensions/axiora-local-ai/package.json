@@ -893,6 +893,21 @@
         "command": "axiora.profile.open",
         "title": "Open CPU Profile...",
         "category": "Profiler"
+      },
+      {
+        "command": "axiora.kdoc.runAll",
+        "title": "Run All Code Blocks",
+        "category": "Markdown"
+      },
+      {
+        "command": "axiora.kdoc.restart",
+        "title": "Restart Document Kernel",
+        "category": "Markdown"
+      },
+      {
+        "command": "axiora.kdoc.clear",
+        "title": "Clear Code Block Outputs",
+        "category": "Markdown"
       }
     ],
     "menus": {
