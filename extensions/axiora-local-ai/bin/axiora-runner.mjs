@@ -32,7 +32,9 @@ const sh = (cmd, args, cwd, input) => new Promise(res => { const p = execFile(cm
 async function ask(messages) {
 	const url = PROVIDER === 'ollama' ? `${BASE}/api/chat` : `${BASE}/chat/completions`;
 	const r = await fetch(url, { method: 'POST', headers: { 'content-type': 'application/json', ...(process.env.AXIORA_API_KEY ? { authorization: `Bearer ${process.env.AXIORA_API_KEY}` } : {}) }, body: JSON.stringify({ model: MODEL, messages, stream: false }) });
-	const j = await r.json(); return PROVIDER === 'ollama' ? j.message?.content ?? '' : j.choices?.[0]?.message?.content ?? '';
+	// accept JSON or streamed NDJSON / SSE from servers that ignore stream:false
+	let out = ''; for (let l of (await r.text()).split('\n')) { l = l.trim().replace(/^data:\s*/, ''); if (!l || l === '[DONE]') { continue; } try { const j = JSON.parse(l); out += PROVIDER === 'ollama' ? j.message?.content ?? '' : j.choices?.[0]?.message?.content ?? j.choices?.[0]?.delta?.content ?? ''; } catch { /* */ } }
+	return out;
 }
 const files = s => [...s.matchAll(/<<<FILE\s+([^>\n]+?)>>>\n([\s\S]*?)\n?<<<END>>>/g)].map(m => ({ file: m[1].trim(), body: m[2] }));
 async function checkout(t, dir) {

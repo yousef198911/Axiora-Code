@@ -8,7 +8,17 @@ import * as cp from 'child_process';
 import * as path from 'path';
 import { register, wsRoot } from './util';
 
-type T = { name: string; target: string; exclude?: string[]; uploadOnSave?: boolean };
+type T = { name: string; target: string; exclude?: string[]; uploadOnSave?: boolean; build?: string; health?: string; rollback?: string; confirm?: boolean; checks?: number; interval?: number };
+/** Rollout check: poll the health URL; returns how many checks passed and the first failure. */
+export async function watchRollout(url: string, checks: number, intervalMs: number, onTick: (i: number, ok: boolean, info: string) => void): Promise<{ ok: number; fail?: string }> {
+	let ok = 0;
+	for (let i = 1; i <= checks; i++) {
+		const t0 = Date.now(); let info = '';
+		try { const r = await fetch(url, { signal: AbortSignal.timeout(10000) }); info = `HTTP ${r.status} · ${Date.now() - t0} ms`; if (!r.ok) { onTick(i, false, info); return { ok, fail: info }; } } catch (e) { info = (e as Error).message; onTick(i, false, info); return { ok, fail: info }; }
+		ok++; onTick(i, true, info); if (i < checks) { await new Promise(r => setTimeout(r, intervalMs)); }
+	}
+	return { ok };
+}
 const out = vscode.window.createOutputChannel('Axiora Deploy');
 function sh(cmd: string, args: string[], cwd: string): Promise<void> {
 	out.appendLine(`$ ${cmd} ${args.join(' ')}`);
@@ -45,6 +55,26 @@ export function activate(ctx: vscode.ExtensionContext) {
 		await vscode.window.withProgress({ location: vscode.ProgressLocation.Notification, title: `Deploying to ${t.name}…` }, () => upload(t, ['.'], true));
 		vscode.window.showInformationMessage(`Deployed to ${t.name}.`);
 	});
+	// one-click deploy (status bar) + rollout monitoring with rollback
+	const sb = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 46); sb.command = 'axiora.deploy.oneClick'; ctx.subscriptions.push(sb);
+	const showSb = async () => { const ts = await targets(); if (ts.length) { sb.text = '$(rocket) Deploy'; sb.tooltip = `One-click deploy → ${ts[0].name} (build, sync, health-check)`; sb.show(); } else { sb.hide(); } };
+	void showSb(); const w = vscode.workspace.createFileSystemWatcher('**/.axiora/deploy.json'); ctx.subscriptions.push(w, w.onDidChange(showSb), w.onDidCreate(showSb), w.onDidDelete(showSb));
+	const rollout = async (t: T) => {
+		if (!t.health) { return; }
+		sb.text = '$(pulse) Rollout…';
+		const res = await watchRollout(t.health, t.checks ?? 5, t.interval ?? 3000, (i, ok, info) => { sb.text = `$(pulse) Rollout ${i}/${t.checks ?? 5} ${ok ? '✓' : '✗'}`; out.appendLine(`[rollout] check ${i}: ${ok ? 'healthy' : 'UNHEALTHY'} — ${info}`); });
+		sb.text = '$(rocket) Deploy';
+		if (!res.fail) { vscode.window.showInformationMessage(`Rollout to ${t.name} healthy (${res.ok} checks).`); return; }
+		const a = await vscode.window.showErrorMessage(`Rollout to ${t.name} unhealthy: ${res.fail}`, ...(t.rollback ? ['Roll Back'] : []), 'Show Log');
+		if (a === 'Roll Back' && t.rollback) { await sh('bash', ['-lc', t.rollback], wsRoot()!.fsPath); vscode.window.showInformationMessage(`Rolled back ${t.name}.`); } else if (a === 'Show Log') { out.show(); }
+	};
+	register(ctx, 'axiora.deploy.oneClick', async () => {
+		const t = await pick(); if (!t) { return; }
+		if (t.confirm !== false && await vscode.window.showWarningMessage(`Deploy to ${t.name} (${t.target})?`, { modal: true }, 'Deploy') !== 'Deploy') { return; }
+		await vscode.window.withProgress({ location: vscode.ProgressLocation.Notification, title: `Deploying to ${t.name}…` }, async p => { if (t.build) { p.report({ message: 'building' }); await sh('bash', ['-lc', t.build], wsRoot()!.fsPath); } p.report({ message: 'syncing' }); await upload(t, ['.'], true); });
+		out.appendLine(`deployed to ${t.name}`); await rollout(t);
+	});
+	register(ctx, 'axiora.deploy.watch', async () => { const t = await pick(); if (t?.health) { await rollout(t); } else if (t) { vscode.window.showInformationMessage('Add "health": "https://…/health" (and optional "rollback": "<command>") to this target in .axiora/deploy.json.'); } });
 	ctx.subscriptions.push(vscode.workspace.onDidSaveTextDocument(async d => {
 		const root = wsRoot(); if (!root || !d.uri.fsPath.startsWith(root.fsPath) || d.uri.fsPath.includes(`${path.sep}.axiora${path.sep}`)) { return; }
 		for (const t of (await targets()).filter(t => t.uploadOnSave)) { upload(t, [path.relative(root.fsPath, d.uri.fsPath)]).then(() => vscode.window.setStatusBarMessage(`$(cloud-upload) ${path.basename(d.fileName)} → ${t.name}`, 3000), e => out.appendLine(String(e))); }

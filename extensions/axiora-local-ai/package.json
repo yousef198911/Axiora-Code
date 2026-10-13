@@ -1070,6 +1070,16 @@
         "command": "axiora.rum.show",
         "title": "Show Real-User Metrics",
         "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.deploy.oneClick",
+        "title": "Deploy (One Click)",
+        "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.deploy.watch",
+        "title": "Watch Rollout Health",
+        "category": "Axiora AI"
       }
     ],
     "menus": {
