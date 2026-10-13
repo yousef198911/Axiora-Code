@@ -632,6 +632,16 @@
         "command": "axiora.security.auditDeps",
         "title": "Audit Dependencies",
         "category": "Security"
+      },
+      {
+        "command": "axiora.automations.edit",
+        "title": "Edit Automations",
+        "category": "Automations"
+      },
+      {
+        "command": "axiora.automations.run",
+        "title": "Run Automation Now...",
+        "category": "Automations"
       }
     ],
     "menus": {
