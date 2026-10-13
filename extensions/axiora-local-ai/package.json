@@ -917,6 +917,12 @@
         "command": "axiora.project.open",
         "title": "Open Project...",
         "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.build.analyze",
+        "title": "Analyze Build...",
+        "category": "Build",
+        "icon": "$(dashboard)"
       }
     ],
     "menus": {
@@ -1227,6 +1233,11 @@
           "command": "axiora.codemap.show",
           "group": "9_axiora@1",
           "when": "view == workbench.explorer.fileView"
+        },
+        {
+          "command": "axiora.build.analyze",
+          "when": "view == workbench.debug.welcome || view == workbench.debug.variablesView",
+          "group": "9_axiora@1"
         }
       ],
       "axiora.selection": [
