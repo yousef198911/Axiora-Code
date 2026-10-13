@@ -204,7 +204,7 @@ export const tocData: ITOCEntry<string> = {
 				{
 					id: 'chat/axioraAssistant',
 					label: localize('axiora.toc.chat.axioraAssistant', "Axiora Assistant"),
-					settings: ['axiora.agent.tools', 'axiora.web.readPages', 'axiora.agents.concurrency']
+					settings: ['axiora.chat.defaultParticipant', 'axiora.agent.tools', 'axiora.web.readPages', 'axiora.agents.concurrency']
 				},
 				{
 					id: 'chat/axioraMemory',

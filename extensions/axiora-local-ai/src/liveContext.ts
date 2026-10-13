@@ -65,12 +65,16 @@ export function activate(ctx: vscode.ExtensionContext) {
 	const dir = path.join(ctx.globalStorageUri.fsPath, 'chats'); fs.mkdirSync(dir, { recursive: true });
 	const all = () => fs.readdirSync(dir).filter(f => f.endsWith('.json')).map(f => ({ f, ...JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8')) as { title: string; at: string; turns: { who: string; text: string }[] } }));
 	const find = (q: string) => { const k = keywords(q).map(x => x.toLowerCase()); return all().map(c => ({ c, s: k.reduce((n, w) => n + (c.turns.map(t => t.text).join(' ').toLowerCase().split(w).length - 1), 0) })).filter(x => x.s > 0).sort((a, b) => b.s - a.s).map(x => x.c); };
-	ctx.subscriptions.push(vscode.commands.registerCommand('axiora.chats.save', (history: readonly (vscode.ChatRequestTurn | vscode.ChatResponseTurn)[], prompt: string) => {
-		if (!history.length) { return; }
+	ctx.subscriptions.push(vscode.commands.registerCommand('axiora.chats.save', (history: readonly (vscode.ChatRequestTurn | vscode.ChatResponseTurn)[], prompt: string, reply?: string) => {
 		const turns = history.map(t => t instanceof vscode.ChatRequestTurn ? { who: 'user', text: t.prompt } : { who: 'axiora', text: t.response.map(p => p instanceof vscode.ChatResponseMarkdownPart ? p.value.value : '').join('') });
+		if (prompt?.trim()) { turns.push({ who: 'user', text: prompt }); }
+		if (reply?.trim()) { turns.push({ who: 'axiora', text: reply }); }
+		if (!turns.length) { return; }
 		const first = turns.find(t => t.who === 'user')?.text ?? prompt;
-		const id = Buffer.from(first).toString('base64url').slice(0, 40);
-		fs.writeFileSync(path.join(dir, `${id}.json`), JSON.stringify({ title: first.slice(0, 80), at: new Date().toISOString(), turns }));
+		const id = require('crypto').createHash('sha1').update(first).digest('hex').slice(0, 16);
+		const f = path.join(dir, `${id}.json`); let created = new Date().toISOString();
+		try { created = JSON.parse(fs.readFileSync(f, 'utf8')).created ?? created; } catch { /* new conversation */ }
+		fs.writeFileSync(f, JSON.stringify({ title: first.replace(/\s+/g, ' ').slice(0, 80), at: new Date().toISOString(), created, turns }));
 	}));
 	contextProviders.push(async () => {
 		const m = /#chat:([^\n#]+)/.exec(lastPrompt); if (!m) { return ''; }
@@ -82,7 +86,21 @@ export function activate(ctx: vscode.ExtensionContext) {
 		stream.markdown(hits.slice(0, 8).map(c => `- **${c.title}** — ${new Date(c.at).toLocaleString()} (${c.turns.length} messages)`).join('\n') + '\n\nUse `#chat:<words>` in a prompt to bring one into context.');
 	});
 	register(ctx, 'axiora.chats.browse', async () => {
-		const p = await vscode.window.showQuickPick(all().sort((a, b) => b.at.localeCompare(a.at)).map(c => ({ label: c.title, description: new Date(c.at).toLocaleString(), c })), { placeHolder: 'Past @axiora conversations' });
-		if (p) { await vscode.window.showTextDocument(await vscode.workspace.openTextDocument({ language: 'markdown', content: p.c.turns.map(t => `### ${t.who}\n\n${t.text}`).join('\n\n') })); }
+		const list = all().sort((a, b) => b.at.localeCompare(a.at));
+		if (!list.length) { vscode.window.showInformationMessage('No past conversations yet — they are saved automatically after each Axiora reply.'); return; }
+		const ago = (iso: string) => { const m = Math.round((Date.now() - Date.parse(iso)) / 60000); return m < 1 ? 'just now' : m < 60 ? `${m} min ago` : m < 1440 ? `${Math.round(m / 60)} h ago` : new Date(iso).toLocaleDateString(); };
+		const del = { iconPath: new vscode.ThemeIcon('trash'), tooltip: 'Delete conversation' };
+		const qp = vscode.window.createQuickPick<vscode.QuickPickItem & { c: (typeof list)[number] }>();
+		qp.title = 'Past Conversations'; qp.placeholder = 'Search past Axiora conversations'; qp.matchOnDetail = true;
+		const items = () => all().sort((a, b) => b.at.localeCompare(a.at)).map(c => ({ label: c.title, description: `${ago(c.at)} · ${c.turns.length} messages`, detail: (c.turns.find(t => t.who === 'axiora')?.text ?? '').replace(/\s+/g, ' ').slice(0, 120), buttons: [del], c }));
+		qp.items = items();
+		qp.onDidTriggerItemButton(e => { fs.rmSync(path.join(dir, e.item.c.f), { force: true }); qp.items = items(); });
+		qp.onDidAccept(async () => {
+			const p = qp.selectedItems[0]; qp.hide(); if (!p) { return; }
+			const a = await vscode.window.showQuickPick([{ label: '$(comment-discussion) Continue in Chat', id: 'chat' }, { label: '$(file) Open as Document', id: 'doc' }], { placeHolder: p.c.title });
+			if (a?.id === 'doc') { await vscode.window.showTextDocument(await vscode.workspace.openTextDocument({ language: 'markdown', content: `# ${p.c.title}\n\n` + p.c.turns.map(t => `**${t.who === 'user' ? 'You' : 'Axiora'}:** ${t.text}`).join('\n\n') })); }
+			if (a?.id === 'chat') { await vscode.commands.executeCommand('workbench.action.chat.open', { query: `@axiora #chat:${p.c.title.slice(0, 40)} `, isPartialQuery: true }); }
+		});
+		qp.onDidHide(() => qp.dispose()); qp.show();
 	});
 }

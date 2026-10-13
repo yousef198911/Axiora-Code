@@ -262,7 +262,11 @@ export function activate(ctx: vscode.ExtensionContext) {
 	}));
 
 	// @axiora chat participant
-	const participant = vscode.chat.createChatParticipant('axiora.local', (req, _ctx, stream, token) => { setPrompt(req.prompt); (globalThis as any).axioraOnPrompt?.(req.command, req.prompt); vscode.commands.executeCommand('axiora.chats.save', _ctx.history, req.prompt).then(undefined, () => undefined); return awake(handleChat(req, _ctx, stream, token)); });
+	const participant = vscode.chat.createChatParticipant('axiora.local', (req, _ctx, stream, token) => { setPrompt(req.prompt); (globalThis as any).axioraOnPrompt?.(req.command, req.prompt); const said: string[] = [];
+		const tee: any = {}; for (let o: any = stream; o && o !== Object.prototype; o = Object.getPrototypeOf(o)) { for (const k of Object.getOwnPropertyNames(o)) { if (!(k in tee) && k !== 'constructor') { const x = (stream as any)[k]; tee[k] = typeof x === 'function' ? x.bind(stream) : x; } } }
+		tee.markdown = (v: string | vscode.MarkdownString) => { said.push(typeof v === 'string' ? v : v.value); stream.markdown(v); return tee; };
+		const save = () => vscode.commands.executeCommand('axiora.chats.save', _ctx.history, req.prompt, said.join('')).then(undefined, () => undefined);
+		return awake(handleChat(req, _ctx, tee, token)).finally(save); });
 	async function handleChat(req: vscode.ChatRequest, _ctx: vscode.ChatContext, stream: vscode.ChatResponseStream, token: vscode.CancellationToken) {
 		try {
 			switch (req.command) {
