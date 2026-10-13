@@ -370,6 +370,31 @@
         "command": "axiora.db.browse",
         "title": "Browse Tables...",
         "category": "Database"
+      },
+      {
+        "command": "axiora.docker.containers",
+        "title": "Containers...",
+        "category": "Docker"
+      },
+      {
+        "command": "axiora.docker.images",
+        "title": "Images...",
+        "category": "Docker"
+      },
+      {
+        "command": "axiora.docker.build",
+        "title": "Build Image...",
+        "category": "Docker"
+      },
+      {
+        "command": "axiora.docker.composeUp",
+        "title": "Compose Up",
+        "category": "Docker"
+      },
+      {
+        "command": "axiora.docker.composeDown",
+        "title": "Compose Down",
+        "category": "Docker"
       }
     ],
     "menus": {
@@ -500,6 +525,21 @@
           "command": "axiora.html.preview",
           "group": "navigation@98",
           "when": "resourceExtname == .html || resourceExtname == .htm"
+        },
+        {
+          "command": "axiora.docker.build",
+          "group": "7_docker@1",
+          "when": "resourceFilename =~ /^(Dockerfile|Containerfile)(\\..*)?$/"
+        },
+        {
+          "command": "axiora.docker.composeUp",
+          "group": "7_docker@2",
+          "when": "resourceFilename =~ /^(docker-)?compose.*\\.ya?ml$/"
+        },
+        {
+          "command": "axiora.docker.composeDown",
+          "group": "7_docker@3",
+          "when": "resourceFilename =~ /^(docker-)?compose.*\\.ya?ml$/"
         }
       ]
     },
