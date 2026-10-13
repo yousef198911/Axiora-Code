@@ -575,6 +575,17 @@
         "command": "axiora.multibuffer.open",
         "title": "Open Excerpt Source",
         "category": "Search"
+      },
+      {
+        "command": "axiora.multibuffer.search",
+        "title": "Search into Editable Multibuffer...",
+        "category": "Search",
+        "icon": "$(files)"
+      },
+      {
+        "command": "axiora.multibuffer.open",
+        "title": "Open Excerpt Source",
+        "category": "Search"
       }
     ],
     "menus": {
@@ -649,6 +660,11 @@
           "command": "axiora.k8s.apply",
           "group": "z_k8s@1",
           "when": "editorLangId == yaml"
+        },
+        {
+          "command": "axiora.multibuffer.open",
+          "group": "navigation@0",
+          "when": "resourceScheme == axiora-multi"
         },
         {
           "command": "axiora.multibuffer.open",
@@ -816,6 +832,11 @@
       ],
       "menuBar/help": [],
       "view/title": [
+        {
+          "command": "axiora.multibuffer.search",
+          "group": "navigation@20",
+          "when": "view == workbench.view.search"
+        },
         {
           "command": "axiora.multibuffer.search",
           "group": "navigation@20",
@@ -1492,6 +1513,11 @@
       {
         "command": "axiora.whichKey.ctrlK",
         "key": "ctrl+k ctrl+h"
+      },
+      {
+        "command": "axiora.multibuffer.open",
+        "key": "alt+enter",
+        "when": "resourceScheme == axiora-multi && editorTextFocus"
       },
       {
         "command": "axiora.multibuffer.open",

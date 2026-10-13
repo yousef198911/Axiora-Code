@@ -36,7 +36,14 @@ export function activate(ctx: vscode.ExtensionContext) {
 			}
 			if (changed) { await vscode.workspace.applyEdit(edit); await vscode.workspace.saveAll(false); }
 			// re-anchor offsets after line-count changes
-			bufs.set(uri.path, parsed.map(p => ({ ...p })));
+			const shift = new Map<string, number>();
+			const next = parsed.slice().sort((a, b) => a.file.localeCompare(b.file) || a.start - b.start).map(p => {
+				const o = old.find(x => x.file === p.file && x.start === p.start); const sh = shift.get(p.file) ?? 0;
+				shift.set(p.file, sh + p.lines.length - (o?.lines.length ?? p.lines.length));
+				return { ...p, start: p.start + sh };
+			});
+			bufs.set(uri.path, next);
+			if (next.some((n, i) => n.start !== parsed[i]?.start)) { em.fire([{ type: vscode.FileChangeType.Changed, uri }]); }
 			vscode.window.setStatusBarMessage(`$(check) Multibuffer: wrote ${changed} excerpt(s)`, 4000);
 		},
 	}, { isCaseSensitive: true }));
