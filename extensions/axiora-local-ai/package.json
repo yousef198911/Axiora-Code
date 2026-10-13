@@ -446,6 +446,32 @@
         "command": "axiora.tex.openPdf",
         "title": "Open PDF Externally",
         "category": "LaTeX/Typst"
+      },
+      {
+        "command": "axiora.cells.run",
+        "title": "Run Cell",
+        "category": "Data"
+      },
+      {
+        "command": "axiora.cells.runAdvance",
+        "title": "Run Cell and Advance",
+        "category": "Data"
+      },
+      {
+        "command": "axiora.cells.runAbove",
+        "title": "Run Cells Above (inclusive)",
+        "category": "Data"
+      },
+      {
+        "command": "axiora.cells.runFile",
+        "title": "Run File in Console",
+        "category": "Data"
+      },
+      {
+        "command": "axiora.cells.variables",
+        "title": "Show Variables",
+        "category": "Data",
+        "icon": "$(variable-group)"
       }
     ],
     "menus": {
@@ -1079,6 +1105,16 @@
         "command": "axiora.tex.build",
         "key": "ctrl+alt+b",
         "when": "resourceExtname == .tex || resourceExtname == .typ"
+      },
+      {
+        "command": "axiora.cells.run",
+        "key": "ctrl+enter",
+        "when": "editorTextFocus && editorLangId =~ /^(python|r|julia)$/"
+      },
+      {
+        "command": "axiora.cells.runAdvance",
+        "key": "shift+enter",
+        "when": "editorTextFocus && editorLangId =~ /^(python|r|julia)$/ && !suggestWidgetVisible"
       }
     ],
     "languages": [
