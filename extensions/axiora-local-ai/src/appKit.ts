@@ -86,7 +86,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 		const isRepo = await run('git', ['rev-parse', '--show-toplevel'], d).then(t => path.resolve(t.trim()) === path.resolve(d), () => false);
 		if (!isRepo) { await run('git', ['init', '-q', '-b', branch], d); }
 		await run('git', ['add', '-A'], d);
-		await run('git', ['commit', '-qm', `Publish ${path.basename(d)} from Axiora`], d).catch(() => undefined);
+		await run('git', ['commit', '-qm', `Publish ${path.basename(d)} from Axiora`], d).catch(e => { if (/Author identity unknown|tell me who you are/i.test(String(e.message))) { throw new Error('Git needs your name/email first: git config --global user.name "…" && git config --global user.email "…"'); } if (!/nothing to commit|nothing added/i.test(String(e.message))) { throw e; } });
 		await run('git', ['remote', 'remove', 'axiora-publish'], d).catch(() => undefined);
 		await run('git', ['remote', 'add', 'axiora-publish', remote], d);
 		await vscode.window.withProgress({ location: vscode.ProgressLocation.Notification, title: `Pushing ${path.basename(d)} → ${remote}` }, () => run('git', ['push', '-u', 'axiora-publish', `HEAD:${branch}`], d));
