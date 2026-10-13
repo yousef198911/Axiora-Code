@@ -804,6 +804,9 @@ const SETTINGS_COMPLEX_OBJECT_TEMPLATE_ID = 'settings.complexObject.template';
 const SETTINGS_NEW_EXTENSIONS_TEMPLATE_ID = 'settings.newExtensions.template';
 const SETTINGS_ELEMENT_TEMPLATE_ID = 'settings.group.template';
 const SETTINGS_EXTENSION_TOGGLE_TEMPLATE_ID = 'settings.extensionToggle.template';
+const SETTINGS_AXIORA_SECRET_TEMPLATE_ID = 'settings.axioraSecret.template';
+/** Axiora key/sign-in rows: rendered as a masked input + status + buttons; the value lives in SecretStorage (extension side), never in settings.json. */
+const AXIORA_SECRET_SETTINGS = new Set(['axiora.ai.apiKey', 'axiora.connectors.jira.token', 'axiora.connectors.figma.token', 'axiora.connectors.slack.token', 'axiora.connectors.linear.token', 'axiora.connectors.stripe.token', 'axiora.github.token', 'axiora.google.account']);
 
 export interface ISettingChangeEvent {
 	key: string;
@@ -2206,6 +2209,73 @@ class SettingsExtensionToggleRenderer extends AbstractSettingRenderer implements
 	}
 }
 
+
+interface IAxioraSecretDescription { status: string; ok?: boolean; input?: boolean; placeholder?: string; buttons: { label: string; action: string; secondary?: boolean }[] }
+interface ISettingAxioraSecretItemTemplate extends ISettingItemTemplate<undefined> {
+	inputBox: InputBox;
+	statusElement: HTMLElement;
+	buttonsElement: HTMLElement;
+	buttonDisposables: DisposableStore;
+}
+
+class SettingAxioraSecretRenderer extends AbstractSettingRenderer implements ITreeRenderer<SettingsTreeSettingElement, never, ISettingAxioraSecretItemTemplate> {
+	templateId = SETTINGS_AXIORA_SECRET_TEMPLATE_ID;
+
+	renderTemplate(container: HTMLElement): ISettingAxioraSecretItemTemplate {
+		const common = this.renderCommonTemplate(null, container, 'text');
+		common.containerElement.classList.add('setting-item-axiora-secret');
+		const inputBox = new InputBox(common.controlElement, this._contextViewService, { type: 'password', inputBoxStyles: settingsInputBoxStyles });
+		common.toDispose.add(inputBox);
+		inputBox.inputElement.classList.add(AbstractSettingRenderer.CONTROL_CLASS);
+		inputBox.inputElement.autocomplete = 'off';
+		const statusElement = DOM.append(common.containerElement, $('.setting-item-axiora-secret-status'));
+		const buttonsElement = DOM.append(common.containerElement, $('.setting-item-axiora-secret-buttons'));
+		const buttonDisposables = common.toDispose.add(new DisposableStore());
+		const template: ISettingAxioraSecretItemTemplate = { ...common, inputBox, statusElement, buttonsElement, buttonDisposables };
+		this.addSettingElementFocusHandler(template);
+		return template;
+	}
+
+	renderElement(element: ITreeNode<SettingsTreeSettingElement, never>, index: number, templateData: ISettingAxioraSecretItemTemplate): void {
+		super.renderSettingElement(element, index, templateData);
+	}
+
+	protected renderValue(dataElement: SettingsTreeSettingElement, template: ISettingAxioraSecretItemTemplate, _onChange: (_: undefined) => void): void {
+		const key = dataElement.setting.key;
+		template.inputBox.value = '';
+		template.inputBox.setAriaLabel(key);
+		const apply = (d: IAxioraSecretDescription | undefined) => {
+			if (!d) { template.statusElement.textContent = localize('axiora.secret.loading', "Loading…"); return; }
+			template.statusElement.textContent = d.status;
+			template.statusElement.classList.toggle('ok', !!d.ok);
+			template.controlElement.style.display = d.input === false ? 'none' : '';
+			template.inputBox.setPlaceHolder(d.placeholder ?? '');
+			template.buttonDisposables.clear();
+			DOM.clearNode(template.buttonsElement);
+			for (const b of d.buttons) {
+				const btn = template.buttonDisposables.add(new Button(template.buttonsElement, { title: false, secondary: b.secondary, ...defaultButtonStyles }));
+				btn.label = b.label;
+				template.buttonDisposables.add(btn.onDidClick(async () => {
+					template.statusElement.textContent = localize('axiora.secret.working', "Working…");
+					template.statusElement.classList.remove('ok');
+					const value = template.inputBox.value; template.inputBox.value = '';
+					try { apply(await this._commandService.executeCommand<IAxioraSecretDescription>('axiora.secret.action', key, b.action, value)); }
+					catch (e) { template.statusElement.textContent = String((e as Error).message ?? e); }
+				}));
+			}
+			this._onDidChangeSettingHeight.fire({ element: dataElement, height: template.containerElement.parentElement?.offsetHeight ?? 0 });
+		};
+		apply(undefined);
+		this._commandService.executeCommand<IAxioraSecretDescription>('axiora.secret.describe', key).then(apply, () => {
+			template.statusElement.textContent = localize('axiora.secret.unavailable', "Starting the assistant… reopen Settings in a moment.");
+		});
+		template.elementDisposables.add(template.inputBox.onDidChange(() => { /* value is read on button click only */ }));
+		template.elementDisposables.add(DOM.addStandardDisposableListener(template.inputBox.inputElement, DOM.EventType.KEY_DOWN, e => {
+			if (e.keyCode === KeyCode.Enter) { (template.buttonsElement.querySelector('.monaco-button') as HTMLElement | null)?.click(); }
+		}));
+	}
+}
+
 export class SettingTreeRenderers extends Disposable {
 	readonly onDidClickOverrideElement: Event<ISettingOverrideClickEvent>;
 
@@ -2271,6 +2341,7 @@ export class SettingTreeRenderers extends Disposable {
 			this._instantiationService.createInstance(SettingEnumRenderer, this.settingActions, actionFactory),
 			this._instantiationService.createInstance(SettingObjectRenderer, this.settingActions, actionFactory),
 			this._instantiationService.createInstance(SettingBoolObjectRenderer, this.settingActions, actionFactory),
+			this._instantiationService.createInstance(SettingAxioraSecretRenderer, [], emptyActionFactory),
 			extensionRenderer
 		];
 
@@ -2547,6 +2618,9 @@ class SettingsTreeDelegate extends CachedListVirtualDelegate<SettingsTreeGroupCh
 		if (element instanceof SettingsTreeSettingElement) {
 			if (element.valueType === SettingValueType.ExtensionToggle) {
 				return SETTINGS_EXTENSION_TOGGLE_TEMPLATE_ID;
+			}
+			if (AXIORA_SECRET_SETTINGS.has(element.setting.key)) {
+				return SETTINGS_AXIORA_SECRET_TEMPLATE_ID;
 			}
 
 			const invalidTypeError = element.isConfigured && getInvalidTypeError(element.value, element.setting.type);

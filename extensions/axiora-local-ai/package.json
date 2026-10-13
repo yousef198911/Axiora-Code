@@ -1486,6 +1486,36 @@
         "command": "axiora.screenshot.toChat",
         "title": "Capture Screenshot to Chat...",
         "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.ai.setup",
+        "title": "Set Up AI...",
+        "category": "Axiora"
+      },
+      {
+        "command": "axiora.ai.getFreeKey",
+        "title": "Get a Free AI Key",
+        "category": "Axiora"
+      },
+      {
+        "command": "axiora.ai.useOllama",
+        "title": "Use Ollama on My Computer",
+        "category": "Axiora"
+      },
+      {
+        "command": "axiora.services.open",
+        "title": "Connected Services",
+        "category": "Axiora"
+      },
+      {
+        "command": "axiora.team.apply",
+        "title": "Apply Team Settings (.axiora/team.json)",
+        "category": "Axiora"
+      },
+      {
+        "command": "axiora.team.create",
+        "title": "Create Team File (.axiora/team.json)",
+        "category": "Axiora"
       }
     ],
     "menus": {
@@ -2453,6 +2483,18 @@
         }
       },
       {
+        "id": "axiora.aiModels.key",
+        "title": "Axiora: AI Key",
+        "properties": {
+          "axiora.ai.apiKey": {
+            "type": "string",
+            "default": "",
+            "order": 0,
+            "markdownDescription": "**One key is all you need.** Paste a key and Axiora detects the provider, picks a good model for chat and inline suggestions, and tests it.\n\n`sk-or-…` OpenRouter · `gsk_…` Groq · `AIza…` Gemini · `sk-ant-…` Anthropic · `sk-…` OpenAI\n\nThe key is kept in the OS keychain — never in `settings.json`. Image, voice and speech use this key unless you set their own. Also in **Axiora: Set Up AI** and [Connected Services](command:axiora.services.open)."
+          }
+        }
+      },
+      {
         "id": "axiora.aiModels.provider",
         "title": "Axiora: Provider",
         "properties": {
@@ -2725,6 +2767,12 @@
         "id": "axiora.integrations.jira",
         "title": "Axiora: Jira",
         "properties": {
+          "axiora.connectors.jira.token": {
+            "type": "string",
+            "default": "",
+            "markdownDescription": "Paste an [Atlassian API token](https://id.atlassian.com/manage-profile/security/api-tokens). Needs `#axiora.connectors.jira.site#` and `#axiora.connectors.jira.email#` too — or connect everything at once in [Connected Services](command:axiora.services.open).",
+            "order": 0
+          },
           "axiora.connectors.jira.site": {
             "type": "string",
             "default": "",
@@ -2743,6 +2791,12 @@
         "id": "axiora.integrations.google",
         "title": "Axiora: Google",
         "properties": {
+          "axiora.google.account": {
+            "type": "string",
+            "default": "",
+            "markdownDescription": "Sign in with your Google account for Gmail, Drive and Calendar. Uses your own OAuth client from `#axiora.google.clientId#`.",
+            "order": 0
+          },
           "axiora.google.clientId": {
             "type": "string",
             "default": "",
@@ -2752,9 +2806,63 @@
         }
       },
       {
+        "id": "axiora.integrations.figma",
+        "title": "Axiora: Figma",
+        "properties": {
+          "axiora.connectors.figma.token": {
+            "type": "string",
+            "default": "",
+            "markdownDescription": "Paste a [Figma personal access token](https://www.figma.com/developers/api#access-tokens) (read-only *File content* scope is enough). Use `/figma <file-url>` in chat.",
+            "order": 0
+          }
+        }
+      },
+      {
+        "id": "axiora.integrations.slack",
+        "title": "Axiora: Slack",
+        "properties": {
+          "axiora.connectors.slack.token": {
+            "type": "string",
+            "default": "",
+            "markdownDescription": "Paste a [Slack bot or user token](https://api.slack.com/apps) (`xoxb-…` or `xoxp-…`). Stored for Slack-aware agent tools.",
+            "order": 0
+          }
+        }
+      },
+      {
+        "id": "axiora.integrations.linear",
+        "title": "Axiora: Linear",
+        "properties": {
+          "axiora.connectors.linear.token": {
+            "type": "string",
+            "default": "",
+            "markdownDescription": "Paste a [Linear personal API key](https://linear.app/settings/account/security) (`lin_api_…`). Use `/linear` in chat.",
+            "order": 0
+          }
+        }
+      },
+      {
+        "id": "axiora.integrations.stripe",
+        "title": "Axiora: Stripe",
+        "properties": {
+          "axiora.connectors.stripe.token": {
+            "type": "string",
+            "default": "",
+            "markdownDescription": "Paste a [Stripe restricted key](https://dashboard.stripe.com/apikeys) (`rk_…`, read-only recommended). Use `/stripe` in chat.",
+            "order": 0
+          }
+        }
+      },
+      {
         "id": "axiora.integrations.github",
         "title": "Axiora: GitHub",
         "properties": {
+          "axiora.github.token": {
+            "type": "string",
+            "default": "",
+            "markdownDescription": "Sign in with GitHub, or paste a [fine-grained token](https://github.com/settings/personal-access-tokens). Public repos work without one.",
+            "order": 0
+          },
           "axiora.github.repo": {
             "type": "string",
             "default": "",

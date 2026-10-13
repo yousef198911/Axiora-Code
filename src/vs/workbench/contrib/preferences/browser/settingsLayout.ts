@@ -319,6 +319,11 @@ export const tocData: ITOCEntry<string> = {
 			label: localize('axiora.toc.aiModels', "AI Models"),
 			children: [
 				{
+					id: 'aiModels/key',
+					label: localize('axiora.toc.aiModels.key', "AI Key"),
+					settings: ['axiora.ai.apiKey']
+				},
+				{
 					id: 'aiModels/provider',
 					label: localize('axiora.toc.aiModels.provider', "Provider"),
 					settings: ['axiora.ai.provider', 'axiora.ai.baseUrl', 'axiora.ai.chatModel']
@@ -373,17 +378,37 @@ export const tocData: ITOCEntry<string> = {
 				{
 					id: 'integrations/jira',
 					label: localize('axiora.toc.integrations.jira', "Jira"),
-					settings: ['axiora.connectors.jira.site', 'axiora.connectors.jira.email']
+					settings: ['axiora.connectors.jira.token', 'axiora.connectors.jira.site', 'axiora.connectors.jira.email']
 				},
 				{
 					id: 'integrations/google',
 					label: localize('axiora.toc.integrations.google', "Google"),
-					settings: ['axiora.google.clientId']
+					settings: ['axiora.google.account', 'axiora.google.clientId']
+				},
+				{
+					id: 'integrations/figma',
+					label: localize('axiora.toc.integrations.figma', "Figma"),
+					settings: ['axiora.connectors.figma.token']
+				},
+				{
+					id: 'integrations/slack',
+					label: localize('axiora.toc.integrations.slack', "Slack"),
+					settings: ['axiora.connectors.slack.token']
+				},
+				{
+					id: 'integrations/linear',
+					label: localize('axiora.toc.integrations.linear', "Linear"),
+					settings: ['axiora.connectors.linear.token']
+				},
+				{
+					id: 'integrations/stripe',
+					label: localize('axiora.toc.integrations.stripe', "Stripe"),
+					settings: ['axiora.connectors.stripe.token']
 				},
 				{
 					id: 'integrations/github',
 					label: localize('axiora.toc.integrations.github', "GitHub"),
-					settings: ['axiora.github.repo', 'axiora.github.apiUrl']
+					settings: ['axiora.github.token', 'axiora.github.repo', 'axiora.github.apiUrl']
 				},
 				{
 					id: 'integrations/mcp',
