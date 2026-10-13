@@ -71,6 +71,10 @@
           {
             "name": "map",
             "description": "Show the repository map (files and symbols)"
+          },
+          {
+            "name": "web",
+            "description": "Search the web and answer with sources"
           }
         ]
       }
