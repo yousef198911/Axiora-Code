@@ -186,6 +186,36 @@
         "command": "axiora.ai.showRepoMap",
         "title": "Show Repository Map",
         "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.debug.continueOthers",
+        "title": "Continue All Other Threads",
+        "category": "Debug"
+      },
+      {
+        "command": "axiora.debug.pauseOthers",
+        "title": "Pause All Other Threads",
+        "category": "Debug"
+      },
+      {
+        "command": "axiora.bookmarks.toggle",
+        "title": "Toggle Bookmark",
+        "category": "Bookmarks"
+      },
+      {
+        "command": "axiora.bookmarks.toggleNamed",
+        "title": "Add Named Bookmark...",
+        "category": "Bookmarks"
+      },
+      {
+        "command": "axiora.bookmarks.list",
+        "title": "Go to Bookmark...",
+        "category": "Bookmarks"
+      },
+      {
+        "command": "axiora.bookmarks.clear",
+        "title": "Clear All Bookmarks",
+        "category": "Bookmarks"
       }
     ],
     "menus": {
@@ -247,6 +277,24 @@
           "command": "axiora.ai.terminalCommand",
           "group": "navigation@0",
           "when": "view == terminal"
+        }
+      ],
+      "debug/callstack/context": [
+        {
+          "command": "axiora.debug.continueOthers",
+          "group": "3_axiora@1",
+          "when": "callStackItemType == 'thread' || callStackItemType == 'stackFrame'"
+        },
+        {
+          "command": "axiora.debug.pauseOthers",
+          "group": "3_axiora@2",
+          "when": "callStackItemType == 'thread' || callStackItemType == 'stackFrame'"
+        }
+      ],
+      "editor/lineNumber/context": [
+        {
+          "command": "axiora.bookmarks.toggle",
+          "group": "navigation"
         }
       ]
     },
@@ -330,6 +378,15 @@
         "command": "axiora.ai.terminalCommand",
         "key": "ctrl+alt+k",
         "when": "terminalFocus"
+      },
+      {
+        "command": "axiora.bookmarks.toggle",
+        "key": "ctrl+alt+b",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "axiora.bookmarks.list",
+        "key": "ctrl+alt+j"
       }
     ]
   }
