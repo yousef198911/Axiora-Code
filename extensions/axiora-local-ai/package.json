@@ -1080,6 +1080,26 @@
         "command": "axiora.deploy.watch",
         "title": "Watch Rollout Health",
         "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.app.addBackend",
+        "title": "Add Backend (SQLite + Auth)...",
+        "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.app.publishGit",
+        "title": "Publish Folder to Git Remote...",
+        "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.app.embed",
+        "title": "Export Code Embed",
+        "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.app.dataApp",
+        "title": "Publish Data App from CSV...",
+        "category": "Axiora AI"
       }
     ],
     "menus": {
@@ -1355,6 +1375,21 @@
           "command": "axiora.ui.designer",
           "group": "navigation@90",
           "when": "resourceExtname == .html"
+        },
+        {
+          "command": "axiora.app.addBackend",
+          "when": "explorerResourceIsFolder",
+          "group": "7_axiora@5"
+        },
+        {
+          "command": "axiora.app.publishGit",
+          "when": "explorerResourceIsFolder",
+          "group": "7_axiora@6"
+        },
+        {
+          "command": "axiora.app.dataApp",
+          "when": "resourceExtname == .csv",
+          "group": "7_axiora@7"
         }
       ],
       "scm/resourceState/context": [
@@ -1752,6 +1787,11 @@
             }
           },
           "description": "Self-hosted Axiora runners (bin/axiora-runner.mjs on your own machines). Tokens are stored in secret storage."
+        },
+        "axiora.embed.baseUrl": {
+          "type": "string",
+          "default": "",
+          "description": "Public base URL where you host .axiora/embeds (e.g. your own server); used in the copied iframe snippet."
         }
       }
     },

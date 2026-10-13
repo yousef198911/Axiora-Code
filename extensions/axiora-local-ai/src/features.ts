@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import * as appKit from './appKit';
 import * as runner from './runner';
 import * as agentPlus from './agentPlus';
 import * as devLoop from './devLoop';
@@ -67,5 +68,5 @@ import * as terminalNL from './terminalNL';
 import * as commitMsg from './commitMsg';
 import * as aiActions from './aiActions';
 export function activateFeatures(ctx: vscode.ExtensionContext) {
-	for (const f of [runner, agentPlus, devLoop, mdVisual, uiGen, buildAnalyzer, projects, kernelDocs, profiler, selectionOps, termBlocks, agentWork, promptOps, github, cliAgent, orchestrator, codemap, nextEdit, implementComment, depComplete, liveContext, docsIndex, agents, keepAwake, dotfiles, deploy, crashAnalyze, arena, automations, security, orgMode, hexView, multibuffer, userScripts, whichKey, remote2, shareChat, sshFs, shelve, rebase, dataCells, docsTypeset, kubernetes, mcpServer, docker, database, htmlPreview, vim, structural, goals, lintLoop, macros, usage, sessions, gitExtras, editorConfig, editing, httpClient, csvTable, bookmarks, debugThreads, webSearch, repoMap, promptTools, terminalNL, commitMsg, aiActions]) { try { f.activate(ctx); } catch (e) { console.error(e); } }
+	for (const f of [appKit, runner, agentPlus, devLoop, mdVisual, uiGen, buildAnalyzer, projects, kernelDocs, profiler, selectionOps, termBlocks, agentWork, promptOps, github, cliAgent, orchestrator, codemap, nextEdit, implementComment, depComplete, liveContext, docsIndex, agents, keepAwake, dotfiles, deploy, crashAnalyze, arena, automations, security, orgMode, hexView, multibuffer, userScripts, whichKey, remote2, shareChat, sshFs, shelve, rebase, dataCells, docsTypeset, kubernetes, mcpServer, docker, database, htmlPreview, vim, structural, goals, lintLoop, macros, usage, sessions, gitExtras, editorConfig, editing, httpClient, csvTable, bookmarks, debugThreads, webSearch, repoMap, promptTools, terminalNL, commitMsg, aiActions]) { try { f.activate(ctx); } catch (e) { console.error(e); } }
 }
