@@ -42,7 +42,12 @@ export function activate(ctx: vscode.ExtensionContext) {
 	register(ctx, 'axiora.db.add', async () => {
 		const kind = (await vscode.window.showQuickPick(['sqlite', 'postgres', 'mysql'], { placeHolder: 'Database type' })) as Conn['kind'] | undefined; if (!kind) { return; }
 		let target: string | undefined;
-		if (kind === 'sqlite') { const f = await vscode.window.showOpenDialog({ canSelectMany: false, filters: { SQLite: ['db', 'sqlite', 'sqlite3'], All: ['*'] }, openLabel: 'Use database' }); target = f?.[0].fsPath; }
+		if (kind === 'sqlite') {
+			const found = await vscode.workspace.findFiles('**/*.{db,sqlite,sqlite3}', '**/node_modules/**', 50);
+			const pick = await vscode.window.showQuickPick([...found.map(u => ({ label: `$(database) ${vscode.workspace.asRelativePath(u)}`, u })), { label: '$(folder-opened) Browse...', u: undefined }], { placeHolder: 'SQLite database file' });
+			if (!pick) { return; }
+			if (pick.u) { target = pick.u.fsPath; } else { const f = await vscode.window.showOpenDialog({ canSelectMany: false, filters: { SQLite: ['db', 'sqlite', 'sqlite3'], All: ['*'] }, openLabel: 'Use database' }); target = f?.[0].fsPath; }
+		}
 		else { target = await vscode.window.showInputBox({ prompt: kind === 'postgres' ? 'Connection string (postgres://user:pass@host:5432/db) — requires psql' : 'mysql CLI args (-h host -u user -pPASS db) — requires mysql client' }); }
 		if (!target) { return; }
 		const name = await vscode.window.showInputBox({ prompt: 'Connection name', value: kind === 'sqlite' ? target.split(/[\\/]/).pop() : kind }); if (!name) { return; }
