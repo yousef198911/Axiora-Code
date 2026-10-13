@@ -168,6 +168,14 @@
           {
             "name": "workflow",
             "description": "Run a saved workflow: <name>"
+          },
+          {
+            "name": "cloud",
+            "description": "Run a task on your self-hosted runner (isolated workspace)"
+          },
+          {
+            "name": "handoff",
+            "description": "Hand this chat + branch over to your runner"
           }
         ]
       }
@@ -1022,6 +1030,46 @@
         "command": "axiora.board.open",
         "title": "Open Agent Board (Kanban)",
         "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.runner.add",
+        "title": "Add Runner Machine...",
+        "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.runner.machines",
+        "title": "Runner Machines...",
+        "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.runner.send",
+        "title": "Send Task to Runner...",
+        "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.runner.tasks",
+        "title": "Runner Tasks...",
+        "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.runner.prebuild",
+        "title": "Prebuild Branch on Runner",
+        "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.env.apply",
+        "title": "Apply Environment Template",
+        "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.rum.snippet",
+        "title": "Insert Real-User Metrics Snippet",
+        "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.rum.show",
+        "title": "Show Real-User Metrics",
+        "category": "Axiora AI"
       }
     ],
     "menus": {
@@ -1678,6 +1726,22 @@
           "type": "number",
           "default": 5,
           "description": "Maximum /solo iterations."
+        },
+        "axiora.runner.machines": {
+          "type": "array",
+          "default": [],
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string"
+              }
+            }
+          },
+          "description": "Self-hosted Axiora runners (bin/axiora-runner.mjs on your own machines). Tokens are stored in secret storage."
         }
       }
     },
