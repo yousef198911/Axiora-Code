@@ -46,7 +46,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 			stream.progress(multi ? 'Producing artifacts…' : 'Producing artifact…');
 			const uris = await runArtifacts(req.prompt, multi, token);
 			stream.markdown(`**${uris.length} artifact${uris.length === 1 ? '' : 's'} saved:**\n`);
-			for (const u of uris) { stream.reference(u); }
+			for (const u of uris) { stream.markdown('- '); stream.anchor(u, vscode.workspace.asRelativePath(u)); stream.markdown('\n'); }
 			if (uris[0]) { stream.button({ command: 'vscode.open', title: 'Open', arguments: [uris[0]] }); }
 		});
 	}
