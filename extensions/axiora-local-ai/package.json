@@ -164,7 +164,7 @@
           },
           {
             "name": "prototype",
-            "description": "Build a runnable app prototype from a description ('refine: \u2026' to iterate)"
+            "description": "Build a runnable app prototype from a description ('refine: …' to iterate)"
           },
           {
             "name": "caps",
@@ -172,7 +172,7 @@
           },
           {
             "name": "solo",
-            "description": "SOLO: autonomous write \u2192 test \u2192 fix loop for a goal"
+            "description": "SOLO: autonomous write → test → fix loop for a goal"
           },
           {
             "name": "workflow",
@@ -1193,6 +1193,71 @@
         "command": "axiora.dotfiles.open",
         "title": "Open Dotfiles Folder",
         "category": "Dotfiles"
+      },
+      {
+        "command": "axiora.voice.dictate",
+        "title": "Dictate (Local Whisper)",
+        "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.os.runScript",
+        "title": "Run Selection as OS Script...",
+        "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.nix.shell",
+        "title": "Open Nix Dev Shell",
+        "category": "Nix"
+      },
+      {
+        "command": "axiora.nix.loadEnv",
+        "title": "Load Nix Environment into Terminals",
+        "category": "Nix"
+      },
+      {
+        "command": "axiora.device.emulator",
+        "title": "Start Emulator / Simulator...",
+        "category": "Devices"
+      },
+      {
+        "command": "axiora.device.adb",
+        "title": "Android Device...",
+        "category": "Devices"
+      },
+      {
+        "command": "axiora.android.gradle",
+        "title": "Run Gradle Task...",
+        "category": "Android"
+      },
+      {
+        "command": "axiora.container.debug",
+        "title": "Debug Current File in Container",
+        "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.java.springDebug",
+        "title": "Run Spring Boot with Debugger",
+        "category": "Java"
+      },
+      {
+        "command": "axiora.r.runSelection",
+        "title": "Run Selection in R",
+        "category": "R"
+      },
+      {
+        "command": "axiora.terraform.run",
+        "title": "Terraform...",
+        "category": "Terraform"
+      },
+      {
+        "command": "axiora.cmake.build",
+        "title": "CMake...",
+        "category": "C/C++"
+      },
+      {
+        "command": "axiora.qml.preview",
+        "title": "Preview QML",
+        "category": "Qt"
       }
     ],
     "menus": {
@@ -1594,6 +1659,10 @@
         {
           "command": "axiora.refactor.safe",
           "group": "3_refactor@1"
+        },
+        {
+          "command": "axiora.os.runScript",
+          "group": "4_run@1"
         }
       ],
       "editor/title/run": [
@@ -1611,6 +1680,11 @@
           "command": "axiora.timeTravel.record",
           "when": "resourceLangId == python",
           "group": "navigation@9"
+        },
+        {
+          "command": "axiora.qml.preview",
+          "when": "resourceLangId == qml",
+          "group": "navigation@8"
         }
       ]
     },
@@ -1972,6 +2046,25 @@
           },
           "default": [],
           "description": "Dotfiles that are never linked into your home folder."
+        },
+        "axiora.voice.endpoint": {
+          "type": "string",
+          "default": "http://127.0.0.1:8080/inference",
+          "description": "Local speech-to-text endpoint: whisper.cpp server (/inference) or any OpenAI-compatible /v1/audio/transcriptions."
+        },
+        "axiora.voice.model": {
+          "type": "string",
+          "default": "whisper-1",
+          "description": "Model name sent to the transcription endpoint."
+        },
+        "axiora.container.engine": {
+          "type": "string",
+          "enum": [
+            "docker",
+            "podman"
+          ],
+          "default": "docker",
+          "description": "Container engine used by container debugging and runner isolation."
         }
       }
     },
@@ -2406,6 +2499,11 @@
         "command": "axiora.sketch.run",
         "key": "ctrl+enter",
         "when": "editorTextFocus && resourceFilename == sketchpad.js"
+      },
+      {
+        "command": "axiora.r.runSelection",
+        "key": "ctrl+enter",
+        "when": "editorTextFocus && editorLangId == r"
       }
     ],
     "languages": [
