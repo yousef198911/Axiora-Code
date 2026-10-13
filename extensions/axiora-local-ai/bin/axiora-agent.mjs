@@ -30,7 +30,7 @@ let ctx = '';
 const ls = sh('git', ['ls-files']); if (ls) { ctx += `\nRepository files:\n${ls.split('\n').slice(0, 300).join('\n')}`; }
 if (opt.diff) { ctx += `\n\nGit diff:\n${sh('git', ['diff', 'HEAD']).slice(0, 40000)}`; }
 for (const f of opt.files) { ctx += `\n\n--- ${f}\n${fs.readFileSync(f, 'utf8').slice(0, 20000)}`; }
-if (!process.stdin.isTTY) { const inp = fs.readFileSync(0, 'utf8'); if (inp) { ctx += `\n\nInput:\n${inp.slice(0, 40000)}`; } }
+try { const st = fs.fstatSync(0); if (!process.stdin.isTTY && (st.isFIFO() || st.isFile())) { const inp = fs.readFileSync(0, 'utf8'); if (inp) { ctx += `\n\nInput:\n${inp.slice(0, 40000)}`; } } } catch { /* no stdin */ }
 let user = prompt + ctx;
 const sys = 'You are Axiora, a precise senior software engineer working headless in a terminal. Be concise.';
 if (opt.edit) { user = `Rewrite this file applying: ${prompt}\nOutput ONLY the full new file content, no fences.\n\n--- ${opt.edit}\n${fs.readFileSync(opt.edit, 'utf8')}`; }
