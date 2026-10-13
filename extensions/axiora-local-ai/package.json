@@ -1947,539 +1947,945 @@
         }
       ]
     },
-    "configuration": {
-      "title": "Axiora Local AI",
-      "properties": {
-        "axiora.ai.provider": {
-          "type": "string",
-          "enum": [
-            "ollama",
-            "openai"
-          ],
-          "default": "ollama",
-          "description": "Model provider: local Ollama or any OpenAI-compatible server (LM Studio, llama.cpp, vLLM, OpenRouter, OpenAI...)."
-        },
-        "axiora.ai.baseUrl": {
-          "type": "string",
-          "default": "http://127.0.0.1:11434",
-          "description": "Base URL of the provider. Ollama: http://127.0.0.1:11434. OpenAI-compatible: e.g. https://api.openai.com/v1"
-        },
-        "axiora.ai.chatModel": {
-          "type": "string",
-          "default": "qwen2.5-coder:0.5b",
-          "description": "Model used for @axiora chat, /review and /spec."
-        },
-        "axiora.inlineCompletion.enabled": {
-          "type": "boolean",
-          "default": true,
-          "description": "Show local ghost-text completions while typing (no Copilot account needed)."
-        },
-        "axiora.inlineCompletion.model": {
-          "type": "string",
-          "default": "qwen2.5-coder:0.5b",
-          "description": "Fill-in-the-middle model used for inline completion."
-        },
-        "axiora.inlineCompletion.debounceMs": {
-          "type": "number",
-          "default": 300,
-          "description": "Delay before requesting a completion."
-        },
-        "axiora.inlineCompletion.maxTokens": {
-          "type": "number",
-          "default": 64,
-          "description": "Maximum tokens per completion."
-        },
-        "axiora.checkpoints.autoOnSave": {
-          "type": "boolean",
-          "default": false,
-          "description": "Automatically create a checkpoint (at most every 5 minutes) when files are saved."
-        },
-        "axiora.memory.enabled": {
-          "type": "boolean",
-          "default": true,
-          "description": "Include .axiora/memory.md in @axiora prompts."
-        },
-        "axiora.sync.endpoint": {
-          "type": "string",
-          "default": "",
-          "description": "Your own settings-sync server URL (e.g. https://updates.axiora.dev/api/sync). Empty disables sync."
-        },
-        "axiora.sync.auto": {
-          "type": "boolean",
-          "default": false,
-          "description": "Upload settings automatically when settings.json or keybindings.json change."
-        },
-        "axiora.context.repoMap": {
-          "type": "boolean",
-          "default": true,
-          "description": "Include a compact repository map (files + top-level symbols) in @axiora prompts. Files matching .axioraignore are excluded."
-        },
-        "axiora.editor.typewriterMode": {
-          "type": "boolean",
-          "default": false,
-          "description": "Typewriter mode: keep the cursor line vertically centered while typing."
-        },
-        "axiora.editorconfig.enabled": {
-          "type": "boolean",
-          "default": true,
-          "description": "Apply .editorconfig settings (indentation, line endings, trailing whitespace, final newline) without an extension."
-        },
-        "axiora.ai.costPer1kInputTokens": {
-          "type": "number",
-          "default": 0,
-          "description": "Price per 1K input tokens for cost estimates (0 for local models)."
-        },
-        "axiora.ai.costPer1kOutputTokens": {
-          "type": "number",
-          "default": 0,
-          "description": "Price per 1K output tokens for cost estimates."
-        },
-        "axiora.lintFix.onSave": {
-          "type": "boolean",
-          "default": false,
-          "description": "After saving, automatically let the AI fix remaining errors in the file (repeats until clean)."
-        },
-        "axiora.lintFix.maxIterations": {
-          "type": "number",
-          "default": 3,
-          "description": "Maximum fix/re-check passes for the AI lint-fix loop."
-        },
-        "axiora.keymap": {
-          "type": "string",
-          "enum": [
-            "default",
-            "vim",
-            "emacs"
-          ],
-          "default": "default",
-          "description": "Built-in keymap: Vim modal editing or Emacs key bindings."
-        },
-        "axiora.mcpServer.enabled": {
-          "type": "boolean",
-          "default": false,
-          "description": "Expose this editor as an MCP server on 127.0.0.1 (tools: open editors, selection, read file, diagnostics, find files, open file, write file)."
-        },
-        "axiora.mcpServer.port": {
-          "type": "number",
-          "default": 3917,
-          "description": "Port for the editor MCP server."
-        },
-        "axiora.mcpServer.allowWrites": {
-          "type": "boolean",
-          "default": false,
-          "description": "Allow MCP clients to write files through the editor."
-        },
-        "axiora.latex.engine": {
-          "type": "string",
-          "enum": [
-            "latexmk",
-            "pdflatex",
-            "xelatex",
-            "lualatex",
-            "tectonic"
-          ],
-          "default": "latexmk",
-          "description": "LaTeX build tool."
-        },
-        "axiora.latex.buildOnSave": {
-          "type": "boolean",
-          "default": true,
-          "description": "Rebuild the PDF on save while its preview is open."
-        },
-        "axiora.share.endpoint": {
-          "type": "string",
-          "default": "",
-          "description": "Your share server: POST {title, markdown, html} -> {url}."
-        },
-        "axiora.security.scanOnSave": {
-          "type": "boolean",
-          "default": true,
-          "description": "Scan files for secrets and insecure code on open/save (results in Problems)."
-        },
-        "axiora.arena.models": {
-          "type": "array",
-          "items": {
-            "type": "string"
+    "configuration": [
+      {
+        "id": "axiora.editor.axioraCompletion",
+        "title": "Axiora: AI Completion",
+        "properties": {
+          "axiora.inlineCompletion.enabled": {
+            "type": "boolean",
+            "default": true,
+            "markdownDescription": "Show AI ghost-text suggestions while you type. Press `Tab` to accept, `Esc` to dismiss. Uses the model in `#axiora.inlineCompletion.model#` — no Copilot account needed.",
+            "order": 1
           },
-          "default": [],
-          "description": "Models to pit against each other in /arena (default: all available)."
-        },
-        "axiora.dotfiles.repository": {
-          "type": "string",
-          "default": "",
-          "description": "Dotfiles repository (URL, owner/repo or local path)."
-        },
-        "axiora.dotfiles.targetPath": {
-          "type": "string",
-          "default": "~/dotfiles",
-          "description": "Where to clone the dotfiles."
-        },
-        "axiora.dotfiles.installCommand": {
-          "type": "string",
-          "default": "",
-          "description": "Install command (default: install.sh/bootstrap.sh/setup.sh, else symlink dotfiles into $HOME)."
-        },
-        "axiora.agent.keepAwake": {
-          "type": "boolean",
-          "default": true,
-          "description": "Prevent system sleep while @axiora or tasks are running."
-        },
-        "axiora.ai.router.enabled": {
-          "type": "boolean",
-          "default": false,
-          "description": "Adaptive model router: pick small vs large model per request."
-        },
-        "axiora.ai.router.smallModel": {
-          "type": "string",
-          "default": "",
-          "description": "Model for short/simple requests."
-        },
-        "axiora.ai.router.largeModel": {
-          "type": "string",
-          "default": "",
-          "description": "Model for long/complex requests (refactor, debug, design, code blocks)."
-        },
-        "axiora.ai.router.threshold": {
-          "type": "number",
-          "default": 4000,
-          "description": "Prompt size (chars) above which the large model is used."
-        },
-        "axiora.docs.maxPages": {
-          "type": "number",
-          "default": 40,
-          "description": "Max pages crawled per documentation source."
-        },
-        "axiora.context.liveActions": {
-          "type": "boolean",
-          "default": true,
-          "description": "Include what you are doing (active file, recent edits, terminal commands, errors) in @axiora prompts."
-        },
-        "axiora.context.fastContext": {
-          "type": "boolean",
-          "default": true,
-          "description": "Retrieve the most relevant code for each prompt by keyword search."
-        },
-        "axiora.context.extraRepos": {
-          "type": "array",
-          "items": {
-            "type": "string"
+          "axiora.inlineCompletion.model": {
+            "type": "string",
+            "default": "qwen2.5-coder:0.5b",
+            "markdownDescription": "Fill-in-the-middle model for inline suggestions, served by `#axiora.ai.provider#`.\n\nExamples: `qwen2.5-coder:1.5b` (Ollama), `codestral-latest`, `cohere/north-mini-code:free` (OpenRouter).",
+            "order": 2
           },
-          "default": [],
-          "description": "Extra repository folders whose file lists are included in @axiora context."
-        },
-        "axiora.nextEdit.enabled": {
-          "type": "boolean",
-          "default": true,
-          "description": "Suggest the same change at the next occurrence after you rename a word (Tab to apply)."
-        },
-        "axiora.agents.concurrency": {
-          "type": "number",
-          "default": 3,
-          "description": "How many subagents /parallel runs at once."
-        },
-        "axiora.github.repo": {
-          "type": "string",
-          "default": "",
-          "description": "GitHub repository owner/name (default: from the origin remote)."
-        },
-        "axiora.github.apiUrl": {
-          "type": "string",
-          "default": "https://api.github.com",
-          "description": "GitHub API URL (GitHub Enterprise: https://host/api/v3)."
-        },
-        "axiora.chat.maxContextTokens": {
-          "type": "number",
-          "default": 6000,
-          "description": "When a chat exceeds this many (estimated) tokens, older turns are summarized automatically."
-        },
-        "axiora.ai.visionModel": {
-          "type": "string",
-          "default": "",
-          "description": "Model with image input used for screenshot-to-UI (e.g. llava, qwen2.5vl). Empty = chat model."
-        },
-        "axiora.policy.url": {
-          "type": "string",
-          "default": "",
-          "description": "Optional org context policy JSON ({exclude, redact}) served from your own server; merged with .axiora/policy.json."
-        },
-        "axiora.solo.testCommand": {
-          "type": "string",
-          "default": "",
-          "description": "Verification command for /solo (default: npm test when package.json has a test script)."
-        },
-        "axiora.solo.maxIterations": {
-          "type": "number",
-          "default": 5,
-          "description": "Maximum /solo iterations."
-        },
-        "axiora.runner.machines": {
-          "type": "array",
-          "default": [],
-          "items": {
+          "axiora.inlineCompletion.maxTokens": {
+            "type": "number",
+            "default": 64,
+            "markdownDescription": "Longest suggestion, in tokens. `32`–`64` keeps suggestions to a line or two; `256` allows whole blocks.",
+            "order": 3,
+            "minimum": 8,
+            "maximum": 2048
+          },
+          "axiora.inlineCompletion.debounceMs": {
+            "type": "number",
+            "default": 300,
+            "markdownDescription": "Milliseconds to wait after the last keystroke before asking the model. Lower feels snappier; higher saves requests on paid providers.",
+            "order": 4,
+            "minimum": 0,
+            "maximum": 5000
+          },
+          "axiora.nextEdit.enabled": {
+            "type": "boolean",
+            "default": true,
+            "markdownDescription": "After you rename a word, suggest the same change at its next occurrence. Press `Tab` to jump and apply.",
+            "order": 5
+          }
+        }
+      },
+      {
+        "id": "axiora.editor.axioraKeymap",
+        "title": "Axiora: Keymap",
+        "properties": {
+          "axiora.keymap": {
+            "type": "string",
+            "enum": [
+              "default",
+              "vim",
+              "emacs"
+            ],
+            "default": "default",
+            "markdownDescription": "Built-in key bindings — no extension needed. Switch any time from the Command Palette with **Axiora: Choose Keymap...**.",
+            "order": 1,
+            "enumItemLabels": [
+              "Default",
+              "Vim",
+              "Emacs"
+            ],
+            "enumDescriptions": [
+              "Standard Axiora Code shortcuts.",
+              "Modal editing: Normal, Insert and Visual modes with motions, operators and text objects.",
+              "Emacs bindings: `Ctrl+A`/`Ctrl+E`, kill ring, mark, `Ctrl+X` prefixes."
+            ]
+          }
+        }
+      },
+      {
+        "id": "axiora.editor.format",
+        "title": "Axiora: EditorConfig",
+        "properties": {
+          "axiora.editorconfig.enabled": {
+            "type": "boolean",
+            "default": true,
+            "markdownDescription": "Apply [`.editorconfig`](https://editorconfig.org) rules — indentation, line endings, trailing whitespace and final newline — without installing an extension.",
+            "order": 100
+          }
+        }
+      },
+      {
+        "id": "axiora.editor.axioraTypewriter",
+        "title": "Axiora: Typewriter",
+        "properties": {
+          "axiora.editor.typewriterMode": {
+            "type": "boolean",
+            "default": false,
+            "markdownDescription": "Keep the line you are typing vertically centered, like a typewriter. Toggle with **View: Toggle Typewriter Mode**.",
+            "order": 1
+          }
+        }
+      },
+      {
+        "id": "axiora.editor.axioraLsp",
+        "title": "Axiora: Language Servers",
+        "properties": {
+          "axiora.lsp.autoInstall": {
+            "type": "string",
+            "enum": [
+              "ask",
+              "always",
+              "never"
+            ],
+            "default": "ask",
+            "markdownDescription": "What to do when you open a file whose language server Axiora can manage (Python, Bash, YAML, Dockerfile, Go, Rust, C/C++, Lua, Java, Kotlin, Terraform, R…). Manage servers with **Language Servers: Manage...**.",
+            "order": 1,
+            "enumItemLabels": [
+              "Ask",
+              "Always",
+              "Never"
+            ],
+            "enumDescriptions": [
+              "Offer to download and start the server the first time it is needed.",
+              "Download and start servers silently.",
+              "Never download servers; only use ones already on your PATH."
+            ]
+          },
+          "axiora.lsp.disabled": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "default": [],
+            "markdownDescription": "Server ids that are never started automatically, e.g. `[\"pyright\", \"clangd\"]`.",
+            "order": 2
+          },
+          "axiora.lsp.initializationOptions": {
             "type": "object",
-            "properties": {
-              "name": {
-                "type": "string"
-              },
-              "url": {
-                "type": "string"
-              }
-            }
+            "default": {},
+            "markdownDescription": "Per-server `initializationOptions`, keyed by server id.\n\nExample: `{ \"gopls\": { \"staticcheck\": true } }`",
+            "order": 3
           },
-          "description": "Self-hosted Axiora runners (bin/axiora-runner.mjs on your own machines). Tokens are stored in secret storage."
-        },
-        "axiora.embed.baseUrl": {
-          "type": "string",
-          "default": "",
-          "description": "Public base URL where you host .axiora/embeds (e.g. your own server); used in the copied iframe snippet."
-        },
-        "axiora.inspections.enabled": {
-          "type": "boolean",
-          "default": true,
-          "description": "Axiora inspections with quick fixes for JS/TS/Python."
-        },
-        "axiora.ai.embeddingModel": {
-          "type": "string",
-          "default": "nomic-embed-text",
-          "description": "Embedding model on your model server for the semantic index (falls back to local hashed vectors)."
-        },
-        "axiora.wasi.replace": {
-          "type": "boolean",
-          "default": true,
-          "description": "WASI plugin output replaces the document/selection (otherwise opens in a new tab)."
-        },
-        "axiora.acp.agents": {
-          "type": "array",
-          "default": [],
-          "items": {
-            "type": "object",
-            "properties": {
-              "name": {
-                "type": "string"
-              },
-              "command": {
-                "type": "string"
-              },
-              "args": {
-                "type": "array",
-                "items": {
+          "axiora.inspections.enabled": {
+            "type": "boolean",
+            "default": true,
+            "markdownDescription": "Built-in Axiora inspections with quick fixes for JavaScript, TypeScript and Python (unused code, risky patterns, simple bugs).",
+            "order": 4
+          }
+        }
+      },
+      {
+        "id": "axiora.chat.axioraAssistant",
+        "title": "Axiora: Axiora Assistant",
+        "properties": {
+          "axiora.agent.tools": {
+            "type": "boolean",
+            "default": true,
+            "markdownDescription": "Let `@axiora` call tools on its own: web search and page reading, a real browser, office files and charts, images, screenshots and message drafts. Destructive tools always follow `#axiora.approval.mode#`.",
+            "order": 1
+          },
+          "axiora.web.readPages": {
+            "type": "number",
+            "default": 3,
+            "markdownDescription": "How many of the top results `/web` opens and reads in full before answering. `0` uses snippets only.",
+            "order": 2,
+            "minimum": 0,
+            "maximum": 10
+          },
+          "axiora.agents.concurrency": {
+            "type": "number",
+            "default": 3,
+            "markdownDescription": "How many subagents `/parallel` runs at the same time. Raise it for fast local models; lower it for rate-limited providers.",
+            "order": 3,
+            "minimum": 1,
+            "maximum": 16
+          }
+        }
+      },
+      {
+        "id": "axiora.chat.context",
+        "title": "Axiora: Axiora Context",
+        "properties": {
+          "axiora.context.repoMap": {
+            "type": "boolean",
+            "default": true,
+            "markdownDescription": "Include a compact map of the repository (files and top-level symbols) in `@axiora` prompts. Files matching `.axioraignore` are skipped.",
+            "order": 1
+          },
+          "axiora.context.fastContext": {
+            "type": "boolean",
+            "default": true,
+            "markdownDescription": "Find the code most relevant to each prompt by keyword search and add it to the context.",
+            "order": 2
+          },
+          "axiora.context.liveActions": {
+            "type": "boolean",
+            "default": true,
+            "markdownDescription": "Include what you are doing right now — active file, recent edits, terminal commands and errors — so answers match your current task.",
+            "order": 3
+          },
+          "axiora.context.extraRepos": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "default": [],
+            "markdownDescription": "Other repository folders whose file lists are included, e.g. `[\"~/code/shared-lib\"]`.",
+            "order": 4
+          },
+          "axiora.docs.maxPages": {
+            "type": "number",
+            "default": 40,
+            "markdownDescription": "Maximum pages crawled for each documentation source added with **Docs: Add Documentation...**.",
+            "order": 5,
+            "minimum": 1,
+            "maximum": 500
+          }
+        }
+      },
+      {
+        "id": "axiora.chat.axioraMemory",
+        "title": "Axiora: Memory",
+        "properties": {
+          "axiora.memory.enabled": {
+            "type": "boolean",
+            "default": true,
+            "markdownDescription": "Include `.axiora/memory.md` in every `@axiora` prompt. Add notes with `/remember` or **Axiora AI: Add to Memory...**.",
+            "order": 1
+          },
+          "axiora.chat.maxContextTokens": {
+            "type": "number",
+            "default": 6000,
+            "markdownDescription": "When a conversation grows past this many (estimated) tokens, older turns are summarized automatically so the chat keeps going.",
+            "order": 2,
+            "minimum": 1000,
+            "maximum": 200000
+          }
+        }
+      },
+      {
+        "id": "axiora.features.axioraCheckpoints",
+        "title": "Axiora: Checkpoints",
+        "properties": {
+          "axiora.checkpoints.autoOnSave": {
+            "type": "boolean",
+            "default": false,
+            "markdownDescription": "Create a checkpoint automatically when you save (at most every 5 minutes). Restore with **Axiora AI: Restore Checkpoint...**.",
+            "order": 1
+          }
+        }
+      },
+      {
+        "id": "axiora.features.axioraLintFix",
+        "title": "Axiora: AI Lint Fix",
+        "properties": {
+          "axiora.lintFix.onSave": {
+            "type": "boolean",
+            "default": false,
+            "markdownDescription": "After saving, let the AI fix the errors left in the file, re-checking until it is clean or `#axiora.lintFix.maxIterations#` is reached.",
+            "order": 1
+          },
+          "axiora.lintFix.maxIterations": {
+            "type": "number",
+            "default": 3,
+            "markdownDescription": "Fix-and-recheck passes before giving up.",
+            "order": 2,
+            "minimum": 1,
+            "maximum": 20
+          }
+        }
+      },
+      {
+        "id": "axiora.features.axioraSolo",
+        "title": "Axiora: Solo Agent",
+        "properties": {
+          "axiora.solo.testCommand": {
+            "type": "string",
+            "default": "",
+            "markdownDescription": "Command `/solo` runs to verify its work, e.g. `npm test`, `pytest -q` or `cargo test`. Empty uses `npm test` when `package.json` has a test script.",
+            "order": 1
+          },
+          "axiora.solo.maxIterations": {
+            "type": "number",
+            "default": 5,
+            "markdownDescription": "How many write-test-fix rounds `/solo` may run before stopping.",
+            "order": 2,
+            "minimum": 1,
+            "maximum": 50
+          }
+        }
+      },
+      {
+        "id": "axiora.features.axioraLatex",
+        "title": "Axiora: LaTeX",
+        "properties": {
+          "axiora.latex.engine": {
+            "type": "string",
+            "enum": [
+              "latexmk",
+              "pdflatex",
+              "xelatex",
+              "lualatex",
+              "tectonic"
+            ],
+            "default": "latexmk",
+            "markdownDescription": "Tool used by **LaTeX: Build PDF**.",
+            "order": 1,
+            "enumItemLabels": [
+              "latexmk",
+              "pdfLaTeX",
+              "XeLaTeX",
+              "LuaLaTeX",
+              "Tectonic"
+            ],
+            "enumDescriptions": [
+              "Runs the right passes automatically (recommended).",
+              "Classic pdfLaTeX, single pass.",
+              "Unicode and system fonts.",
+              "Unicode, system fonts and Lua scripting.",
+              "Self-contained engine that downloads packages on demand."
+            ]
+          },
+          "axiora.latex.buildOnSave": {
+            "type": "boolean",
+            "default": true,
+            "markdownDescription": "Rebuild the PDF whenever you save while its preview is open.",
+            "order": 2
+          },
+          "axiora.latex.viewerDpi": {
+            "type": "number",
+            "default": 110,
+            "markdownDescription": "Render resolution (DPI) of the SyncTeX PDF preview. Higher is sharper but slower.",
+            "order": 3,
+            "minimum": 50,
+            "maximum": 300
+          }
+        }
+      },
+      {
+        "id": "axiora.features.axioraContainers",
+        "title": "Axiora: Containers",
+        "properties": {
+          "axiora.container.engine": {
+            "type": "string",
+            "enum": [
+              "docker",
+              "podman"
+            ],
+            "default": "docker",
+            "markdownDescription": "Container engine for container debugging and runner isolation.",
+            "order": 1,
+            "enumItemLabels": [
+              "Docker",
+              "Podman"
+            ],
+            "enumDescriptions": [
+              "Docker Engine or Docker Desktop.",
+              "Daemonless, rootless Podman."
+            ]
+          },
+          "axiora.wasi.replace": {
+            "type": "boolean",
+            "default": true,
+            "markdownDescription": "When a WASI plugin runs on the document or selection, replace it with the output. Turn off to open the output in a new tab instead.",
+            "order": 2
+          }
+        }
+      },
+      {
+        "id": "axiora.security.axioraApproval",
+        "title": "Axiora: Agent Approval",
+        "properties": {
+          "axiora.approval.mode": {
+            "type": "string",
+            "enum": [
+              "ask",
+              "always",
+              "never-for-safe"
+            ],
+            "default": "ask",
+            "enumDescriptions": [
+              "Confirm deletes, pushes, destructive commands, deploys and sends (recommended).",
+              "Confirm every agent action, including file writes and safe commands.",
+              "Confirm only high-risk actions such as force-push, recursive delete, deploys and sends."
+            ],
+            "markdownDescription": "When to ask before the agent does something destructive or visible to others — deleting files, `git push`, risky shell commands, deploys, and sending messages (sends always ask). Change quickly with **Axiora AI: Set Approval Mode...**.",
+            "order": 1,
+            "enumItemLabels": [
+              "Ask for Risky Actions",
+              "Ask for Everything",
+              "Ask Only for High Risk"
+            ]
+          }
+        }
+      },
+      {
+        "id": "axiora.security.axioraSecrets",
+        "title": "Axiora: Secret Scanning",
+        "properties": {
+          "axiora.security.scanOnSave": {
+            "type": "boolean",
+            "default": true,
+            "markdownDescription": "Scan files for leaked secrets and insecure code when you open or save them. Findings appear in the **Problems** panel.",
+            "order": 1
+          }
+        }
+      },
+      {
+        "id": "axiora.security.axioraSandbox",
+        "title": "Axiora: Sandbox",
+        "properties": {
+          "axiora.sandbox.engine": {
+            "type": "string",
+            "enum": [
+              "node-permission",
+              "docker",
+              "podman"
+            ],
+            "default": "node-permission",
+            "markdownDescription": "Isolation used by **Run Current File in Sandbox**.",
+            "order": 1,
+            "enumItemLabels": [
+              "Node Permission Model",
+              "Docker",
+              "Podman"
+            ],
+            "enumDescriptions": [
+              "JavaScript only: no child processes or workers, file reads limited to the workspace, writes to `.axiora/sandbox-out`.",
+              "Any language in a container with no network and a read-only workspace.",
+              "Same as Docker, using Podman."
+            ]
+          }
+        }
+      },
+      {
+        "id": "axiora.security.axioraPolicy",
+        "title": "Axiora: Policy",
+        "properties": {
+          "axiora.policy.url": {
+            "type": "string",
+            "default": "",
+            "markdownDescription": "Optional JSON policy (`{\"exclude\": [...], \"redact\": [...]}`) served from your own server. Merged with `.axiora/policy.json` to keep files and secrets out of AI requests.",
+            "order": 1
+          }
+        }
+      },
+      {
+        "id": "axiora.application.settingsSync",
+        "title": "Axiora: Axiora Sync",
+        "properties": {
+          "axiora.sync.endpoint": {
+            "type": "string",
+            "default": "",
+            "markdownDescription": "Your own settings-sync server, e.g. `https://sync.example.com/api/sync`. Leave empty to turn sync off. Set the token with **Axiora Sync: Set Token...**.",
+            "order": 1
+          },
+          "axiora.sync.auto": {
+            "type": "boolean",
+            "default": false,
+            "markdownDescription": "Upload automatically whenever `settings.json` or `keybindings.json` changes.",
+            "order": 2
+          }
+        }
+      },
+      {
+        "id": "axiora.application.axioraDotfiles",
+        "title": "Axiora: Dotfiles",
+        "properties": {
+          "axiora.dotfiles.repository": {
+            "type": "string",
+            "default": "",
+            "markdownDescription": "Your dotfiles: a Git URL, `owner/repo` on GitHub, or a local folder.",
+            "order": 1
+          },
+          "axiora.dotfiles.targetPath": {
+            "type": "string",
+            "default": "~/dotfiles",
+            "markdownDescription": "Folder the repository is cloned into.",
+            "order": 2
+          },
+          "axiora.dotfiles.installCommand": {
+            "type": "string",
+            "default": "",
+            "markdownDescription": "Command run after cloning. Empty runs `install.sh`, `bootstrap.sh` or `setup.sh` (`install.ps1` on Windows), otherwise links the dotfiles into your home folder.",
+            "order": 3
+          },
+          "axiora.dotfiles.installOnStartup": {
+            "type": "boolean",
+            "default": false,
+            "markdownDescription": "Pull and apply your dotfiles every time the editor starts.",
+            "order": 4
+          },
+          "axiora.dotfiles.ignore": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "default": [],
+            "markdownDescription": "Files that are never linked into your home folder, e.g. `[\".gitconfig\"]`.",
+            "order": 5
+          }
+        }
+      },
+      {
+        "id": "axiora.application.axioraPower",
+        "title": "Axiora: Power",
+        "properties": {
+          "axiora.agent.keepAwake": {
+            "type": "boolean",
+            "default": true,
+            "markdownDescription": "Prevent the computer from sleeping while `@axiora`, `/solo` or background tasks are running.",
+            "order": 1
+          }
+        }
+      },
+      {
+        "id": "axiora.aiModels.provider",
+        "title": "Axiora: Provider",
+        "properties": {
+          "axiora.ai.provider": {
+            "type": "string",
+            "enum": [
+              "ollama",
+              "openai"
+            ],
+            "default": "ollama",
+            "markdownDescription": "Where models run. Set the API key with **Axiora AI: Set API Key...** (stored in the OS keychain) and check it with **Axiora AI: Test Model Connection**.",
+            "order": 1,
+            "enumItemLabels": [
+              "Ollama (local)",
+              "OpenAI-compatible"
+            ],
+            "enumDescriptions": [
+              "Models on your machine through Ollama — private and free.",
+              "Any OpenAI-compatible server: OpenRouter, OpenAI, Groq, LM Studio, llama.cpp, vLLM…"
+            ]
+          },
+          "axiora.ai.baseUrl": {
+            "type": "string",
+            "default": "http://127.0.0.1:11434",
+            "markdownDescription": "Server address.\n\n- Ollama: `http://127.0.0.1:11434`\n- OpenRouter: `https://openrouter.ai/api/v1`\n- OpenAI: `https://api.openai.com/v1`\n- LM Studio: `http://127.0.0.1:1234/v1`",
+            "order": 2
+          },
+          "axiora.ai.chatModel": {
+            "type": "string",
+            "default": "qwen2.5-coder:0.5b",
+            "markdownDescription": "Model for `@axiora` chat, `/review`, `/spec` and the agents. Inline suggestions use `#axiora.inlineCompletion.model#`.",
+            "order": 3
+          }
+        }
+      },
+      {
+        "id": "axiora.aiModels.router",
+        "title": "Axiora: Model Router",
+        "properties": {
+          "axiora.ai.router.enabled": {
+            "type": "boolean",
+            "default": false,
+            "markdownDescription": "Pick a model per request: short, simple prompts go to `#axiora.ai.router.smallModel#`, long or complex ones to `#axiora.ai.router.largeModel#`.",
+            "order": 1
+          },
+          "axiora.ai.router.smallModel": {
+            "type": "string",
+            "default": "",
+            "markdownDescription": "Fast, cheap model for short questions, e.g. `qwen2.5-coder:1.5b`.",
+            "order": 2
+          },
+          "axiora.ai.router.largeModel": {
+            "type": "string",
+            "default": "",
+            "markdownDescription": "Strong model for refactors, debugging, design and long code.",
+            "order": 3
+          },
+          "axiora.ai.router.threshold": {
+            "type": "number",
+            "default": 4000,
+            "markdownDescription": "Prompt size in characters above which the large model is used.",
+            "order": 4,
+            "minimum": 100
+          }
+        }
+      },
+      {
+        "id": "axiora.aiModels.cost",
+        "title": "Axiora: Cost",
+        "properties": {
+          "axiora.ai.costPer1kInputTokens": {
+            "type": "number",
+            "default": 0,
+            "markdownDescription": "Used by **Axiora AI: Show Usage** to estimate spend. Use `0` for local models.",
+            "order": 1,
+            "minimum": 0
+          },
+          "axiora.ai.costPer1kOutputTokens": {
+            "type": "number",
+            "default": 0,
+            "markdownDescription": "Price per 1,000 generated tokens.",
+            "order": 2,
+            "minimum": 0
+          }
+        }
+      },
+      {
+        "id": "axiora.aiModels.vision",
+        "title": "Axiora: Vision and Embeddings",
+        "properties": {
+          "axiora.ai.visionModel": {
+            "type": "string",
+            "default": "",
+            "markdownDescription": "Model that accepts images, used for screenshot-to-UI and computer use, e.g. `qwen2.5vl` or `llava`. Empty uses the chat model.",
+            "order": 1
+          },
+          "axiora.ai.embeddingModel": {
+            "type": "string",
+            "default": "nomic-embed-text",
+            "markdownDescription": "Embedding model for the semantic code index, e.g. `nomic-embed-text`. Falls back to local hashed vectors when unavailable.",
+            "order": 2
+          }
+        }
+      },
+      {
+        "id": "axiora.aiModels.image",
+        "title": "Axiora: Image Generation",
+        "properties": {
+          "axiora.image.model": {
+            "type": "string",
+            "default": "google/gemini-2.5-flash-image",
+            "markdownDescription": "Model used by `/image`. OpenRouter: an image-output model such as `google/gemini-2.5-flash-image`. OpenAI: `gpt-image-1`. Set a separate key with **Image: Set Image API Key...**.",
+            "order": 1
+          },
+          "axiora.image.api": {
+            "type": "string",
+            "enum": [
+              "auto",
+              "chat",
+              "images"
+            ],
+            "default": "auto",
+            "markdownDescription": "How images are requested.",
+            "order": 2,
+            "enumItemLabels": [
+              "Automatic",
+              "Chat (modalities)",
+              "Images endpoint"
+            ],
+            "enumDescriptions": [
+              "OpenRouter uses chat with image output; everything else uses `/images/generations`.",
+              "Chat completions with `modalities: [\"image\", \"text\"]`.",
+              "The OpenAI-style `/images/generations` endpoint."
+            ]
+          },
+          "axiora.image.baseUrl": {
+            "type": "string",
+            "default": "",
+            "markdownDescription": "Image server address. Empty uses `#axiora.ai.baseUrl#`.",
+            "order": 3
+          },
+          "axiora.image.folder": {
+            "type": "string",
+            "default": ".axiora/images",
+            "markdownDescription": "Folder, relative to the workspace, where generated images are saved.",
+            "order": 4
+          }
+        }
+      },
+      {
+        "id": "axiora.aiModels.arena",
+        "title": "Axiora: Arena",
+        "properties": {
+          "axiora.arena.models": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "default": [],
+            "markdownDescription": "Models compared side by side in `/arena`, e.g. `[\"qwen2.5-coder:7b\", \"llama3.1:8b\"]`. Empty uses every available model.",
+            "order": 1
+          }
+        }
+      },
+      {
+        "id": "axiora.voice.stt",
+        "title": "Axiora: Speech to Text",
+        "properties": {
+          "axiora.voice.provider": {
+            "type": "string",
+            "enum": [
+              "local",
+              "openai"
+            ],
+            "default": "local",
+            "markdownDescription": "Where dictation is transcribed. Start dictation with **Voice: Dictate**.",
+            "order": 1,
+            "enumItemLabels": [
+              "Local Whisper",
+              "OpenAI-compatible"
+            ],
+            "enumDescriptions": [
+              "A whisper.cpp server on your machine (`#axiora.voice.endpoint#`) — private and offline.",
+              "Groq, OpenAI or any `/audio/transcriptions` endpoint (`#axiora.voice.baseUrl#`). Set the key with **Voice: Set Speech-to-Text API Key...**."
+            ]
+          },
+          "axiora.voice.endpoint": {
+            "type": "string",
+            "default": "http://127.0.0.1:8080/inference",
+            "markdownDescription": "whisper.cpp server URL, e.g. `http://127.0.0.1:8080/inference`.\n\nStart one with `whisper-server -m ggml-base.en.bin --port 8080`.",
+            "order": 2
+          },
+          "axiora.voice.baseUrl": {
+            "type": "string",
+            "default": "https://api.groq.com/openai/v1",
+            "markdownDescription": "OpenAI-compatible base URL, e.g. `https://api.groq.com/openai/v1` or `https://api.openai.com/v1`.",
+            "order": 3
+          },
+          "axiora.voice.model": {
+            "type": "string",
+            "default": "",
+            "markdownDescription": "Transcription model. Empty uses `whisper-1` locally and `whisper-large-v3-turbo` online.",
+            "order": 4
+          }
+        }
+      },
+      {
+        "id": "axiora.voice.tts",
+        "title": "Axiora: Text to Speech",
+        "properties": {
+          "axiora.voice.tts.provider": {
+            "type": "string",
+            "enum": [
+              "os",
+              "openai"
+            ],
+            "default": "os",
+            "markdownDescription": "Voice used by the **Read aloud** button under chat replies.",
+            "order": 1,
+            "enumItemLabels": [
+              "System Voice",
+              "OpenAI-compatible"
+            ],
+            "enumDescriptions": [
+              "Windows speech, macOS `say`, or Linux `spd-say`/`espeak-ng` — offline and free.",
+              "An `/audio/speech` endpoint such as OpenAI. Set the key with **Voice: Set Text-to-Speech API Key...**."
+            ]
+          },
+          "axiora.voice.tts.autoSpeak": {
+            "type": "boolean",
+            "default": false,
+            "markdownDescription": "Read every `@axiora` reply aloud as soon as it finishes. Stop with **Voice: Stop Speaking**.",
+            "order": 2
+          },
+          "axiora.voice.tts.rate": {
+            "type": "number",
+            "default": 0,
+            "markdownDescription": "Speaking speed from `-10` (slowest) to `10` (fastest). `0` is normal.",
+            "order": 3,
+            "minimum": -10,
+            "maximum": 10
+          },
+          "axiora.voice.tts.osVoice": {
+            "type": "string",
+            "default": "",
+            "markdownDescription": "Name of an installed system voice, e.g. `Microsoft Zira Desktop` (Windows) or `Samantha` (macOS). Empty uses the default.",
+            "order": 4
+          },
+          "axiora.voice.tts.model": {
+            "type": "string",
+            "default": "gpt-4o-mini-tts",
+            "markdownDescription": "Model for the OpenAI-compatible provider, e.g. `gpt-4o-mini-tts` or `tts-1`.",
+            "order": 5
+          },
+          "axiora.voice.tts.voice": {
+            "type": "string",
+            "default": "alloy",
+            "markdownDescription": "Voice for the OpenAI-compatible provider, e.g. `alloy`, `nova` or `verse`.",
+            "order": 6
+          },
+          "axiora.voice.tts.baseUrl": {
+            "type": "string",
+            "default": "",
+            "markdownDescription": "Text-to-speech server. Empty uses `#axiora.ai.baseUrl#`.",
+            "order": 7
+          }
+        }
+      },
+      {
+        "id": "axiora.integrations.jira",
+        "title": "Axiora: Jira",
+        "properties": {
+          "axiora.connectors.jira.site": {
+            "type": "string",
+            "default": "",
+            "markdownDescription": "Your Jira Cloud site, e.g. `https://acme.atlassian.net`. Add the API token with **Connectors: Manage...**.",
+            "order": 1
+          },
+          "axiora.connectors.jira.email": {
+            "type": "string",
+            "default": "",
+            "markdownDescription": "Atlassian account email that owns the API token.",
+            "order": 2
+          }
+        }
+      },
+      {
+        "id": "axiora.integrations.google",
+        "title": "Axiora: Google",
+        "properties": {
+          "axiora.google.clientId": {
+            "type": "string",
+            "default": "",
+            "markdownDescription": "Your own Google OAuth client (type **Desktop app**) for Gmail, Drive and Calendar. Create it in the [Google Cloud Console](https://console.cloud.google.com/apis/credentials), then run **Google: Sign In...** — the client secret is kept in the OS keychain.",
+            "order": 1
+          }
+        }
+      },
+      {
+        "id": "axiora.integrations.github",
+        "title": "Axiora: GitHub",
+        "properties": {
+          "axiora.github.repo": {
+            "type": "string",
+            "default": "",
+            "markdownDescription": "Repository as `owner/name`. Empty uses the `origin` remote of the open folder.",
+            "order": 1
+          },
+          "axiora.github.apiUrl": {
+            "type": "string",
+            "default": "https://api.github.com",
+            "markdownDescription": "GitHub API address. GitHub Enterprise: `https://your-host/api/v3`.",
+            "order": 2
+          }
+        }
+      },
+      {
+        "id": "axiora.integrations.mcp",
+        "title": "Axiora: MCP Server",
+        "properties": {
+          "axiora.mcpServer.enabled": {
+            "type": "boolean",
+            "default": false,
+            "markdownDescription": "Expose this editor as an MCP server on `127.0.0.1`, so external agents can read open editors, the selection, files and diagnostics. Copy the client config with **MCP: Copy Server Config**.",
+            "order": 1
+          },
+          "axiora.mcpServer.port": {
+            "type": "number",
+            "default": 3917,
+            "markdownDescription": "Local port for the MCP server.",
+            "order": 2,
+            "minimum": 1024,
+            "maximum": 65535
+          },
+          "axiora.mcpServer.allowWrites": {
+            "type": "boolean",
+            "default": false,
+            "markdownDescription": "Let MCP clients change files through the editor. Off keeps the server read-only.",
+            "order": 3
+          }
+        }
+      },
+      {
+        "id": "axiora.integrations.browser",
+        "title": "Axiora: Agent Browser",
+        "properties": {
+          "axiora.browser.executablePath": {
+            "type": "string",
+            "default": "",
+            "markdownDescription": "Chrome, Edge or Chromium used by the agent browser. Empty detects an installed one automatically.",
+            "order": 1
+          },
+          "axiora.browser.headless": {
+            "type": "boolean",
+            "default": false,
+            "markdownDescription": "Run the agent browser without showing its window.",
+            "order": 2
+          },
+          "axiora.browser.maxSteps": {
+            "type": "number",
+            "default": 15,
+            "markdownDescription": "Most actions **Browser: Run Task...** may take before stopping.",
+            "order": 3,
+            "minimum": 1,
+            "maximum": 100
+          }
+        }
+      },
+      {
+        "id": "axiora.integrations.remote",
+        "title": "Axiora: Remote and Sharing",
+        "properties": {
+          "axiora.runner.machines": {
+            "type": "array",
+            "default": [],
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "url": {
                   "type": "string"
                 }
               }
-            }
+            },
+            "markdownDescription": "Self-hosted runners (`bin/axiora-runner.mjs`) that take agent tasks, e.g. `[{\"name\": \"build-box\", \"url\": \"http://10.0.0.5:7788\"}]`. Tokens are kept in the OS keychain.",
+            "order": 1
           },
-          "description": "Agent Client Protocol agents, e.g. {\"name\":\"gemini\",\"command\":\"gemini\",\"args\":[\"--experimental-acp\"]}."
-        },
-        "axiora.lsp.autoInstall": {
-          "type": "string",
-          "enum": [
-            "ask",
-            "always",
-            "never"
-          ],
-          "default": "ask",
-          "description": "When a file needs a language server Axiora can manage (Python, Bash, YAML, Dockerfile, Go, Rust, C/C++, Lua): ask, install automatically, or never."
-        },
-        "axiora.lsp.disabled": {
-          "type": "array",
-          "items": {
-            "type": "string"
+          "axiora.collab.relayUrl": {
+            "type": "string",
+            "default": "http://127.0.0.1:7790",
+            "markdownDescription": "Your self-hosted relay for live collaboration (`node bin/axiora-relay.mjs`). Messages are end-to-end encrypted; the relay sees only ciphertext.",
+            "order": 2
           },
-          "default": [],
-          "description": "Language server ids that are never auto-started (pyright, bash, yaml, docker, gopls, rust-analyzer, clangd, lua)."
-        },
-        "axiora.lsp.initializationOptions": {
-          "type": "object",
-          "default": {},
-          "description": "Per-server initializationOptions, keyed by server id."
-        },
-        "axiora.dotfiles.installOnStartup": {
-          "type": "boolean",
-          "default": false,
-          "description": "Pull and apply your dotfiles when the editor starts."
-        },
-        "axiora.dotfiles.ignore": {
-          "type": "array",
-          "items": {
-            "type": "string"
+          "axiora.share.endpoint": {
+            "type": "string",
+            "default": "",
+            "markdownDescription": "Server that publishes shared chats: receives `POST {title, markdown, html}` and returns `{url}`.",
+            "order": 3
           },
-          "default": [],
-          "description": "Dotfiles that are never linked into your home folder."
-        },
-        "axiora.voice.endpoint": {
-          "type": "string",
-          "default": "http://127.0.0.1:8080/inference",
-          "description": "Local speech-to-text endpoint: whisper.cpp server (/inference) or any OpenAI-compatible /v1/audio/transcriptions."
-        },
-        "axiora.voice.model": {
-          "type": "string",
-          "default": "",
-          "description": "Transcription model (empty = whisper-1 for local, whisper-large-v3-turbo for the OpenAI-compatible provider)."
-        },
-        "axiora.container.engine": {
-          "type": "string",
-          "enum": [
-            "docker",
-            "podman"
-          ],
-          "default": "docker",
-          "description": "Container engine used by container debugging and runner isolation."
-        },
-        "axiora.latex.viewerDpi": {
-          "type": "number",
-          "default": 110,
-          "description": "Render resolution of the SyncTeX PDF viewer."
-        },
-        "axiora.connectors.jira.site": {
-          "type": "string",
-          "default": "",
-          "description": "Jira Cloud site, e.g. https://acme.atlassian.net"
-        },
-        "axiora.connectors.jira.email": {
-          "type": "string",
-          "default": "",
-          "description": "Atlassian account email used with the Jira API token."
-        },
-        "axiora.collab.relayUrl": {
-          "type": "string",
-          "default": "http://127.0.0.1:7790",
-          "description": "Self-hosted relay (node bin/axiora-relay.mjs). Messages are end-to-end encrypted; the relay sees only ciphertext."
-        },
-        "axiora.sandbox.engine": {
-          "type": "string",
-          "enum": [
-            "node-permission",
-            "docker",
-            "podman"
-          ],
-          "default": "node-permission",
-          "description": "Sandbox for 'Run Current File in Sandbox': Node permission model (no child processes/workers, fs read limited to the workspace, writes to .axiora/sandbox-out; network is NOT blocked) or a no-network container."
-        },
-        "axiora.approval.mode": {
-          "type": "string",
-          "enum": [
-            "ask",
-            "always",
-            "never-for-safe"
-          ],
-          "default": "ask",
-          "enumDescriptions": [
-            "Confirm destructive and external actions (delete, git push, destructive shell, sends, deploy)",
-            "Confirm every agent action",
-            "Confirm only high-risk actions (sends are always confirmed)"
-          ],
-          "description": "Approval policy for agent / destructive actions, including /solo."
-        },
-        "axiora.agent.tools": {
-          "type": "boolean",
-          "default": true,
-          "description": "Let @axiora call tools itself (web search/fetch, browser, office files, charts, images, screenshots, drafts, gated shell)."
-        },
-        "axiora.web.readPages": {
-          "type": "number",
-          "default": 3,
-          "description": "How many top result pages /web opens and reads."
-        },
-        "axiora.browser.executablePath": {
-          "type": "string",
-          "default": "",
-          "description": "Chrome/Edge/Chromium executable for the agent browser (auto-detected when empty)."
-        },
-        "axiora.browser.headless": {
-          "type": "boolean",
-          "default": false,
-          "description": "Run the agent browser without a visible window."
-        },
-        "axiora.browser.maxSteps": {
-          "type": "number",
-          "default": 15,
-          "description": "Max steps for Browser: Run Task."
-        },
-        "axiora.google.clientId": {
-          "type": "string",
-          "default": "",
-          "description": "Your own Google OAuth client ID (Desktop app). The client secret is kept in secret storage."
-        },
-        "axiora.voice.provider": {
-          "type": "string",
-          "enum": [
-            "local",
-            "openai"
-          ],
-          "default": "local",
-          "description": "Speech-to-text: local Whisper server (axiora.voice.endpoint) or an OpenAI-compatible /audio/transcriptions endpoint (axiora.voice.baseUrl)."
-        },
-        "axiora.voice.baseUrl": {
-          "type": "string",
-          "default": "https://api.groq.com/openai/v1",
-          "description": "OpenAI-compatible base URL for speech-to-text (Groq, OpenAI, …)."
-        },
-        "axiora.voice.tts.provider": {
-          "type": "string",
-          "enum": [
-            "os",
-            "openai"
-          ],
-          "default": "os",
-          "description": "Text-to-speech: OS voice (Windows SAPI, macOS say, Linux spd-say/espeak-ng) or an OpenAI-compatible /audio/speech endpoint."
-        },
-        "axiora.voice.tts.autoSpeak": {
-          "type": "boolean",
-          "default": false,
-          "description": "Read every @axiora reply aloud automatically."
-        },
-        "axiora.voice.tts.rate": {
-          "type": "number",
-          "default": 0,
-          "description": "Speech rate (-10 … 10)."
-        },
-        "axiora.voice.tts.osVoice": {
-          "type": "string",
-          "default": "",
-          "description": "OS voice name (optional)."
-        },
-        "axiora.voice.tts.baseUrl": {
-          "type": "string",
-          "default": "",
-          "description": "OpenAI-compatible TTS base URL (empty = main AI base URL)."
-        },
-        "axiora.voice.tts.model": {
-          "type": "string",
-          "default": "gpt-4o-mini-tts",
-          "description": "TTS model."
-        },
-        "axiora.voice.tts.voice": {
-          "type": "string",
-          "default": "alloy",
-          "description": "TTS voice."
-        },
-        "axiora.image.model": {
-          "type": "string",
-          "default": "google/gemini-2.5-flash-image",
-          "description": "Image model (OpenRouter image-output model, or e.g. gpt-image-1 / dall-e-3 for /images/generations)."
-        },
-        "axiora.image.baseUrl": {
-          "type": "string",
-          "default": "",
-          "description": "Image API base URL (empty = main AI base URL)."
-        },
-        "axiora.image.api": {
-          "type": "string",
-          "enum": [
-            "auto",
-            "chat",
-            "images"
-          ],
-          "default": "auto",
-          "description": "auto: OpenRouter → chat modalities, others → /images/generations."
-        },
-        "axiora.image.folder": {
-          "type": "string",
-          "default": ".axiora/images",
-          "description": "Where generated images are saved (relative to the workspace)."
+          "axiora.embed.baseUrl": {
+            "type": "string",
+            "default": "",
+            "markdownDescription": "Public address where you host `.axiora/embeds`; used in copied iframe snippets.",
+            "order": 4
+          },
+          "axiora.acp.agents": {
+            "type": "array",
+            "default": [],
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "command": {
+                  "type": "string"
+                },
+                "args": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "markdownDescription": "External agents spoken to over the Agent Client Protocol, e.g. `[{\"name\": \"gemini\", \"command\": \"gemini\", \"args\": [\"--experimental-acp\"]}]`.",
+            "order": 5
+          }
         }
       }
-    },
+    ],
     "submenus": [
       {
         "id": "axiora.ai.editorMenu",

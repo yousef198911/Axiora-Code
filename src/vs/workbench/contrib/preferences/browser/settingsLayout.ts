@@ -77,6 +77,26 @@ export const tocData: ITOCEntry<string> = {
 			settings: ['editor.*'],
 			children: [
 				{
+					id: 'editor/axioraCompletion',
+					label: localize('axiora.toc.editor.axioraCompletion', "AI Completion"),
+					settings: ['axiora.inlineCompletion.enabled', 'axiora.inlineCompletion.model', 'axiora.inlineCompletion.maxTokens', 'axiora.inlineCompletion.debounceMs', 'axiora.nextEdit.enabled']
+				},
+				{
+					id: 'editor/axioraKeymap',
+					label: localize('axiora.toc.editor.axioraKeymap', "Keymap"),
+					settings: ['axiora.keymap']
+				},
+				{
+					id: 'editor/axioraTypewriter',
+					label: localize('axiora.toc.editor.axioraTypewriter', "Typewriter"),
+					settings: ['axiora.editor.typewriterMode']
+				},
+				{
+					id: 'editor/axioraLsp',
+					label: localize('axiora.toc.editor.axioraLsp', "Language Servers"),
+					settings: ['axiora.lsp.autoInstall', 'axiora.lsp.disabled', 'axiora.lsp.initializationOptions', 'axiora.inspections.enabled']
+				},
+				{
 					id: 'editor/cursor',
 					label: localize('cursor', "Cursor"),
 					settings: ['editor.cursor*']
@@ -94,7 +114,7 @@ export const tocData: ITOCEntry<string> = {
 				{
 					id: 'editor/format',
 					label: localize('formatting', "Formatting"),
-					settings: ['editor.format*']
+					settings: ['axiora.editorconfig.enabled', 'editor.format*']
 				},
 				{
 					id: 'editor/diffEditor',
@@ -182,6 +202,16 @@ export const tocData: ITOCEntry<string> = {
 			label: localize('chat', "Chat"),
 			children: [
 				{
+					id: 'chat/axioraAssistant',
+					label: localize('axiora.toc.chat.axioraAssistant', "Axiora Assistant"),
+					settings: ['axiora.agent.tools', 'axiora.web.readPages', 'axiora.agents.concurrency']
+				},
+				{
+					id: 'chat/axioraMemory',
+					label: localize('axiora.toc.chat.axioraMemory', "Memory"),
+					settings: ['axiora.memory.enabled', 'axiora.chat.maxContextTokens']
+				},
+				{
 					id: 'chat/agent',
 					label: localize('chatAgent', "Agent"),
 					settings: [
@@ -248,7 +278,7 @@ export const tocData: ITOCEntry<string> = {
 				{
 					id: 'chat/context',
 					label: localize('chatContext', "Context"),
-					settings: [
+					settings: ['axiora.context.repoMap', 'axiora.context.fastContext', 'axiora.context.liveActions', 'axiora.context.extraRepos', 'axiora.docs.maxPages', 
 						'chat.detectParticipant.*',
 						'chat.experimental.detectParticipant.*',
 						'chat.implicitContext.*',
@@ -285,9 +315,122 @@ export const tocData: ITOCEntry<string> = {
 			]
 		},
 		{
+			id: 'aiModels',
+			label: localize('axiora.toc.aiModels', "AI Models"),
+			children: [
+				{
+					id: 'aiModels/provider',
+					label: localize('axiora.toc.aiModels.provider', "Provider"),
+					settings: ['axiora.ai.provider', 'axiora.ai.baseUrl', 'axiora.ai.chatModel']
+				},
+				{
+					id: 'aiModels/router',
+					label: localize('axiora.toc.aiModels.router', "Model Router"),
+					settings: ['axiora.ai.router.enabled', 'axiora.ai.router.smallModel', 'axiora.ai.router.largeModel', 'axiora.ai.router.threshold']
+				},
+				{
+					id: 'aiModels/cost',
+					label: localize('axiora.toc.aiModels.cost', "Cost"),
+					settings: ['axiora.ai.costPer1kInputTokens', 'axiora.ai.costPer1kOutputTokens']
+				},
+				{
+					id: 'aiModels/vision',
+					label: localize('axiora.toc.aiModels.vision', "Vision and Embeddings"),
+					settings: ['axiora.ai.visionModel', 'axiora.ai.embeddingModel']
+				},
+				{
+					id: 'aiModels/image',
+					label: localize('axiora.toc.aiModels.image', "Image Generation"),
+					settings: ['axiora.image.model', 'axiora.image.api', 'axiora.image.baseUrl', 'axiora.image.folder']
+				},
+				{
+					id: 'aiModels/arena',
+					label: localize('axiora.toc.aiModels.arena', "Arena"),
+					settings: ['axiora.arena.models']
+				},
+			]
+		},
+		{
+			id: 'voice',
+			label: localize('axiora.toc.voice', "Voice"),
+			children: [
+				{
+					id: 'voice/stt',
+					label: localize('axiora.toc.voice.stt', "Speech to Text"),
+					settings: ['axiora.voice.provider', 'axiora.voice.endpoint', 'axiora.voice.baseUrl', 'axiora.voice.model']
+				},
+				{
+					id: 'voice/tts',
+					label: localize('axiora.toc.voice.tts', "Text to Speech"),
+					settings: ['axiora.voice.tts.provider', 'axiora.voice.tts.autoSpeak', 'axiora.voice.tts.rate', 'axiora.voice.tts.osVoice', 'axiora.voice.tts.model', 'axiora.voice.tts.voice', 'axiora.voice.tts.baseUrl']
+				},
+			]
+		},
+		{
+			id: 'integrations',
+			label: localize('axiora.toc.integrations', "Integrations"),
+			children: [
+				{
+					id: 'integrations/jira',
+					label: localize('axiora.toc.integrations.jira', "Jira"),
+					settings: ['axiora.connectors.jira.site', 'axiora.connectors.jira.email']
+				},
+				{
+					id: 'integrations/google',
+					label: localize('axiora.toc.integrations.google', "Google"),
+					settings: ['axiora.google.clientId']
+				},
+				{
+					id: 'integrations/github',
+					label: localize('axiora.toc.integrations.github', "GitHub"),
+					settings: ['axiora.github.repo', 'axiora.github.apiUrl']
+				},
+				{
+					id: 'integrations/mcp',
+					label: localize('axiora.toc.integrations.mcp', "MCP Server"),
+					settings: ['axiora.mcpServer.enabled', 'axiora.mcpServer.port', 'axiora.mcpServer.allowWrites']
+				},
+				{
+					id: 'integrations/browser',
+					label: localize('axiora.toc.integrations.browser', "Browser"),
+					settings: ['axiora.browser.executablePath', 'axiora.browser.headless', 'axiora.browser.maxSteps']
+				},
+				{
+					id: 'integrations/remote',
+					label: localize('axiora.toc.integrations.remote', "Remote and Sharing"),
+					settings: ['axiora.runner.machines', 'axiora.collab.relayUrl', 'axiora.share.endpoint', 'axiora.embed.baseUrl', 'axiora.acp.agents']
+				},
+			]
+		},
+		{
 			id: 'features',
 			label: localize('features', "Features"),
 			children: [
+				{
+					id: 'features/axioraCheckpoints',
+					label: localize('axiora.toc.features.axioraCheckpoints', "Checkpoints"),
+					settings: ['axiora.checkpoints.autoOnSave']
+				},
+				{
+					id: 'features/axioraLintFix',
+					label: localize('axiora.toc.features.axioraLintFix', "AI Lint Fix"),
+					settings: ['axiora.lintFix.onSave', 'axiora.lintFix.maxIterations']
+				},
+				{
+					id: 'features/axioraSolo',
+					label: localize('axiora.toc.features.axioraSolo', "Solo Agent"),
+					settings: ['axiora.solo.testCommand', 'axiora.solo.maxIterations']
+				},
+				{
+					id: 'features/axioraLatex',
+					label: localize('axiora.toc.features.axioraLatex', "LaTeX"),
+					settings: ['axiora.latex.engine', 'axiora.latex.buildOnSave', 'axiora.latex.viewerDpi']
+				},
+				{
+					id: 'features/axioraContainers',
+					label: localize('axiora.toc.features.axioraContainers', "Containers"),
+					settings: ['axiora.container.engine', 'axiora.wasi.replace']
+				},
 				{
 					id: 'features/accessibilitySignals',
 					label: localize('accessibility.signals', 'Accessibility Signals'),
@@ -386,6 +529,16 @@ export const tocData: ITOCEntry<string> = {
 			label: localize('application', "Application"),
 			children: [
 				{
+					id: 'application/axioraDotfiles',
+					label: localize('axiora.toc.application.axioraDotfiles', "Dotfiles"),
+					settings: ['axiora.dotfiles.repository', 'axiora.dotfiles.targetPath', 'axiora.dotfiles.installCommand', 'axiora.dotfiles.installOnStartup', 'axiora.dotfiles.ignore']
+				},
+				{
+					id: 'application/axioraPower',
+					label: localize('axiora.toc.application.axioraPower', "Power"),
+					settings: ['axiora.agent.keepAwake']
+				},
+				{
 					id: 'application/http',
 					label: localize('proxy', "Proxy"),
 					settings: ['http.*']
@@ -408,7 +561,7 @@ export const tocData: ITOCEntry<string> = {
 				{
 					id: 'application/settingsSync',
 					label: localize('settingsSync', "Settings Sync"),
-					settings: ['settingsSync.*']
+					settings: ['axiora.sync.endpoint', 'axiora.sync.auto', 'settingsSync.*']
 				},
 				{
 					id: 'application/network',
@@ -433,6 +586,26 @@ export const tocData: ITOCEntry<string> = {
 			label: localize('security', "Security"),
 			settings: ['security.*'],
 			children: [
+				{
+					id: 'security/axioraApproval',
+					label: localize('axiora.toc.security.axioraApproval', "Agent Approval"),
+					settings: ['axiora.approval.mode']
+				},
+				{
+					id: 'security/axioraSecrets',
+					label: localize('axiora.toc.security.axioraSecrets', "Secret Scanning"),
+					settings: ['axiora.security.scanOnSave']
+				},
+				{
+					id: 'security/axioraSandbox',
+					label: localize('axiora.toc.security.axioraSandbox', "Sandbox"),
+					settings: ['axiora.sandbox.engine']
+				},
+				{
+					id: 'security/axioraPolicy',
+					label: localize('axiora.toc.security.axioraPolicy', "Policy"),
+					settings: ['axiora.policy.url']
+				},
 				{
 					id: 'security/workspace',
 					label: localize('workspace', "Workspace"),
