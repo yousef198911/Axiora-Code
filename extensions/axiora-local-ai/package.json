@@ -586,6 +586,11 @@
         "command": "axiora.multibuffer.open",
         "title": "Open Excerpt Source",
         "category": "Search"
+      },
+      {
+        "command": "axiora.hex.open",
+        "title": "Open in Hex Editor",
+        "category": "File"
       }
     ],
     "menus": {
@@ -791,6 +796,11 @@
           "command": "axiora.ssh.terminal",
           "group": "navigation@99",
           "when": "resourceScheme =~ /^axiora-(ssh|container|wsl)$/"
+        },
+        {
+          "command": "axiora.hex.open",
+          "group": "navigation@30",
+          "when": "!explorerResourceIsFolder"
         }
       ],
       "scm/resourceState/context": [
@@ -1562,6 +1572,18 @@
         "aliases": [
           "Typst"
         ]
+      }
+    ],
+    "customEditors": [
+      {
+        "viewType": "axiora.hexEditor",
+        "displayName": "Hex Editor",
+        "selector": [
+          {
+            "filenamePattern": "*.{bin,exe,dll,so,dylib,o,class,dat,img,iso,wasm}"
+          }
+        ],
+        "priority": "option"
       }
     ]
   }
