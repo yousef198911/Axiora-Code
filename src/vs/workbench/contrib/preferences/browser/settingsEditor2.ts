@@ -1488,7 +1488,7 @@ export class SettingsEditor2 extends EditorPane {
 		const groups = this.defaultSettingsEditorModel.settingsGroups.slice(1); // Without commonlyUsed
 		const coreSettingsGroups = [], extensionSettingsGroups = [];
 		for (const group of groups) {
-			if (group.extensionInfo) {
+			if (group.extensionInfo && group.extensionInfo.id.toLowerCase() !== 'vscode.axiora-local-ai') {
 				extensionSettingsGroups.push(group);
 			} else {
 				coreSettingsGroups.push(group);

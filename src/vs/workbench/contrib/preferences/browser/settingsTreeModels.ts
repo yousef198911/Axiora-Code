@@ -3,6 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import { axioraSettingLabels } from './axioraSettingLabels.js';
 import * as arrays from '../../../../base/common/arrays.js';
 import { Emitter } from '../../../../base/common/event.js';
 import { IJSONSchema } from '../../../../base/common/jsonSchema.js';
@@ -822,6 +823,10 @@ export function settingKeyToDisplayFormat(key: string, groupId: string = '', isL
 		case AgentSandboxSettingId.AgentSandboxUserConfiguredPaths:
 			displayLabel = localize('agentSandbox.userConfiguredPaths.label', "User-Configured Paths");
 			break;
+	}
+	const axiora = axioraSettingLabels[key];
+	if (axiora && !isLanguageTagSetting) {
+		return { category: axiora.category, label: axiora.label };
 	}
 	const lastDotIdx = key.lastIndexOf('.');
 	let category = '';
