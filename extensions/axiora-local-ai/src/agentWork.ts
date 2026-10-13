@@ -68,7 +68,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 		(async () => {
 			try {
 				const out = await chat([{ role: 'system', content: `${SYS}\nYou are working on a background task without supervision. Produce a complete, self-contained result.` }, { role: 'user', content: prompt + await baseCtx() }], () => undefined, t.cts.token);
-				t.result = await saveArtifact('result.md', `# Background task #${t.id}\n\n> ${prompt}\n\n${out}`, `task-${t.id}-${prompt}`); t.state = 'done';
+				t.result = await saveArtifact('result.md', `# Background task #${t.id}\n\n> ${prompt}\n\n${out}`, `task-${t.id}-${prompt}`); t.state = 'done'; upd();
 				const a = await vscode.window.showInformationMessage(`Background task #${t.id} finished: ${prompt.slice(0, 60)}`, 'Open Result');
 				if (a && t.result) { await vscode.window.showTextDocument(t.result); }
 			} catch (e) { t.state = t.cts.token.isCancellationRequested ? 'cancelled' : 'failed'; if (t.state === 'failed') { vscode.window.showWarningMessage(`Background task #${t.id} failed: ${(e as Error).message}`); } }
