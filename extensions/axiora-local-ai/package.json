@@ -564,6 +564,17 @@
         "title": "Run This File as User Script",
         "category": "Scripts",
         "icon": "$(play)"
+      },
+      {
+        "command": "axiora.multibuffer.search",
+        "title": "Search into Editable Multibuffer...",
+        "category": "Search",
+        "icon": "$(files)"
+      },
+      {
+        "command": "axiora.multibuffer.open",
+        "title": "Open Excerpt Source",
+        "category": "Search"
       }
     ],
     "menus": {
@@ -638,6 +649,11 @@
           "command": "axiora.k8s.apply",
           "group": "z_k8s@1",
           "when": "editorLangId == yaml"
+        },
+        {
+          "command": "axiora.multibuffer.open",
+          "group": "navigation@0",
+          "when": "resourceScheme == axiora-multi"
         }
       ],
       "axiora.ai.editorMenu": [
@@ -798,7 +814,14 @@
           "when": "isWindows"
         }
       ],
-      "menuBar/help": []
+      "menuBar/help": [],
+      "view/title": [
+        {
+          "command": "axiora.multibuffer.search",
+          "group": "navigation@20",
+          "when": "view == workbench.view.search"
+        }
+      ]
     },
     "configuration": {
       "title": "Axiora Local AI",
@@ -1468,11 +1491,12 @@
       },
       {
         "command": "axiora.whichKey.ctrlK",
-        "key": "ctrl+k ctrl+/"
+        "key": "ctrl+k ctrl+h"
       },
       {
-        "command": "axiora.whichKey.show",
-        "key": "ctrl+k ctrl+shift+/"
+        "command": "axiora.multibuffer.open",
+        "key": "alt+enter",
+        "when": "resourceScheme == axiora-multi && editorTextFocus"
       }
     ],
     "languages": [
