@@ -1,10 +1,10 @@
 name: @@NAME@@
 version: '@@VERSION@@'
-summary: Code editing. Redefined.
+summary: Axiora Code - an AI-native code editor.
 description: |
-  Visual Studio Code is a new choice of tool that combines the
-  simplicity of a code editor with what developers need for the core
-  edit-build-debug cycle.
+  Axiora Code is an open-source, AI-native code editor built on
+  Code - OSS, combining a lightweight editor with local and cloud
+  AI assistance for the edit-build-debug cycle.
 
 architectures:
   - build-on: amd64

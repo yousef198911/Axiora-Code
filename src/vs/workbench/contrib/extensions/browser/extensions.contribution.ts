@@ -972,6 +972,7 @@ class ExtensionsContributions extends Disposable implements IWorkbenchContributi
 				const extensionsWorkbenchService = accessor.get(IExtensionsWorkbenchService);
 				const hostService = accessor.get(IHostService);
 				const notificationService = accessor.get(INotificationService);
+				const productName = accessor.get(IProductService).nameLong;
 
 				const vsixs = Array.isArray(resources) ? resources : [resources];
 				const result = await Promise.allSettled(vsixs.map(async (vsix) => await extensionsWorkbenchService.install(vsix, { installGivenVersion: true })));
@@ -990,8 +991,8 @@ class ExtensionsContributions extends Disposable implements IWorkbenchContributi
 				if (requireReload) {
 					notificationService.prompt(
 						Severity.Info,
-						vsixs.length > 1 ? localize('InstallVSIXs.successReload', "Completed installing extensions. Please reload Visual Studio Code to enable them.")
-							: localize('InstallVSIXAction.successReload', "Completed installing extension. Please reload Visual Studio Code to enable it."),
+						vsixs.length > 1 ? localize('InstallVSIXs.successReload', "Completed installing extensions. Please reload {0} to enable them.", productName)
+							: localize('InstallVSIXAction.successReload', "Completed installing extension. Please reload {0} to enable it.", productName),
 						[{
 							label: localize('InstallVSIXAction.reloadNow', "Reload Now"),
 							run: () => hostService.reload()
