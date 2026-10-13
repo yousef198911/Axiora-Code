@@ -523,6 +523,21 @@
         "command": "axiora.keymap.choose",
         "title": "Choose Keymap (Default / Vim / Emacs)...",
         "category": "Preferences"
+      },
+      {
+        "command": "axiora.container.attach",
+        "title": "Attach to Running Container...",
+        "category": "Dev Containers"
+      },
+      {
+        "command": "axiora.container.openDevcontainer",
+        "title": "Reopen Folder in Dev Container",
+        "category": "Dev Containers"
+      },
+      {
+        "command": "axiora.wsl.open",
+        "title": "Open Folder in WSL...",
+        "category": "WSL"
       }
     ],
     "menus": {
@@ -712,7 +727,7 @@
         {
           "command": "axiora.ssh.terminal",
           "group": "navigation@99",
-          "when": "resourceScheme == axiora-ssh"
+          "when": "resourceScheme =~ /^axiora-(ssh|container|wsl)$/"
         }
       ],
       "scm/resourceState/context": [
@@ -737,6 +752,19 @@
           "command": "axiora.ssh.terminal",
           "group": "remote_20_axiora_ssh@2",
           "when": "workspaceFolderCount > 0"
+        },
+        {
+          "command": "axiora.container.openDevcontainer",
+          "group": "remote_21_axiora_containers@1"
+        },
+        {
+          "command": "axiora.container.attach",
+          "group": "remote_21_axiora_containers@2"
+        },
+        {
+          "command": "axiora.wsl.open",
+          "group": "remote_22_axiora_wsl@1",
+          "when": "isWindows"
         }
       ]
     },
