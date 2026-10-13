@@ -29,7 +29,7 @@ def r(v):
     return s[:120]
 def tr(frame, event, arg):
     f = frame.f_code.co_filename
-    if not os.path.abspath(f).startswith(root): return tr
+    if f.startswith('<') or not os.path.abspath(f).startswith(root + os.sep): return None if event == 'call' else tr
     if event in ('line', 'return', 'exception') and len(steps) < 5000:
         st = {'file': os.path.abspath(f), 'line': frame.f_lineno, 'func': frame.f_code.co_name, 'event': event,
               'locals': {k: r(v) for k, v in frame.f_locals.items() if not k.startswith('__')}}
