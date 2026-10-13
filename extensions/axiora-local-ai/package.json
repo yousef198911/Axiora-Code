@@ -548,6 +548,22 @@
         "command": "axiora.whichKey.ctrlK",
         "title": "Show Ctrl+K Chord Hints",
         "category": "Help"
+      },
+      {
+        "command": "axiora.scripts.run",
+        "title": "Run User Script...",
+        "category": "Scripts"
+      },
+      {
+        "command": "axiora.scripts.new",
+        "title": "New User Script...",
+        "category": "Scripts"
+      },
+      {
+        "command": "axiora.scripts.runCurrent",
+        "title": "Run This File as User Script",
+        "category": "Scripts",
+        "icon": "$(play)"
       }
     ],
     "menus": {
@@ -701,6 +717,11 @@
           "command": "axiora.tex.build",
           "group": "navigation",
           "when": "resourceExtname == .tex || resourceExtname == .typ"
+        },
+        {
+          "command": "axiora.scripts.runCurrent",
+          "group": "navigation",
+          "when": "resourcePath =~ /(axiora-scripts|\\.axiora\\/scripts)\\/[^/]+\\.js$/"
         }
       ],
       "explorer/context": [
