@@ -59,7 +59,9 @@ for i in z.infolist():
 print(json.dumps(out))`;
 export function hashVec(text: string, dims = 512): number[] {
 	const v = new Array(dims).fill(0);
-	for (const w of text.toLowerCase().split(/[^a-z0-9_]+/).filter(x => x.length > 2)) { let h = 2166136261; for (let i = 0; i < w.length; i++) { h = Math.imul(h ^ w.charCodeAt(i), 16777619); } v[(h >>> 0) % dims] += 1; }
+	const add = (t: string, wt: number) => { let h = 2166136261; for (let i = 0; i < t.length; i++) { h = Math.imul(h ^ t.charCodeAt(i), 16777619); } v[(h >>> 0) % dims] += wt; };
+	// words (camelCase/snake_case split) + character trigrams so "fib" ≈ "fibonacci"
+	for (const w of text.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase().split(/[^a-z0-9]+/).filter(x => x.length > 2)) { add(w, 2); const p = `^${w}$`; for (let i = 0; i + 3 <= p.length; i++) { add(p.slice(i, i + 3), 0.5); } }
 	const n = Math.hypot(...v) || 1; return v.map(x => x / n);
 }
 const cos = (a: number[], b: number[]) => { let s = 0, na = 0, nb = 0; for (let i = 0; i < Math.min(a.length, b.length); i++) { s += a[i] * b[i]; na += a[i] * a[i]; nb += b[i] * b[i]; } return s / (Math.sqrt(na * nb) || 1); };
@@ -122,7 +124,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 	const idxFile = () => path.join(ctx.storageUri?.fsPath ?? ctx.globalStorageUri.fsPath, 'semantic-index.json');
 	let index: { kind: string; chunks: { file: string; start: number; text: string; v: number[] }[] } | undefined;
 	const build = async () => {
-		const files = await vscode.workspace.findFiles('**/*.{ts,js,py,go,rs,java,md,tsx,jsx,c,cpp,h,cs,rb,php}', '{**/node_modules/**,**/out/**,**/dist/**,**/.git/**}', 1500);
+		const files = await vscode.workspace.findFiles('**/*.{ts,js,py,go,rs,java,md,tsx,jsx,c,cpp,h,cs,rb,php}', '{**/node_modules/**,**/out/**,**/dist/**,**/.git/**,**/.axiora/**}', 1500);
 		const chunks: { file: string; start: number; text: string }[] = [];
 		for (const u of files) { const t = new TextDecoder().decode(await vscode.workspace.fs.readFile(u)); if (t.length > 400_000) { continue; } const L = t.split('\n'); for (let i = 0; i < L.length; i += 40) { const text = L.slice(i, i + 50).join('\n'); if (text.trim().length > 30) { chunks.push({ file: vscode.workspace.asRelativePath(u), start: i, text }); } } }
 		const out: { file: string; start: number; text: string; v: number[] }[] = []; let kind = '';
