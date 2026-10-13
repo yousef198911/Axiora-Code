@@ -422,6 +422,17 @@ export class ExtHostLanguageModels implements ExtHostLanguageModelsShape {
 				break;
 			}
 		}
+		if (!defaultModelId && forceResolveModels) {
+			// Axiora: no Copilot model available - fall back to a model marked default by any vendor
+			// (e.g. Axiora Local / Ollama / BYOK), then to the first available model.
+			for (const [modelIdentifier, modelData] of this._localModels) {
+				if (modelData.metadata.isDefaultForLocation[ChatAgentLocation.Chat]) {
+					defaultModelId = modelIdentifier;
+					break;
+				}
+			}
+			defaultModelId ??= this._localModels.keys().next().value;
+		}
 		if (!defaultModelId && !forceResolveModels) {
 			// Maybe the default wasn't cached so we will try again with resolving the models too
 			return this.getDefaultLanguageModel(extension, true);
