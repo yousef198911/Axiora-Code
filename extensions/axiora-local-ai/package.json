@@ -343,6 +343,12 @@
         "command": "axiora.keymap.choose",
         "title": "Choose Keymap (Default / Vim / Emacs)...",
         "category": "Preferences"
+      },
+      {
+        "command": "axiora.html.preview",
+        "title": "Open Live Preview",
+        "category": "HTML",
+        "icon": "$(open-preview)"
       }
     ],
     "menus": {
@@ -446,6 +452,11 @@
           "command": "axiora.tasks.startNext",
           "group": "navigation@51",
           "when": "resourcePath =~ /[\\\\/]\\.axiora[\\\\/](goals|specs)[\\\\/]/"
+        },
+        {
+          "command": "axiora.html.preview",
+          "group": "navigation",
+          "when": "editorLangId == html"
         }
       ],
       "explorer/context": [
@@ -453,6 +464,11 @@
           "command": "axiora.csv.preview",
           "group": "navigation@99",
           "when": "resourceExtname == .csv || resourceExtname == .tsv"
+        },
+        {
+          "command": "axiora.html.preview",
+          "group": "navigation@98",
+          "when": "resourceExtname == .html || resourceExtname == .htm"
         }
       ]
     },
@@ -879,6 +895,11 @@
         "key": "backspace",
         "command": "cursorLeft",
         "when": "editorTextFocus && config.axiora.keymap == 'vim' && axiora.vimMode == 'normal'"
+      },
+      {
+        "command": "axiora.html.preview",
+        "key": "ctrl+k v",
+        "when": "editorLangId == html"
       }
     ],
     "languages": [

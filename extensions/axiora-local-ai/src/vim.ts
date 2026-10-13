@@ -38,8 +38,8 @@ export function activate(ctx: vscode.ExtensionContext) {
 		const e = ed(); if (!e) { return false; }
 		let k = pending + key;
 		const cm = /^(\d*)(.*)$/.exec(k)!; const n = Math.max(1, +(cm[1] || '1')); const cmd = cm[2];
-		if (cmd === '' || (cm[1] && cmd === '')) { pending = k; return true; }
-		if (k === '0' && !pending) { await exec('cursorLineStart'); return true; }
+		if (k === '0') { await exec('cursorLineStart'); return true; }
+		if (cmd === '') { pending = k; return true; }
 		// visual mode
 		if (mode === 'visual' || mode === 'vline') {
 			if (motionCmd[cmd]) { for (let i = 0; i < n; i++) { await exec(mode === 'vline' && (cmd === 'j' || cmd === 'k') ? select(motionCmd[cmd]) : select(motionCmd[cmd])); } pending = ''; return true; }
