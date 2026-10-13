@@ -5,7 +5,7 @@
 //   axiora-agent --diff "review my changes"              include `git diff HEAD`
 //   axiora-agent --files a.ts b.ts "explain"             include files
 //   axiora-agent --edit src/x.ts "add input validation"  rewrite a file in place (backup .orig)
-//   cat log.txt | axiora-agent "why does this fail?"     stdin is included
+//   cat log.txt | axiora-agent "why does this fail?"     stdin is included (or is the prompt)
 // Config: AXIORA_BASE_URL / AXIORA_PROVIDER (ollama|openai) / AXIORA_MODEL / AXIORA_API_KEY,
 // else read from the editor's settings.json (axiora.ai.*).
 import { execFileSync } from 'node:child_process';
@@ -22,7 +22,7 @@ const baseUrl = (process.env.AXIORA_BASE_URL ?? s['axiora.ai.baseUrl'] ?? 'http:
 const model = process.env.AXIORA_MODEL ?? s['axiora.ai.chatModel'] ?? 'qwen2.5-coder:0.5b';
 const key = process.env.AXIORA_API_KEY ?? '';
 const args = process.argv.slice(2); const opt = { files: [], diff: false, edit: '' }; const rest = [];
-for (let i = 0; i < args.length; i++) { const a = args[i]; if (a === '--diff') { opt.diff = true; } else if (a === '--edit') { opt.edit = args[++i]; } else if (a === '--files') { while (args[i + 1] && !args[i + 1].startsWith('--') && fs.existsSync(args[i + 1])) { opt.files.push(args[++i]); } } else if (a === '-h' || a === '--help') { console.log(fs.readFileSync(new URL(import.meta.url), 'utf8').split('\n').slice(1, 12).map(l => l.replace(/^\/\/ ?/, '')).join('\n')); process.exit(0); } else { rest.push(a); } }
+for (let i = 0; i < args.length; i++) { const a = args[i]; if (a === '--diff') { opt.diff = true; } else if (a === '--edit') { opt.edit = args[++i]; } else if (a === '--files') { while (args[i + 1] && !args[i + 1].startsWith('--') && fs.existsSync(args[i + 1])) { opt.files.push(args[++i]); } } else if (a === '-h' || a === '--help') { console.log(fs.readFileSync(new URL(import.meta.url), 'utf8').split('\n').slice(1, 10).map(l => l.replace(/^\/\/ ?/, '')).join('\n')); process.exit(0); } else { rest.push(a); } }
 let prompt = rest.join(' ');
 let stdinText = '';
 try { const st = fs.fstatSync(0); if (!process.stdin.isTTY && (st.isFIFO() || st.isFile())) { const inp = fs.readFileSync(0, 'utf8'); stdinText = inp.slice(0, 40000); } } catch { /* no stdin */ }
