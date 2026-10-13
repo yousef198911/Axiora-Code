@@ -19,7 +19,7 @@ const db = new DatabaseSync(process.env.DB_FILE || 'app.db');
 db.exec('CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY, email TEXT UNIQUE NOT NULL, hash TEXT NOT NULL, salt TEXT NOT NULL);CREATE TABLE IF NOT EXISTS items(id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL, title TEXT NOT NULL, done INTEGER DEFAULT 0, created TEXT DEFAULT CURRENT_TIMESTAMP)');
 const SECRET = process.env.SESSION_SECRET || (fs.existsSync('.secret') ? fs.readFileSync('.secret', 'utf8') : (s => (fs.writeFileSync('.secret', s, { mode: 0o600 }), s))(crypto.randomBytes(32).toString('hex')));
 const sign = v => v + '.' + crypto.createHmac('sha256', SECRET).update(v).digest('base64url');
-const unsign = s => { const i = (s || '').lastIndexOf('.'); if (i < 0) return null; const v = s.slice(0, i); return crypto.timingSafeEqual(Buffer.from(sign(v)), Buffer.from(s)) ? v : null; };
+const unsign = s => { const i = (s || '').lastIndexOf('.'); if (i < 0) return null; const v = s.slice(0, i); const a = Buffer.from(sign(v)), b = Buffer.from(s); return a.length === b.length && crypto.timingSafeEqual(a, b) ? v : null; };
 const hash = (p, salt) => crypto.scryptSync(p, salt, 64).toString('hex');
 const body = req => new Promise(r => { let s = ''; req.on('data', d => s += d); req.on('end', () => { try { r(JSON.parse(s || '{}')); } catch { r({}); } }); });
 const user = req => { const c = Object.fromEntries((req.headers.cookie || '').split(';').map(x => x.trim().split('=')).filter(x => x[0])); const id = unsign(decodeURIComponent(c.sid || '')); return id ? db.prepare('SELECT id,email FROM users WHERE id=?').get(+id) : null; };
