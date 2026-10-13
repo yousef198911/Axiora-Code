@@ -19,7 +19,7 @@ const edits: Edit[] = [];
 const termCmds: string[] = [];
 let lastPrompt = '';
 export const setPrompt = (p: string) => { lastPrompt = p; };
-const STOP = new Set('the a an and or of to in on for with is are be this that it how why what where when do does can i me my we you your fix add make use using from into file code function please'.split(' '));
+const STOP = new Set('the a an and or of to in on for with is are be this that it how why what where when do does can i me my we you your fix add make use using from into file code function please did just change changed now show tell explain write all some any was were has have had not but there here which who should would could will about more like get got need want'.split(' '));
 export function keywords(s: string) { return [...new Set((s.match(/[A-Za-z_][A-Za-z0-9_]{2,}/g) ?? []).filter(w => !STOP.has(w.toLowerCase())))].slice(0, 8); }
 export async function fastContext(prompt: string, root: string, maxFiles = 4): Promise<string> {
 	const kws = keywords(prompt); if (!kws.length) { return ''; }
