@@ -59,6 +59,14 @@
           {
             "name": "checkpoint",
             "description": "Create a checkpoint of the workspace"
+          },
+          {
+            "name": "regex",
+            "description": "Build a regular expression from a description"
+          },
+          {
+            "name": "improve",
+            "description": "Rewrite a prompt to be specific and complete"
           }
         ]
       }
@@ -155,6 +163,16 @@
         "title": "Generate Terminal Command from Description...",
         "category": "Axiora AI",
         "icon": "$(sparkle)"
+      },
+      {
+        "command": "axiora.ai.buildRegex",
+        "title": "Build Regex from Description...",
+        "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.ai.improvePrompt",
+        "title": "Improve Prompt...",
+        "category": "Axiora AI"
       }
     ],
     "menus": {
