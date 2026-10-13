@@ -51,8 +51,9 @@ export function activate(ctx: vscode.ExtensionContext) {
 		const src = new TextDecoder().decode(await vscode.workspace.fs.readFile(u));
 		const body = /<body[^>]*>([\s\S]*)<\/body>/i.exec(src)?.[1] ?? '';
 		const head = /<head[^>]*>([\s\S]*)<\/head>/i.exec(src)?.[1] ?? '';
-		const p = vscode.window.createWebviewPanel('axiora.designer', `Design: ${path.basename(u.path)}`, vscode.ViewColumn.Active, { enableScripts: true, retainContextWhenHidden: true });
-		p.webview.html = designerHtml(head.replace(/<script[\s\S]*?<\/script>/gi, ''), body);
+		const p = vscode.window.createWebviewPanel('axiora.designer', `Design: ${path.basename(u.path)}`, vscode.ViewColumn.Active, { enableScripts: true, retainContextWhenHidden: true, localResourceRoots: [vscode.Uri.joinPath(u, '..'), ...(wsRoot() ? [wsRoot()!] : [])] });
+		const base = `<base href="${p.webview.asWebviewUri(vscode.Uri.joinPath(u, '..'))}/">`;
+		p.webview.html = designerHtml(base + head.replace(/<script[\s\S]*?<\/script>/gi, ''), body);
 		p.webview.onDidReceiveMessage(async m => {
 			if (m.save !== undefined) {
 				const cur = new TextDecoder().decode(await vscode.workspace.fs.readFile(u));
@@ -89,5 +90,5 @@ document.querySelectorAll('#pal [data-h]').forEach(d=>{d.addEventListener('drags
 let over=null;C.addEventListener('dragover',e=>{e.preventDefault();if(over)over.classList.remove('drop');over=e.target!==C?e.target:null;if(over)over.classList.add('drop')});
 C.addEventListener('drop',e=>{e.preventDefault();const h=e.dataTransfer.getData('text/x-h');if(over)over.classList.remove('drop');if(!h)return;const el=make(h);const t=e.target;if(t===C)C.appendChild(el);else if(/^(DIV|SECTION|MAIN|ARTICLE|ASIDE|HEADER|FOOTER|NAV)$/.test(t.tagName)&&!t.textContent.trim().length||(e.altKey))t.appendChild(el);else t.before(el);pick(el)});
 document.addEventListener('keydown',e=>{if((e.key==='Delete')&&sel&&document.activeElement===document.body){$('del').click()}if((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault();$('save').click()}});
-$('save').onclick=()=>{const c=C.cloneNode(true);c.querySelectorAll('.sel,.drop').forEach(x=>{x.classList.remove('sel','drop');if(!x.className)x.removeAttribute('class')});vs.postMessage({save:c.innerHTML.trim()})};</script></body></html>`;
+$('save').onclick=()=>{const c=C.cloneNode(true);c.querySelectorAll('.sel,.drop').forEach(x=>x.classList.remove('sel','drop'));c.querySelectorAll('[class=""]').forEach(x=>x.removeAttribute('class'));vs.postMessage({save:c.innerHTML.trim()})};</script></body></html>`;
 }
