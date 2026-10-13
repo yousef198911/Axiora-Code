@@ -72,7 +72,8 @@ export function activate(ctx: vscode.ExtensionContext) {
 		}
 		const pairs: Record<string, [string, string]> = { '(': ['(', ')'], ')': ['(', ')'], b: ['(', ')'], '{': ['{', '}'], '}': ['{', '}'], B: ['{', '}'], '[': ['[', ']'], ']': ['[', ']'], '<': ['<', '>'], '>': ['<', '>'] };
 		const pr = pairs[o]; if (!pr) { return undefined; }
-		const text = d.getText(), off = d.offsetAt(pos);
+		const text = d.getText(); let off = d.offsetAt(pos);
+		{ const lo = line.indexOf(pr[0], pos.character); const inside = (() => { let dep = 0; for (let i = off; i >= 0; i--) { if (text[i] === pr[1] && i !== off) { dep++; } else if (text[i] === pr[0]) { if (dep === 0) { return true; } dep--; } } return false; })(); if (!inside && lo >= 0) { off = d.offsetAt(new vscode.Position(pos.line, lo)); } }
 		let depth = 0, a = -1;
 		for (let i = off; i >= 0; i--) { const ch = text[i]; if (ch === pr[1] && i !== off) { depth++; } else if (ch === pr[0]) { if (depth === 0) { a = i; break; } depth--; } }
 		if (a < 0) { return undefined; }

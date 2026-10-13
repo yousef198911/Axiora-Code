@@ -518,6 +518,11 @@
         "command": "axiora.ssh.terminal",
         "title": "Open Remote Terminal",
         "category": "SSH"
+      },
+      {
+        "command": "axiora.keymap.choose",
+        "title": "Choose Keymap (Default / Vim / Emacs)...",
+        "category": "Preferences"
       }
     ],
     "menus": {
@@ -1220,6 +1225,186 @@
         "command": "axiora.cells.runAdvance",
         "key": "shift+enter",
         "when": "editorTextFocus && editorLangId =~ /^(python|r|julia)$/ && !suggestWidgetVisible"
+      },
+      {
+        "key": "ctrl+f",
+        "command": "cursorRight",
+        "when": "editorTextFocus && config.axiora.keymap == 'emacs'"
+      },
+      {
+        "key": "ctrl+b",
+        "command": "cursorLeft",
+        "when": "editorTextFocus && config.axiora.keymap == 'emacs'"
+      },
+      {
+        "key": "ctrl+n",
+        "command": "cursorDown",
+        "when": "editorTextFocus && config.axiora.keymap == 'emacs'"
+      },
+      {
+        "key": "ctrl+p",
+        "command": "cursorUp",
+        "when": "editorTextFocus && config.axiora.keymap == 'emacs'"
+      },
+      {
+        "key": "ctrl+a",
+        "command": "cursorHome",
+        "when": "editorTextFocus && config.axiora.keymap == 'emacs'"
+      },
+      {
+        "key": "ctrl+e",
+        "command": "cursorEnd",
+        "when": "editorTextFocus && config.axiora.keymap == 'emacs'"
+      },
+      {
+        "key": "alt+f",
+        "command": "cursorWordEndRight",
+        "when": "editorTextFocus && config.axiora.keymap == 'emacs'"
+      },
+      {
+        "key": "alt+b",
+        "command": "cursorWordStartLeft",
+        "when": "editorTextFocus && config.axiora.keymap == 'emacs'"
+      },
+      {
+        "key": "ctrl+d",
+        "command": "deleteRight",
+        "when": "editorTextFocus && config.axiora.keymap == 'emacs'"
+      },
+      {
+        "key": "alt+d",
+        "command": "deleteWordRight",
+        "when": "editorTextFocus && config.axiora.keymap == 'emacs'"
+      },
+      {
+        "key": "alt+backspace",
+        "command": "deleteWordLeft",
+        "when": "editorTextFocus && config.axiora.keymap == 'emacs'"
+      },
+      {
+        "key": "ctrl+k",
+        "command": "deleteAllRight",
+        "when": "editorTextFocus && config.axiora.keymap == 'emacs'"
+      },
+      {
+        "key": "ctrl+y",
+        "command": "editor.action.clipboardPasteAction",
+        "when": "editorTextFocus && config.axiora.keymap == 'emacs'"
+      },
+      {
+        "key": "ctrl+w",
+        "command": "editor.action.clipboardCutAction",
+        "when": "editorTextFocus && config.axiora.keymap == 'emacs'"
+      },
+      {
+        "key": "alt+w",
+        "command": "editor.action.clipboardCopyAction",
+        "when": "editorTextFocus && config.axiora.keymap == 'emacs'"
+      },
+      {
+        "key": "ctrl+s",
+        "command": "actions.find",
+        "when": "editorTextFocus && config.axiora.keymap == 'emacs'"
+      },
+      {
+        "key": "ctrl+r",
+        "command": "actions.find",
+        "when": "editorTextFocus && config.axiora.keymap == 'emacs'"
+      },
+      {
+        "key": "alt+shift+,",
+        "command": "cursorTop",
+        "when": "editorTextFocus && config.axiora.keymap == 'emacs'"
+      },
+      {
+        "key": "alt+shift+.",
+        "command": "cursorBottom",
+        "when": "editorTextFocus && config.axiora.keymap == 'emacs'"
+      },
+      {
+        "key": "ctrl+v",
+        "command": "cursorPageDown",
+        "when": "editorTextFocus && config.axiora.keymap == 'emacs'"
+      },
+      {
+        "key": "alt+v",
+        "command": "cursorPageUp",
+        "when": "editorTextFocus && config.axiora.keymap == 'emacs'"
+      },
+      {
+        "key": "ctrl+/",
+        "command": "undo",
+        "when": "editorTextFocus && config.axiora.keymap == 'emacs'"
+      },
+      {
+        "key": "ctrl+x ctrl+s",
+        "command": "workbench.action.files.save",
+        "when": "editorTextFocus && config.axiora.keymap == 'emacs'"
+      },
+      {
+        "key": "ctrl+x ctrl+f",
+        "command": "workbench.action.quickOpen",
+        "when": "editorTextFocus && config.axiora.keymap == 'emacs'"
+      },
+      {
+        "key": "ctrl+x k",
+        "command": "workbench.action.closeActiveEditor",
+        "when": "editorTextFocus && config.axiora.keymap == 'emacs'"
+      },
+      {
+        "key": "ctrl+x b",
+        "command": "workbench.action.showAllEditors",
+        "when": "editorTextFocus && config.axiora.keymap == 'emacs'"
+      },
+      {
+        "key": "ctrl+x u",
+        "command": "undo",
+        "when": "editorTextFocus && config.axiora.keymap == 'emacs'"
+      },
+      {
+        "key": "ctrl+x h",
+        "command": "editor.action.selectAll",
+        "when": "editorTextFocus && config.axiora.keymap == 'emacs'"
+      },
+      {
+        "key": "ctrl+l",
+        "command": "editor.action.revealCursor",
+        "when": "editorTextFocus && config.axiora.keymap == 'emacs'"
+      },
+      {
+        "key": "ctrl+g",
+        "command": "cancelSelection",
+        "when": "editorTextFocus && config.axiora.keymap == 'emacs'"
+      },
+      {
+        "key": "alt+x",
+        "command": "workbench.action.showCommands",
+        "when": "editorTextFocus && config.axiora.keymap == 'emacs'"
+      },
+      {
+        "key": "ctrl+o",
+        "command": "editor.action.insertLineBefore",
+        "when": "editorTextFocus && config.axiora.keymap == 'emacs'"
+      },
+      {
+        "key": "escape",
+        "command": "axiora.vim.escape",
+        "when": "editorTextFocus && config.axiora.keymap == 'vim' && axiora.vimMode != 'normal' && !suggestWidgetVisible && !findWidgetVisible"
+      },
+      {
+        "key": "ctrl+[",
+        "command": "axiora.vim.escape",
+        "when": "editorTextFocus && config.axiora.keymap == 'vim'"
+      },
+      {
+        "key": "ctrl+r",
+        "command": "redo",
+        "when": "editorTextFocus && config.axiora.keymap == 'vim' && axiora.vimMode == 'normal'"
+      },
+      {
+        "key": "backspace",
+        "command": "cursorLeft",
+        "when": "editorTextFocus && config.axiora.keymap == 'vim' && axiora.vimMode == 'normal'"
       }
     ],
     "languages": [
