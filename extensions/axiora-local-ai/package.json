@@ -193,6 +193,22 @@
           {
             "name": "acp",
             "description": "Talk to an external ACP agent: [name] <prompt>"
+          },
+          {
+            "name": "figma",
+            "description": "Pull a Figma file/frame (URL or key) and implement it"
+          },
+          {
+            "name": "jira",
+            "description": "Jira issue (KEY-123) or JQL search"
+          },
+          {
+            "name": "linear",
+            "description": "Linear issue (ID-123) or search"
+          },
+          {
+            "name": "stripe",
+            "description": "Stripe data: customers, charges, invoices, subscriptions, events"
           }
         ]
       }
@@ -1264,6 +1280,11 @@
         "title": "SyncTeX: Show in PDF (forward search)",
         "category": "LaTeX",
         "icon": "$(open-preview)"
+      },
+      {
+        "command": "axiora.connectors.manage",
+        "title": "Connectors: Manage (Figma, Jira, Linear, Stripe)...",
+        "category": "Axiora AI"
       }
     ],
     "menus": {
@@ -2081,6 +2102,16 @@
           "type": "number",
           "default": 110,
           "description": "Render resolution of the SyncTeX PDF viewer."
+        },
+        "axiora.connectors.jira.site": {
+          "type": "string",
+          "default": "",
+          "description": "Jira Cloud site, e.g. https://acme.atlassian.net"
+        },
+        "axiora.connectors.jira.email": {
+          "type": "string",
+          "default": "",
+          "description": "Atlassian account email used with the Jira API token."
         }
       }
     },
