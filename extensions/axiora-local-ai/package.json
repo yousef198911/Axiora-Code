@@ -20,7 +20,16 @@
   },
   "activationEvents": [
     "onStartupFinished",
-    "onTerminalProfile:axiora.agentTerminal"
+    "onTerminalProfile:axiora.agentTerminal",
+    "onLanguage:python",
+    "onLanguage:shellscript",
+    "onLanguage:yaml",
+    "onLanguage:dockerfile",
+    "onLanguage:go",
+    "onLanguage:rust",
+    "onLanguage:c",
+    "onLanguage:cpp",
+    "onLanguage:lua"
   ],
   "main": "./out/extension.js",
   "enabledApiProposals": [
@@ -1169,6 +1178,11 @@
         "command": "axiora.canvas.open",
         "title": "Open Design Canvas...",
         "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.lsp.manage",
+        "title": "Manage...",
+        "category": "Language Servers"
       }
     ],
     "menus": {
@@ -1912,6 +1926,29 @@
             }
           },
           "description": "Agent Client Protocol agents, e.g. {\"name\":\"gemini\",\"command\":\"gemini\",\"args\":[\"--experimental-acp\"]}."
+        },
+        "axiora.lsp.autoInstall": {
+          "type": "string",
+          "enum": [
+            "ask",
+            "always",
+            "never"
+          ],
+          "default": "ask",
+          "description": "When a file needs a language server Axiora can manage (Python, Bash, YAML, Dockerfile, Go, Rust, C/C++, Lua): ask, install automatically, or never."
+        },
+        "axiora.lsp.disabled": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "Language server ids that are never auto-started (pyright, bash, yaml, docker, gopls, rust-analyzer, clangd, lua)."
+        },
+        "axiora.lsp.initializationOptions": {
+          "type": "object",
+          "default": {},
+          "description": "Per-server initializationOptions, keyed by server id."
         }
       }
     },
@@ -2442,5 +2479,8 @@
         "axiora.term.blocks"
       ]
     }
+  },
+  "dependencies": {
+    "vscode-languageclient": "^10.1.2"
   }
 }

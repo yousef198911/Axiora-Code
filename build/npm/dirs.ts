@@ -17,6 +17,7 @@ export const dirs = [
 	'extensions/axiora-copilot',
 	'extensions/configuration-editing',
 	'extensions/copilot',
+	'extensions/axiora-local-ai',
 	'extensions/css-language-features',
 	'extensions/css-language-features/server',
 	'extensions/debug-auto-launch',

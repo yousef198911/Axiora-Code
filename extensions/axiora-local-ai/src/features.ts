@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import * as languageServers from './languageServers';
 import * as designCanvas from './designCanvas';
 import * as acpClient from './acpClient';
 import * as insight from './insight';
@@ -72,5 +73,5 @@ import * as terminalNL from './terminalNL';
 import * as commitMsg from './commitMsg';
 import * as aiActions from './aiActions';
 export function activateFeatures(ctx: vscode.ExtensionContext) {
-	for (const f of [designCanvas, acpClient, insight, quality, appKit, runner, agentPlus, devLoop, mdVisual, uiGen, buildAnalyzer, projects, kernelDocs, profiler, selectionOps, termBlocks, agentWork, promptOps, github, cliAgent, orchestrator, codemap, nextEdit, implementComment, depComplete, liveContext, docsIndex, agents, keepAwake, dotfiles, deploy, crashAnalyze, arena, automations, security, orgMode, hexView, multibuffer, userScripts, whichKey, remote2, shareChat, sshFs, shelve, rebase, dataCells, docsTypeset, kubernetes, mcpServer, docker, database, htmlPreview, vim, structural, goals, lintLoop, macros, usage, sessions, gitExtras, editorConfig, editing, httpClient, csvTable, bookmarks, debugThreads, webSearch, repoMap, promptTools, terminalNL, commitMsg, aiActions]) { try { f.activate(ctx); } catch (e) { console.error(e); } }
+	for (const f of [languageServers, designCanvas, acpClient, insight, quality, appKit, runner, agentPlus, devLoop, mdVisual, uiGen, buildAnalyzer, projects, kernelDocs, profiler, selectionOps, termBlocks, agentWork, promptOps, github, cliAgent, orchestrator, codemap, nextEdit, implementComment, depComplete, liveContext, docsIndex, agents, keepAwake, dotfiles, deploy, crashAnalyze, arena, automations, security, orgMode, hexView, multibuffer, userScripts, whichKey, remote2, shareChat, sshFs, shelve, rebase, dataCells, docsTypeset, kubernetes, mcpServer, docker, database, htmlPreview, vim, structural, goals, lintLoop, macros, usage, sessions, gitExtras, editorConfig, editing, httpClient, csvTable, bookmarks, debugThreads, webSearch, repoMap, promptTools, terminalNL, commitMsg, aiActions]) { try { f.activate(ctx); } catch (e) { console.error(e); } }
 }
