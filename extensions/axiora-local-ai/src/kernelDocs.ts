@@ -27,7 +27,7 @@ for line in sys.stdin:
 `;
 const JS_KERNEL = `const vm=require('vm'),rl=require('readline').createInterface({input:process.stdin});const ctx=vm.createContext({require,console:null,process});
 rl.on('line',async l=>{const {code}=JSON.parse(l);let out='';const w=(...a)=>{out+=a.map(x=>typeof x==='string'?x:require('util').inspect(x)).join(' ')+'\\n'};ctx.console={log:w,error:w,warn:w,info:w};
-try{let v=vm.runInContext(code,ctx);if(v&&typeof v.then==='function')v=await v;if(v!==undefined)w(v)}catch(e){out+=(e&&e.stack)||String(e)}process.stdout.write(JSON.stringify({out})+'\\n')});`;
+try{let v=vm.runInContext(code.replace(/^(const|let)\\s/gm,'var '),ctx);if(v&&typeof v.then==='function')v=await v;if(v!==undefined)w(v)}catch(e){out+=String((e&&e.stack)||e).split(/\\n\\s+at (Script\\.runInContext|Object\\.runInContext)/)[0]}process.stdout.write(JSON.stringify({out})+'\\n')});`;
 type Kernel = { p: cp.ChildProcess; queue: ((s: string) => void)[]; buf: string };
 export type Block = { lang: 'python' | 'js'; start: number; end: number; code: string; outStart?: number; outEnd?: number };
 export function blocks(text: string): Block[] {
