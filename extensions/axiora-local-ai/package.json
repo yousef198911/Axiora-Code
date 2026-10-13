@@ -746,6 +746,16 @@
         "command": "axiora.cli.install",
         "title": "Install Headless CLI Agent (axiora-agent)",
         "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.cells.session",
+        "title": "Switch Console Session...",
+        "category": "Data"
+      },
+      {
+        "command": "axiora.cells.restart",
+        "title": "Restart Console",
+        "category": "Data"
       }
     ],
     "menus": {

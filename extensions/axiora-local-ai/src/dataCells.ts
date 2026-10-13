@@ -21,9 +21,21 @@ function cells(doc: vscode.TextDocument): vscode.Range[] {
 export function activate(ctx: vscode.ExtensionContext) {
 	const terms = new Map<string, vscode.Terminal>();
 	ctx.subscriptions.push(vscode.window.onDidCloseTerminal(t => { for (const [k, v] of terms) { if (v === t) { terms.delete(k); } } }));
+	let session = 'main';
+	const sb = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 101); sb.command = 'axiora.cells.session'; ctx.subscriptions.push(sb);
+	const showSb = () => { const l = vscode.window.activeTextEditor?.document.languageId; if (l && REPL[l]) { sb.text = `$(notebook) ${session}`; sb.tooltip = 'Console session for # %% cells (click to switch)'; sb.show(); } else { sb.hide(); } };
+	ctx.subscriptions.push(vscode.window.onDidChangeActiveTextEditor(showSb)); showSb();
+	register(ctx, 'axiora.cells.session', async () => {
+		const ex = [...new Set([...terms.keys()].map(k => k.split(':')[1]))];
+		const p = await vscode.window.showQuickPick([...ex.map(e => ({ label: e, description: e === session ? 'current' : '' })), { label: '$(add) New Session...', description: '' }], { placeHolder: 'Console session (each has its own interpreter state)' });
+		if (!p) { return; }
+		session = p.label.startsWith('$(add)') ? (await vscode.window.showInputBox({ prompt: 'Session name', value: `session${ex.length + 1}` })) ?? session : p.label; showSb();
+	});
+	register(ctx, 'axiora.cells.restart', async () => { const l = vscode.window.activeTextEditor?.document.languageId ?? 'python'; terms.get(`${l}:${session}`)?.dispose(); terms.delete(`${l}:${session}`); consoleFor(l); });
 	const consoleFor = (lang: string) => {
-		let t = terms.get(lang);
-		if (!t) { t = vscode.window.createTerminal({ name: `Console: ${lang}`, iconPath: new vscode.ThemeIcon('notebook') }); t.sendText(REPL[lang] ?? 'python3 -q -i'); terms.set(lang, t); }
+		const key = `${lang}:${session}`;
+		let t = terms.get(key);
+		if (!t) { t = vscode.window.createTerminal({ name: `Console: ${lang} [${session}]`, iconPath: new vscode.ThemeIcon('notebook') }); t.sendText(REPL[lang] ?? 'python3 -q -i'); terms.set(key, t); }
 		t.show(true); return t;
 	};
 	const send = (lang: string, code: string) => {
@@ -68,7 +80,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 	register(ctx, 'axiora.cells.runFile', async () => { const doc = vscode.window.activeTextEditor?.document; if (doc) { send(doc.languageId, doc.getText()); } });
 	register(ctx, 'axiora.cells.variables', async () => {
 		// Python only: dump user variables as JSON via the console, read the file back, show as a table
-		const f = path.join(os.tmpdir(), `axiora-vars-${process.pid}.json`); try { fs.unlinkSync(f); } catch { /* none */ }
+		const f = path.join(os.tmpdir(), `axiora-vars-${process.pid}-${session}.json`); try { fs.unlinkSync(f); } catch { /* none */ }
 		consoleFor('python').sendText(`exec("import json as _j\\n_d={k:{'type':type(v).__name__,'value':repr(v)[:200],'shape':str(getattr(v,'shape',''))} for k,v in globals().items() if not k.startswith('_') and type(v).__name__ not in ('module','function','type','builtin_function_or_method')}\\nopen(${JSON.stringify(f).replace(/"/g, '\\"')},'w').write(_j.dumps(_d))")`);
 		for (let n = 0; n < 30 && !fs.existsSync(f); n++) { await new Promise(r => setTimeout(r, 200)); }
 		if (!fs.existsSync(f)) { vscode.window.showWarningMessage('No response from the Python console.'); return; }
