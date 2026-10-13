@@ -16,7 +16,8 @@ const write = (u: vscode.Uri, s: string) => vscode.workspace.fs.writeFile(u, new
 export const tasksOf = (md: string) => [...md.matchAll(/^- \[( |x)\] (.+)$/gm)].map(m => ({ done: m[1] === 'x', text: m[2] }));
 export function markDone(md: string, task: string, note: string) {
 	const s = md.replace(`- [ ] ${task}`, `- [x] ${task}`);
-	const entry = `- ${new Date().toISOString().slice(0, 16).replace('T', ' ')} — done: ${task}${note ? ` — ${note.replace(/\n+/g, ' ').slice(0, 200)}` : ''}`;
+	const d = new Date(); const p2 = (n: number) => String(n).padStart(2, '0');
+	const entry = `- ${d.getFullYear()}-${p2(d.getMonth() + 1)}-${p2(d.getDate())} ${p2(d.getHours())}:${p2(d.getMinutes())} — done: ${task}${note ? ` — ${note.replace(/\n+/g, ' ').slice(0, 200)}` : ''}`;
 	return /^## Log\s*$/m.test(s) ? s.replace(/^## Log\s*$/m, `## Log\n${entry}`) : `${s}\n## Log\n${entry}\n`;
 }
 export function activate(ctx: vscode.ExtensionContext) {
