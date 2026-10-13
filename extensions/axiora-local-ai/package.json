@@ -333,6 +333,11 @@
         "title": "Start Next Ready Task in Agent",
         "category": "Axiora AI",
         "icon": "$(play)"
+      },
+      {
+        "command": "axiora.structural.searchReplace",
+        "title": "Structural Search and Replace...",
+        "category": "Search"
       }
     ],
     "menus": {
@@ -444,7 +449,8 @@
           "group": "navigation@99",
           "when": "resourceExtname == .csv || resourceExtname == .tsv"
         }
-      ]
+      ],
+      "menubar/edit": []
     },
     "configuration": {
       "title": "Axiora Local AI",
@@ -675,6 +681,10 @@
         "command": "axiora.macro.play",
         "key": "ctrl+alt+m ctrl+alt+p",
         "when": "editorTextFocus"
+      },
+      {
+        "command": "axiora.structural.searchReplace",
+        "key": "ctrl+alt+shift+f"
       }
     ],
     "languages": [
