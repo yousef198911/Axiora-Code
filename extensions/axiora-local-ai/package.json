@@ -115,6 +115,10 @@
           {
             "name": "perf",
             "description": "Performance agent"
+          },
+          {
+            "name": "docs",
+            "description": "Answer from indexed external documentation (#name to pick a source)"
           }
         ]
       }
@@ -727,6 +731,16 @@
         "command": "axiora.ai.propertyTests",
         "title": "Generate Property-Based Tests",
         "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.docs.add",
+        "title": "Add Documentation Source...",
+        "category": "Docs"
+      },
+      {
+        "command": "axiora.docs.manage",
+        "title": "Manage Documentation Sources",
+        "category": "Docs"
       }
     ],
     "menus": {
@@ -1228,6 +1242,11 @@
           "type": "number",
           "default": 4000,
           "description": "Prompt size (chars) above which the large model is used."
+        },
+        "axiora.docs.maxPages": {
+          "type": "number",
+          "default": 40,
+          "description": "Max pages crawled per documentation source."
         }
       }
     },
