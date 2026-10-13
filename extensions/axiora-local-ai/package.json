@@ -538,6 +538,16 @@
         "command": "axiora.wsl.open",
         "title": "Open Folder in WSL...",
         "category": "WSL"
+      },
+      {
+        "command": "axiora.whichKey.show",
+        "title": "Show Key Binding Hints (which-key)",
+        "category": "Help"
+      },
+      {
+        "command": "axiora.whichKey.ctrlK",
+        "title": "Show Ctrl+K Chord Hints",
+        "category": "Help"
       }
     ],
     "menus": {
@@ -766,7 +776,8 @@
           "group": "remote_22_axiora_wsl@1",
           "when": "isWindows"
         }
-      ]
+      ],
+      "menuBar/help": []
     },
     "configuration": {
       "title": "Axiora Local AI",
@@ -1433,6 +1444,14 @@
         "key": "backspace",
         "command": "cursorLeft",
         "when": "editorTextFocus && config.axiora.keymap == 'vim' && axiora.vimMode == 'normal'"
+      },
+      {
+        "command": "axiora.whichKey.ctrlK",
+        "key": "ctrl+k ctrl+/"
+      },
+      {
+        "command": "axiora.whichKey.show",
+        "key": "ctrl+k ctrl+shift+/"
       }
     ],
     "languages": [
