@@ -432,6 +432,11 @@
           "type": "boolean",
           "default": false,
           "description": "Typewriter mode: keep the cursor line vertically centered while typing."
+        },
+        "axiora.editorconfig.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Apply .editorconfig settings (indentation, line endings, trailing whitespace, final newline) without an extension."
         }
       }
     },
