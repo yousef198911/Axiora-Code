@@ -148,6 +148,10 @@
           {
             "name": "background",
             "description": "Run a task in the background without blocking the chat"
+          },
+          {
+            "name": "project",
+            "description": "Long-running project: 'new <name>: <goal>' or continue '<name>'"
           }
         ]
       }
@@ -908,6 +912,11 @@
         "command": "axiora.kdoc.clear",
         "title": "Clear Code Block Outputs",
         "category": "Markdown"
+      },
+      {
+        "command": "axiora.project.open",
+        "title": "Open Project...",
+        "category": "Axiora AI"
       }
     ],
     "menus": {
