@@ -1258,6 +1258,12 @@
         "command": "axiora.qml.preview",
         "title": "Preview QML",
         "category": "Qt"
+      },
+      {
+        "command": "axiora.tex.syncView",
+        "title": "SyncTeX: Show in PDF (forward search)",
+        "category": "LaTeX",
+        "icon": "$(open-preview)"
       }
     ],
     "menus": {
@@ -1477,6 +1483,11 @@
           "command": "axiora.md.visual",
           "group": "3_open@1",
           "when": "resourceLangId == markdown && activeCustomEditorId != axiora.mdVisual"
+        },
+        {
+          "command": "axiora.tex.syncView",
+          "when": "resourceExtname == .tex",
+          "group": "navigation@9"
         }
       ],
       "explorer/context": [
@@ -2065,6 +2076,11 @@
           ],
           "default": "docker",
           "description": "Container engine used by container debugging and runner isolation."
+        },
+        "axiora.latex.viewerDpi": {
+          "type": "number",
+          "default": 110,
+          "description": "Render resolution of the SyncTeX PDF viewer."
         }
       }
     },
@@ -2504,6 +2520,12 @@
         "command": "axiora.r.runSelection",
         "key": "ctrl+enter",
         "when": "editorTextFocus && editorLangId == r"
+      },
+      {
+        "command": "axiora.tex.syncView",
+        "key": "ctrl+alt+j",
+        "mac": "cmd+alt+j",
+        "when": "editorTextFocus && resourceExtname == .tex"
       }
     ],
     "languages": [
