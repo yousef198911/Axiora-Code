@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import * as gitExtras from './gitExtras';
 import * as editorConfig from './editorConfig';
 import * as editing from './editing';
 import * as httpClient from './httpClient';
@@ -12,5 +13,5 @@ import * as terminalNL from './terminalNL';
 import * as commitMsg from './commitMsg';
 import * as aiActions from './aiActions';
 export function activateFeatures(ctx: vscode.ExtensionContext) {
-	for (const f of [editorConfig, editing, httpClient, csvTable, bookmarks, debugThreads, webSearch, repoMap, promptTools, terminalNL, commitMsg, aiActions]) { try { f.activate(ctx); } catch (e) { console.error(e); } }
+	for (const f of [gitExtras, editorConfig, editing, httpClient, csvTable, bookmarks, debugThreads, webSearch, repoMap, promptTools, terminalNL, commitMsg, aiActions]) { try { f.activate(ctx); } catch (e) { console.error(e); } }
 }

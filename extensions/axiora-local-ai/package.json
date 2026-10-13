@@ -247,6 +247,16 @@
         "command": "axiora.edit.pasteFromHistory",
         "title": "Paste from Clipboard History...",
         "category": "Edit"
+      },
+      {
+        "command": "axiora.git.stashStaged",
+        "title": "Stash Staged Changes Only...",
+        "category": "Git"
+      },
+      {
+        "command": "axiora.git.blamePrevious",
+        "title": "Show File Before the Commit That Changed This Line (Blame Previous Revision)",
+        "category": "Git"
       }
     ],
     "menus": {
@@ -270,12 +280,22 @@
           "command": "axiora.ai.generateCommitMessage",
           "group": "navigation@1",
           "when": "scmProvider == git"
+        },
+        {
+          "command": "axiora.git.stashStaged",
+          "group": "z_axiora@3",
+          "when": "scmProvider == git"
         }
       ],
       "editor/context": [
         {
           "submenu": "axiora.ai.editorMenu",
           "group": "1_modification@99"
+        },
+        {
+          "command": "axiora.git.blamePrevious",
+          "group": "z_git@1",
+          "when": "resourceScheme == file && gitOpenRepositoryCount != 0"
         }
       ],
       "axiora.ai.editorMenu": [
@@ -340,24 +360,6 @@
           "command": "axiora.csv.preview",
           "group": "navigation@99",
           "when": "resourceExtname == .csv || resourceExtname == .tsv"
-        }
-      ],
-      "menubar/selection": [
-        {
-          "command": "axiora.edit.rotateSelectionsForward",
-          "group": "3_multi@99"
-        }
-      ],
-      "menubar/edit": [
-        {
-          "command": "axiora.edit.pasteFromHistory",
-          "group": "2_ccp@99"
-        }
-      ],
-      "menubar/view": [
-        {
-          "command": "axiora.editor.toggleTypewriter",
-          "group": "5_editor@99"
         }
       ]
     },
