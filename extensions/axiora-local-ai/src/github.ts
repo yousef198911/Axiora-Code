@@ -8,6 +8,25 @@
  *--------------------------------------------------------------------------------------------*/
 import * as vscode from 'vscode';
 import { register, run, wsRoot, ask, SYS, withProgress } from './util';
+import { RULES } from './security';
+
+const LANG: Record<string, string> = { js: 'javascript', jsx: 'javascriptreact', ts: 'typescript', tsx: 'typescriptreact', mjs: 'javascript', cjs: 'javascript', py: 'python' };
+/** Scan only the lines a diff adds. */
+export function scanDiff(diff: string) {
+	const out: { file: string; line: number; id: string; msg: string; text: string }[] = []; let file = ''; let n = 0;
+	for (const l of diff.split('\n')) {
+		const f = /^\+\+\+ b\/(.+)$/.exec(l); if (f) { file = f[1]; continue; }
+		const h = /^@@ -\d+(?:,\d+)? \+(\d+)/.exec(l); if (h) { n = +h[1]; continue; }
+		if (l.startsWith('+') && !l.startsWith('+++')) { const lang = LANG[file.split('.').pop() ?? ''] ?? ''; for (const r of RULES) { if (r.langs && !r.langs.includes(lang)) { continue; } if (r.re.test(l.slice(1))) { out.push({ file, line: n, id: r.id, msg: r.msg, text: l.slice(1).trim().slice(0, 120) }); } } n++; }
+		else if (!l.startsWith('-')) { n++; }
+	}
+	return out;
+}
+async function securityReport(title: string, diff: string, token: vscode.CancellationToken) {
+	const hits = scanDiff(diff);
+	const ai = await ask(`Security review of this change. Only real, exploitable issues introduced by the ADDED lines: injection, authz/authn, secrets, SSRF, path traversal, deserialization, crypto, unsafe deps. For each: [severity] file:line — issue — fix (code). If none, say so.\n\nStatic findings: ${JSON.stringify(hits)}\n\n${diff.slice(0, 60000)}`, SYS, token);
+	return `# Security review: ${title}\n\n## Static scan of added lines (${hits.length})\n${hits.map(h => `- **${h.id}** \`${h.file}:${h.line}\` — ${h.msg}  \n  \`${h.text.replace(/`/g, "'")}\``).join('\n') || '_No rule matches._'}\n\n## AI security review\n${ai}\n`;
+}
 
 export function parseRemote(url: string): string | undefined { return /github[^/:]*[:/]([^/]+\/[^/.]+?)(?:\.git)?\/?$/.exec(url.trim())?.[1]; }
 export function activate(ctx: vscode.ExtensionContext) {
@@ -27,14 +46,21 @@ export function activate(ctx: vscode.ExtensionContext) {
 		const prs = await gh(`/repos/${r}/pulls?state=open&per_page=50`) as { number: number; title: string; user: { login: string }; head: { ref: string }; draft: boolean; body: string; html_url: string }[];
 		const p = await vscode.window.showQuickPick(prs.map(x => ({ label: `$(git-pull-request${x.draft ? '-draft' : ''}) #${x.number} ${x.title}`, description: `${x.user.login} · ${x.head.ref}`, x })), { placeHolder: `${r}: ${prs.length} open pull requests`, matchOnDescription: true });
 		if (!p) { return; }
-		const a = await vscode.window.showQuickPick(['Show Description', 'Show Diff', 'AI Review', 'Check Out', 'Add Comment...', 'Open on GitHub'], { placeHolder: `#${p.x.number} ${p.x.title}` }); if (!a) { return; }
+		const a = await vscode.window.showQuickPick(['Show Description', 'Show Diff', 'AI Review', 'Security Review', 'Check Out', 'Add Comment...', 'Open on GitHub'], { placeHolder: `#${p.x.number} ${p.x.title}` }); if (!a) { return; }
 		const diff = () => gh(`/repos/${r}/pulls/${p.x.number}`, { headers: { accept: 'application/vnd.github.v3.diff' } }) as Promise<string>;
 		if (a === 'Show Description') { await show(`# #${p.x.number} ${p.x.title}\n\n_${p.x.user.login} wants to merge \`${p.x.head.ref}\`_\n\n${p.x.body ?? ''}`); }
 		else if (a === 'Show Diff') { await show(await diff(), 'diff'); }
 		else if (a === 'AI Review') { const d = await diff(); const out = await withProgress(`Reviewing #${p.x.number}…`, t => ask(`Review this pull request. List concrete issues (bugs, security, tests, style) as: [severity] file:line — problem — suggested fix (with a code snippet). End with a verdict.\n\nTitle: ${p.x.title}\n${p.x.body ?? ''}\n\n${d.slice(0, 60000)}`, SYS, t)); await show(`# AI review of #${p.x.number}\n\n${out}`); }
+		else if (a === 'Security Review') { const d = await diff(); await show(await withProgress(`Security review of #${p.x.number}…`, t => securityReport(`#${p.x.number} ${p.x.title}`, d, t))); }
 		else if (a === 'Check Out') { const root = wsRoot()!.fsPath; await run('git', ['fetch', 'origin', `pull/${p.x.number}/head:pr-${p.x.number}`], root); await run('git', ['checkout', `pr-${p.x.number}`], root); vscode.window.showInformationMessage(`Checked out PR #${p.x.number} as pr-${p.x.number}.`); }
 		else if (a === 'Add Comment...') { const body = await vscode.window.showInputBox({ prompt: `Comment on #${p.x.number}` }); if (body && await vscode.window.showWarningMessage(`Post this comment publicly on #${p.x.number}?`, { modal: true }, 'Post') === 'Post') { await gh(`/repos/${r}/issues/${p.x.number}/comments`, { method: 'POST', body: JSON.stringify({ body }) }); } }
 		else { await vscode.env.openExternal(vscode.Uri.parse(p.x.html_url)); }
+	});
+	register(ctx, 'axiora.git.securityReview', async () => {
+		const root = wsRoot(); if (!root) { return; }
+		const d = await run('git', ['diff', 'HEAD'], root.fsPath).catch(() => '');
+		if (!d.trim()) { vscode.window.showInformationMessage('No uncommitted changes to review.'); return; }
+		await show(await withProgress('Security review of local changes…', t => securityReport('uncommitted changes', d, t)));
 	});
 	register(ctx, 'axiora.github.issues', async () => {
 		const r = await need(); if (!r) { return; }

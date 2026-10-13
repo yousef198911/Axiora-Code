@@ -841,6 +841,12 @@
         "command": "axiora.edit.shellFilter",
         "title": "Transform Selection with Shell Command...",
         "category": "Edit"
+      },
+      {
+        "command": "axiora.git.securityReview",
+        "title": "Security Review of Changes",
+        "category": "Git",
+        "icon": "$(shield)"
       }
     ],
     "menus": {
@@ -908,6 +914,11 @@
         {
           "command": "axiora.github.ci",
           "group": "6_github@3",
+          "when": "scmProvider == git"
+        },
+        {
+          "command": "axiora.git.securityReview",
+          "group": "6_github@0",
           "when": "scmProvider == git"
         }
       ],
