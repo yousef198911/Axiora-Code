@@ -135,6 +135,18 @@
           {
             "name": "data",
             "description": "Ask about your live data session (variables, current cell)"
+          },
+          {
+            "name": "artifact",
+            "description": "Produce a durable artifact (doc, plan, diagram, script) in .axiora/artifacts"
+          },
+          {
+            "name": "artifacts",
+            "description": "Produce several complementary artifacts at once"
+          },
+          {
+            "name": "background",
+            "description": "Run a task in the background without blocking the chat"
           }
         ]
       }
@@ -791,6 +803,27 @@
         "command": "axiora.cells.runToTab",
         "title": "Run Cell, Output in Tab",
         "category": "Data"
+      },
+      {
+        "command": "axiora.artifacts.browse",
+        "title": "Browse Artifacts...",
+        "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.background.start",
+        "title": "Start Background Task...",
+        "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.background.list",
+        "title": "Background Tasks...",
+        "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.focus.toggle",
+        "title": "Toggle Agent Focus Mode",
+        "category": "Axiora AI",
+        "icon": "$(eye)"
       }
     ],
     "menus": {
@@ -1725,6 +1758,10 @@
         "command": "axiora.nextEdit.dismiss",
         "key": "escape",
         "when": "editorTextFocus && axiora.nextEditPending"
+      },
+      {
+        "command": "axiora.focus.toggle",
+        "key": "ctrl+k ctrl+alt+f"
       }
     ],
     "languages": [
