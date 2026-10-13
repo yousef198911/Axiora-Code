@@ -29,6 +29,5 @@ export function activate(ctx: vscode.ExtensionContext) {
 		stream.markdown(`### Model A\n\n${ra}\n\n---\n\n### Model B\n\n${rb}\n\n---\n`);
 		stream.button({ title: 'A is better', command: 'axiora.arena.vote', arguments: [a, b] });
 		stream.button({ title: 'B is better', command: 'axiora.arena.vote', arguments: [b, a] });
-		stream.markdown(`\n<sub>Models are revealed after voting: A = ||${a}||, B = ||${b}||</sub>`);
 	});
 }

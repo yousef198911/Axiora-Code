@@ -651,6 +651,11 @@
         "command": "axiora.arena.leaderboard",
         "title": "Arena Leaderboard",
         "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.ai.analyzeCrash",
+        "title": "Analyze Crash / Stack Trace",
+        "category": "Axiora AI"
       }
     ],
     "menus": {
@@ -735,6 +740,11 @@
           "command": "axiora.multibuffer.open",
           "group": "navigation@0",
           "when": "resourceScheme == axiora-multi"
+        },
+        {
+          "command": "axiora.ai.analyzeCrash",
+          "group": "1_axiora@9",
+          "when": "editorHasSelection"
         }
       ],
       "axiora.ai.editorMenu": [
@@ -764,6 +774,10 @@
         {
           "command": "axiora.ai.terminalCommand",
           "group": "0_axiora"
+        },
+        {
+          "command": "axiora.ai.analyzeCrash",
+          "group": "axiora@2"
         }
       ],
       "debug/callstack/context": [
