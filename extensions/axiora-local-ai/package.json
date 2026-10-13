@@ -482,6 +482,32 @@
         "command": "axiora.git.interactiveRebase",
         "title": "Interactive Rebase...",
         "category": "Git"
+      },
+      {
+        "command": "axiora.shelve.shelve",
+        "title": "Shelve Changes...",
+        "category": "Git",
+        "icon": "$(archive)"
+      },
+      {
+        "command": "axiora.shelve.unshelve",
+        "title": "Unshelve Changes...",
+        "category": "Git"
+      },
+      {
+        "command": "axiora.shelve.view",
+        "title": "View Shelf...",
+        "category": "Git"
+      },
+      {
+        "command": "axiora.changelist.assign",
+        "title": "Move to Change List...",
+        "category": "Git"
+      },
+      {
+        "command": "axiora.changelist.commit",
+        "title": "Commit Change List...",
+        "category": "Git"
       }
     ],
     "menus": {
@@ -519,6 +545,26 @@
         {
           "command": "axiora.git.interactiveRebase",
           "group": "5_axiora@3",
+          "when": "scmProvider == git"
+        },
+        {
+          "command": "axiora.shelve.shelve",
+          "group": "5_axiora@4",
+          "when": "scmProvider == git"
+        },
+        {
+          "command": "axiora.shelve.unshelve",
+          "group": "5_axiora@5",
+          "when": "scmProvider == git"
+        },
+        {
+          "command": "axiora.shelve.view",
+          "group": "5_axiora@6",
+          "when": "scmProvider == git"
+        },
+        {
+          "command": "axiora.changelist.commit",
+          "group": "5_axiora@7",
           "when": "scmProvider == git"
         }
       ],
@@ -652,6 +698,18 @@
           "command": "axiora.k8s.apply",
           "group": "7_k8s@1",
           "when": "resourceExtname =~ /\\.ya?ml$/"
+        }
+      ],
+      "scm/resourceState/context": [
+        {
+          "command": "axiora.shelve.shelve",
+          "group": "8_axiora@1",
+          "when": "scmProvider == git"
+        },
+        {
+          "command": "axiora.changelist.assign",
+          "group": "8_axiora@2",
+          "when": "scmProvider == git"
         }
       ]
     },
