@@ -508,6 +508,17 @@
         "command": "axiora.changelist.commit",
         "title": "Commit Change List...",
         "category": "Git"
+      },
+      {
+        "command": "axiora.ssh.openFolder",
+        "title": "Open Remote Folder over SSH...",
+        "category": "SSH",
+        "icon": "$(remote)"
+      },
+      {
+        "command": "axiora.ssh.terminal",
+        "title": "Open Remote Terminal",
+        "category": "SSH"
       }
     ],
     "menus": {
@@ -698,6 +709,11 @@
           "command": "axiora.k8s.apply",
           "group": "7_k8s@1",
           "when": "resourceExtname =~ /\\.ya?ml$/"
+        },
+        {
+          "command": "axiora.ssh.terminal",
+          "group": "navigation@99",
+          "when": "resourceScheme == axiora-ssh"
         }
       ],
       "scm/resourceState/context": [
@@ -711,7 +727,8 @@
           "group": "8_axiora@2",
           "when": "scmProvider == git"
         }
-      ]
+      ],
+      "file/newFile": []
     },
     "configuration": {
       "title": "Axiora Local AI",
