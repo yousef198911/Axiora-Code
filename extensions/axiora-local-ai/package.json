@@ -164,7 +164,7 @@
           },
           {
             "name": "prototype",
-            "description": "Build a runnable app prototype from a description ('refine: …' to iterate)"
+            "description": "Build a runnable app prototype from a description ('refine: \u2026' to iterate)"
           },
           {
             "name": "caps",
@@ -172,7 +172,7 @@
           },
           {
             "name": "solo",
-            "description": "SOLO: autonomous write → test → fix loop for a goal"
+            "description": "SOLO: autonomous write \u2192 test \u2192 fix loop for a goal"
           },
           {
             "name": "workflow",
@@ -2453,6 +2453,36 @@
         ],
         "aliases": [
           "Org"
+        ]
+      },
+      {
+        "id": "terraform",
+        "extensions": [
+          ".tf",
+          ".tfvars",
+          ".hcl"
+        ],
+        "aliases": [
+          "Terraform"
+        ]
+      },
+      {
+        "id": "kotlin",
+        "extensions": [
+          ".kt",
+          ".kts"
+        ],
+        "aliases": [
+          "Kotlin"
+        ]
+      },
+      {
+        "id": "qml",
+        "extensions": [
+          ".qml"
+        ],
+        "aliases": [
+          "QML"
         ]
       }
     ],
