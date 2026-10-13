@@ -29,6 +29,8 @@ export function activate(ctx: vscode.ExtensionContext) {
 		if (d.languageId !== 'python') { return; }
 		const con = vscode.window.terminals.find(t => /^Console: python/.test(t.name)); if (!con) { return; }
 		const mod = path.basename(d.fileName, '.py');
+		const imp = new RegExp(`^\\s*(import\\s+${mod}\\b|from\\s+${mod}\\s+import)`, 'm');
+		if (!vscode.workspace.textDocuments.some(x => x !== d && x.languageId === 'python' && imp.test(x.getText()))) { return; }
 		con.sendText(`exec("import sys,importlib\\nif ${JSON.stringify(mod).replace(/"/g, "'")} in sys.modules: importlib.reload(sys.modules[${JSON.stringify(mod).replace(/"/g, "'")}]); print('[hot] reloaded ${mod}')")`);
 	}));
 
