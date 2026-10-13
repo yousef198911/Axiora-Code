@@ -5,6 +5,8 @@ import * as vscode from 'vscode';
 import * as cp from 'child_process';
 import * as path from 'path';
 import { chat, ChatMessage, complete, initLlm, listModels } from './llm';
+import { chatCommands, contextProviders } from './util';
+import { activateFeatures } from './features';
 
 const out = vscode.window.createOutputChannel('Axiora Local AI', { log: true });
 const enc = new TextEncoder();
@@ -274,7 +276,11 @@ export function activate(ctx: vscode.ExtensionContext) {
 					return;
 				}
 			}
-			const msgs: ChatMessage[] = [{ role: 'system', content: SYSTEM + await memoryContext() }];
+			const extra = chatCommands.get(req.command ?? '');
+			if (extra) { await extra(req, stream, token); return; }
+			let more = '';
+			for (const p of contextProviders) { more += await p().catch(() => ''); }
+			const msgs: ChatMessage[] = [{ role: 'system', content: SYSTEM + await memoryContext() + more }];
 			for (const h of _ctx.history) {
 				if (h instanceof vscode.ChatRequestTurn) { msgs.push({ role: 'user', content: h.prompt }); }
 				else if (h instanceof vscode.ChatResponseTurn) { msgs.push({ role: 'assistant', content: h.response.map(p => p instanceof vscode.ChatResponseMarkdownPart ? p.value.value : '').join('') }); }
@@ -288,6 +294,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 		}
 	});
 	ctx.subscriptions.push(participant);
+	activateFeatures(ctx);
 	out.info('Axiora Local AI activated');
 }
 

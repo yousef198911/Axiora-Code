@@ -5,14 +5,33 @@
   "publisher": "vscode",
   "license": "MIT",
   "version": "1.0.0",
-  "engines": { "vscode": "^1.104.0" },
-  "categories": ["AI", "Chat"],
-  "capabilities": { "virtualWorkspaces": false, "untrustedWorkspaces": { "supported": "limited" } },
-  "activationEvents": ["onStartupFinished"],
+  "engines": {
+    "vscode": "^1.104.0"
+  },
+  "categories": [
+    "AI",
+    "Chat"
+  ],
+  "capabilities": {
+    "virtualWorkspaces": false,
+    "untrustedWorkspaces": {
+      "supported": "limited"
+    }
+  },
+  "activationEvents": [
+    "onStartupFinished"
+  ],
   "main": "./out/extension.js",
-  "enabledApiProposals": ["chatProvider"],
+  "enabledApiProposals": [
+    "chatProvider"
+  ],
   "contributes": {
-    "languageModelChatProviders": [ { "vendor": "axiora-local", "displayName": "Axiora Local (Ollama / OpenAI-compatible)" } ],
+    "languageModelChatProviders": [
+      {
+        "vendor": "axiora-local",
+        "displayName": "Axiora Local (Ollama / OpenAI-compatible)"
+      }
+    ],
     "chatParticipants": [
       {
         "id": "axiora.local",
@@ -21,50 +40,224 @@
         "description": "Local AI (Ollama / your own key): review, specs, memory",
         "isSticky": true,
         "commands": [
-          { "name": "review", "description": "Review uncommitted changes (git diff) locally" },
-          { "name": "spec", "description": "Plan a feature: requirements.md, design.md, tasks.md" },
-          { "name": "remember", "description": "Save a note to the project memory" },
-          { "name": "memory", "description": "Show the project memory" },
-          { "name": "checkpoint", "description": "Create a checkpoint of the workspace" }
+          {
+            "name": "review",
+            "description": "Review uncommitted changes (git diff) locally"
+          },
+          {
+            "name": "spec",
+            "description": "Plan a feature: requirements.md, design.md, tasks.md"
+          },
+          {
+            "name": "remember",
+            "description": "Save a note to the project memory"
+          },
+          {
+            "name": "memory",
+            "description": "Show the project memory"
+          },
+          {
+            "name": "checkpoint",
+            "description": "Create a checkpoint of the workspace"
+          }
         ]
       }
     ],
     "commands": [
-      { "command": "axiora.ai.toggleInlineCompletion", "title": "Toggle Local Inline Completion", "category": "Axiora AI" },
-      { "command": "axiora.ai.setApiKey", "title": "Set API Key (OpenAI-compatible provider)", "category": "Axiora AI" },
-      { "command": "axiora.ai.testConnection", "title": "Test Model Connection", "category": "Axiora AI" },
-      { "command": "axiora.checkpoint.create", "title": "Create Checkpoint", "category": "Axiora AI" },
-      { "command": "axiora.checkpoint.restore", "title": "Restore Checkpoint...", "category": "Axiora AI" },
-      { "command": "axiora.memory.add", "title": "Add to Project Memory...", "category": "Axiora AI" },
-      { "command": "axiora.memory.open", "title": "Open Project Memory", "category": "Axiora AI" },
-      { "command": "axiora.spec.new", "title": "New Spec (Requirements, Design, Tasks)...", "category": "Axiora AI" },
-      { "command": "axiora.review.changes", "title": "Review Uncommitted Changes", "category": "Axiora AI" },
-      { "command": "axiora.sync.push", "title": "Settings Sync: Upload to My Server", "category": "Axiora AI" },
-      { "command": "axiora.sync.pull", "title": "Settings Sync: Download from My Server", "category": "Axiora AI" },
-      { "command": "axiora.sync.setToken", "title": "Settings Sync: Set Server Token", "category": "Axiora AI" }
+      {
+        "command": "axiora.ai.toggleInlineCompletion",
+        "title": "Toggle Local Inline Completion",
+        "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.ai.setApiKey",
+        "title": "Set API Key (OpenAI-compatible provider)",
+        "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.ai.testConnection",
+        "title": "Test Model Connection",
+        "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.checkpoint.create",
+        "title": "Create Checkpoint",
+        "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.checkpoint.restore",
+        "title": "Restore Checkpoint...",
+        "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.memory.add",
+        "title": "Add to Project Memory...",
+        "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.memory.open",
+        "title": "Open Project Memory",
+        "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.spec.new",
+        "title": "New Spec (Requirements, Design, Tasks)...",
+        "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.review.changes",
+        "title": "Review Uncommitted Changes",
+        "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.sync.push",
+        "title": "Settings Sync: Upload to My Server",
+        "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.sync.pull",
+        "title": "Settings Sync: Download from My Server",
+        "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.sync.setToken",
+        "title": "Settings Sync: Set Server Token",
+        "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.ai.fixProblem",
+        "title": "Fix Problem with AI",
+        "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.ai.generateTests",
+        "title": "Generate Tests",
+        "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.ai.addDocs",
+        "title": "Add Documentation Comments",
+        "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.ai.explain",
+        "title": "Explain Code",
+        "category": "Axiora AI"
+      }
     ],
     "menus": {
       "scm/title": [
-        { "command": "axiora.review.changes", "group": "navigation@90", "when": "scmProvider == git" },
-        { "command": "axiora.checkpoint.create", "group": "z_axiora@1", "when": "scmProvider == git" },
-        { "command": "axiora.checkpoint.restore", "group": "z_axiora@2", "when": "scmProvider == git" }
+        {
+          "command": "axiora.review.changes",
+          "group": "navigation@90",
+          "when": "scmProvider == git"
+        },
+        {
+          "command": "axiora.checkpoint.create",
+          "group": "z_axiora@1",
+          "when": "scmProvider == git"
+        },
+        {
+          "command": "axiora.checkpoint.restore",
+          "group": "z_axiora@2",
+          "when": "scmProvider == git"
+        }
+      ],
+      "editor/context": [
+        {
+          "submenu": "axiora.ai.editorMenu",
+          "group": "1_modification@99"
+        }
+      ],
+      "axiora.ai.editorMenu": [
+        {
+          "command": "axiora.ai.explain",
+          "group": "1@1"
+        },
+        {
+          "command": "axiora.ai.fixProblem",
+          "group": "1@2"
+        },
+        {
+          "command": "axiora.ai.addDocs",
+          "group": "1@3",
+          "when": "!editorReadonly"
+        },
+        {
+          "command": "axiora.ai.generateTests",
+          "group": "1@4"
+        }
       ]
     },
     "configuration": {
       "title": "Axiora Local AI",
       "properties": {
-        "axiora.ai.provider": { "type": "string", "enum": ["ollama", "openai"], "default": "ollama", "description": "Model provider: local Ollama or any OpenAI-compatible server (LM Studio, llama.cpp, vLLM, OpenRouter, OpenAI...)." },
-        "axiora.ai.baseUrl": { "type": "string", "default": "http://127.0.0.1:11434", "description": "Base URL of the provider. Ollama: http://127.0.0.1:11434. OpenAI-compatible: e.g. https://api.openai.com/v1" },
-        "axiora.ai.chatModel": { "type": "string", "default": "qwen2.5-coder:0.5b", "description": "Model used for @axiora chat, /review and /spec." },
-        "axiora.inlineCompletion.enabled": { "type": "boolean", "default": true, "description": "Show local ghost-text completions while typing (no Copilot account needed)." },
-        "axiora.inlineCompletion.model": { "type": "string", "default": "qwen2.5-coder:0.5b", "description": "Fill-in-the-middle model used for inline completion." },
-        "axiora.inlineCompletion.debounceMs": { "type": "number", "default": 300, "description": "Delay before requesting a completion." },
-        "axiora.inlineCompletion.maxTokens": { "type": "number", "default": 64, "description": "Maximum tokens per completion." },
-        "axiora.checkpoints.autoOnSave": { "type": "boolean", "default": false, "description": "Automatically create a checkpoint (at most every 5 minutes) when files are saved." },
-        "axiora.memory.enabled": { "type": "boolean", "default": true, "description": "Include .axiora/memory.md in @axiora prompts." },
-        "axiora.sync.endpoint": { "type": "string", "default": "", "description": "Your own settings-sync server URL (e.g. https://updates.axiora.dev/api/sync). Empty disables sync." },
-        "axiora.sync.auto": { "type": "boolean", "default": false, "description": "Upload settings automatically when settings.json or keybindings.json change." }
+        "axiora.ai.provider": {
+          "type": "string",
+          "enum": [
+            "ollama",
+            "openai"
+          ],
+          "default": "ollama",
+          "description": "Model provider: local Ollama or any OpenAI-compatible server (LM Studio, llama.cpp, vLLM, OpenRouter, OpenAI...)."
+        },
+        "axiora.ai.baseUrl": {
+          "type": "string",
+          "default": "http://127.0.0.1:11434",
+          "description": "Base URL of the provider. Ollama: http://127.0.0.1:11434. OpenAI-compatible: e.g. https://api.openai.com/v1"
+        },
+        "axiora.ai.chatModel": {
+          "type": "string",
+          "default": "qwen2.5-coder:0.5b",
+          "description": "Model used for @axiora chat, /review and /spec."
+        },
+        "axiora.inlineCompletion.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show local ghost-text completions while typing (no Copilot account needed)."
+        },
+        "axiora.inlineCompletion.model": {
+          "type": "string",
+          "default": "qwen2.5-coder:0.5b",
+          "description": "Fill-in-the-middle model used for inline completion."
+        },
+        "axiora.inlineCompletion.debounceMs": {
+          "type": "number",
+          "default": 300,
+          "description": "Delay before requesting a completion."
+        },
+        "axiora.inlineCompletion.maxTokens": {
+          "type": "number",
+          "default": 64,
+          "description": "Maximum tokens per completion."
+        },
+        "axiora.checkpoints.autoOnSave": {
+          "type": "boolean",
+          "default": false,
+          "description": "Automatically create a checkpoint (at most every 5 minutes) when files are saved."
+        },
+        "axiora.memory.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Include .axiora/memory.md in @axiora prompts."
+        },
+        "axiora.sync.endpoint": {
+          "type": "string",
+          "default": "",
+          "description": "Your own settings-sync server URL (e.g. https://updates.axiora.dev/api/sync). Empty disables sync."
+        },
+        "axiora.sync.auto": {
+          "type": "boolean",
+          "default": false,
+          "description": "Upload settings automatically when settings.json or keybindings.json change."
+        }
       }
-    }
+    },
+    "submenus": [
+      {
+        "id": "axiora.ai.editorMenu",
+        "label": "Axiora AI"
+      }
+    ]
   }
 }
