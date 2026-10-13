@@ -24,21 +24,24 @@ const androidHome = () => process.env.ANDROID_HOME || process.env.ANDROID_SDK_RO
 const sdkTool = (sub: string, name: string) => { const p = path.join(androidHome(), sub, isWin ? `${name}.exe` : name); return fs.existsSync(p) ? p : name; };
 export function activate(ctx: vscode.ExtensionContext) {
 	// ---- voice dictation (local Whisper)
+	register(ctx, 'axiora.voice.setApiKey', async () => { const k = await vscode.window.showInputBox({ prompt: 'API key for the OpenAI-compatible /audio/transcriptions endpoint (Groq, OpenAI, …); blank = main AI key', password: true }); if (k !== undefined) { k ? await ctx.secrets.store('axiora.voice.apiKey', k) : await ctx.secrets.delete('axiora.voice.apiKey'); } });
 	register(ctx, 'axiora.voice.dictate', async (target?: 'chat' | 'editor') => {
-		const endpoint = vscode.workspace.getConfiguration('axiora.voice').get<string>('endpoint', 'http://127.0.0.1:8080/inference');
+		const vc = vscode.workspace.getConfiguration('axiora.voice'); const remote = vc.get<string>('provider', 'local') === 'openai';
+		const endpoint = remote ? `${vc.get<string>('baseUrl', 'https://api.groq.com/openai/v1').replace(/\/+$/, '')}/audio/transcriptions` : vc.get<string>('endpoint', 'http://127.0.0.1:8080/inference');
+		const sttKey = remote ? (await ctx.secrets.get('axiora.voice.apiKey') ?? await ctx.secrets.get('axiora.ai.apiKey')) : undefined;
 		const ed = vscode.window.activeTextEditor;
 		const panel = vscode.window.createWebviewPanel('axioraVoice', 'Dictation', { viewColumn: vscode.ViewColumn.Beside, preserveFocus: true }, { enableScripts: true });
 		panel.webview.html = `<!doctype html><html><body style="font-family:var(--vscode-font-family);color:var(--vscode-foreground);padding:16px"><button id=b style="font-size:16px;padding:10px 18px">● Start recording</button><p id=s>Uses your microphone; audio goes only to ${endpoint.replace(/</g, '')}</p><script>const v=acquireVsCodeApi();let rec,chunks=[];b.onclick=async()=>{if(rec){rec.stop();return}const st=await navigator.mediaDevices.getUserMedia({audio:true});rec=new MediaRecorder(st);chunks=[];rec.ondataavailable=e=>chunks.push(e.data);rec.onstop=async()=>{st.getTracks().forEach(t=>t.stop());s.textContent='Transcribing…';const buf=await new Blob(chunks,{type:rec.mimeType}).arrayBuffer();v.postMessage({type:rec.mimeType,data:Array.from(new Uint8Array(buf))});rec=null;b.textContent='● Start recording'};rec.start();b.textContent='■ Stop';s.textContent='Recording…'}</script></body></html>`;
 		panel.webview.onDidReceiveMessage(async m => {
 			const form = new FormData(); const blob = new Blob([new Uint8Array(m.data)], { type: m.type });
-			form.append('file', blob, m.type.includes('ogg') ? 'audio.ogg' : 'audio.webm'); form.append('model', vscode.workspace.getConfiguration('axiora.voice').get<string>('model', 'whisper-1')); form.append('response_format', 'json');
+			form.append('file', blob, m.type.includes('ogg') ? 'audio.ogg' : 'audio.webm'); form.append('model', (vc.get<string>('model', '') || (remote ? 'whisper-large-v3-turbo' : 'whisper-1'))); form.append('response_format', 'json');
 			try {
-				const r = await fetch(endpoint, { method: 'POST', body: form }); const j = await r.json() as { text?: string };
+				const r = await fetch(endpoint, { method: 'POST', body: form, headers: sttKey ? { authorization: `Bearer ${sttKey}` } : undefined }); if (!r.ok) { throw new Error(`HTTP ${r.status}: ${(await r.text()).slice(0, 200)}`); } const j = await r.json() as { text?: string };
 				const text = (j.text ?? '').trim(); if (!text) { throw new Error('empty transcription'); }
 				if (target === 'chat') { await vscode.commands.executeCommand('workbench.action.chat.open', { query: text, isPartialQuery: true }); }
 				else if (ed) { await ed.edit(b => b.insert(ed.selection.active, text)); } else { await vscode.env.clipboard.writeText(text); }
 				panel.dispose();
-			} catch (e) { vscode.window.showErrorMessage(`Dictation failed (${endpoint}): ${(e as Error).message}. Start a local whisper server, e.g. "whisper-server -m ggml-base.en.bin --port 8080".`); }
+			} catch (e) { vscode.window.showErrorMessage(`Dictation failed (${endpoint}): ${(e as Error).message}. ${remote ? 'Check axiora.voice.baseUrl / axiora.voice.model and the key (Voice: Set Speech-to-Text API Key).' : 'Start a local whisper server, e.g. "whisper-server -m ggml-base.en.bin --port 8080", or set axiora.voice.provider to "openai" (Groq / OpenAI / any /audio/transcriptions endpoint).'}`); }
 		});
 	});
 	// ---- OS scripts

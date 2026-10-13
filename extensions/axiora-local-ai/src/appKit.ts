@@ -8,6 +8,7 @@
  *  - Publish Data App: CSV → self-contained interactive table/chart app → .axiora/apps/<name>
  *    (deploy it with the one-click deploy target).
  *--------------------------------------------------------------------------------------------*/
+import { approve } from './approval';
 import * as vscode from 'vscode';
 import * as path from 'path';
 import { register, wsRoot, run } from './util';
@@ -83,6 +84,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 		const remote = await vscode.window.showInputBox({ prompt: 'Git remote URL (GitHub / GitLab / Bitbucket / your own server)', placeHolder: 'git@gitlab.com:you/app.git' }); if (!remote) { return; }
 		const branch = await vscode.window.showInputBox({ prompt: 'Branch', value: 'main' }) ?? 'main';
 		const d = dir.fsPath;
+		if (!await approve('git-push', `Publish ${d} → ${remote} (${branch}): git add/commit/push`)) { return; }
 		const isRepo = await run('git', ['rev-parse', '--show-toplevel'], d).then(t => path.resolve(t.trim()) === path.resolve(d), () => false);
 		if (!isRepo) { await run('git', ['init', '-q', '-b', branch], d); }
 		await run('git', ['add', '-A'], d);

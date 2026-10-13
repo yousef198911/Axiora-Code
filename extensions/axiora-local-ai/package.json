@@ -209,6 +209,46 @@
           {
             "name": "stripe",
             "description": "Stripe data: customers, charges, invoices, subscriptions, events"
+          },
+          {
+            "name": "image",
+            "description": "Generate an image (saved to the project)"
+          },
+          {
+            "name": "browser",
+            "description": "Let the agent drive a real browser for a task"
+          },
+          {
+            "name": "office",
+            "description": "Create xlsx/docx/pptx/pdf: /office pptx <topic>"
+          },
+          {
+            "name": "chart",
+            "description": "Render a chart image from a description"
+          },
+          {
+            "name": "screenshot",
+            "description": "Capture window|screen|browser|<url> into chat"
+          },
+          {
+            "name": "draft",
+            "description": "Draft an email/Slack message (never auto-sent)"
+          },
+          {
+            "name": "gmail",
+            "description": "Gmail: search, read <id>, draft <to>|<subject>|<body>"
+          },
+          {
+            "name": "drive",
+            "description": "Google Drive: recent files or search"
+          },
+          {
+            "name": "calendar",
+            "description": "Google Calendar: upcoming events [days]"
+          },
+          {
+            "name": "slack",
+            "description": "Slack: channels | history #chan | send-draft #chan text"
           }
         ]
       }
@@ -1351,6 +1391,101 @@
         "command": "axiora.apk.manifest",
         "title": "Show APK Manifest (aapt2)",
         "category": "Android"
+      },
+      {
+        "command": "axiora.browser.runTask",
+        "title": "Run Task...",
+        "category": "Browser"
+      },
+      {
+        "command": "axiora.browser.open",
+        "title": "Open URL in Agent Browser...",
+        "category": "Browser"
+      },
+      {
+        "command": "axiora.browser.close",
+        "title": "Close Agent Browser",
+        "category": "Browser"
+      },
+      {
+        "command": "axiora.google.signIn",
+        "title": "Sign In (Gmail, Drive, Calendar)...",
+        "category": "Google"
+      },
+      {
+        "command": "axiora.google.signOut",
+        "title": "Sign Out",
+        "category": "Google"
+      },
+      {
+        "command": "axiora.slack.setToken",
+        "title": "Set Bot Token...",
+        "category": "Slack"
+      },
+      {
+        "command": "axiora.office.generate",
+        "title": "Generate Document (xlsx/docx/pptx/pdf)...",
+        "category": "Office"
+      },
+      {
+        "command": "axiora.office.fromJson",
+        "title": "Build Document from JSON Spec...",
+        "category": "Office"
+      },
+      {
+        "command": "axiora.chart.export",
+        "title": "Export Chart Image from JSON...",
+        "category": "Office"
+      },
+      {
+        "command": "axiora.voice.setApiKey",
+        "title": "Set Speech-to-Text API Key...",
+        "category": "Voice"
+      },
+      {
+        "command": "axiora.voice.readAloud",
+        "title": "Read Last Reply Aloud",
+        "category": "Voice"
+      },
+      {
+        "command": "axiora.voice.stop",
+        "title": "Stop Speaking",
+        "category": "Voice"
+      },
+      {
+        "command": "axiora.voice.setTtsApiKey",
+        "title": "Set Text-to-Speech API Key...",
+        "category": "Voice"
+      },
+      {
+        "command": "axiora.image.generate",
+        "title": "Generate Image...",
+        "category": "Image"
+      },
+      {
+        "command": "axiora.image.setApiKey",
+        "title": "Set Image API Key...",
+        "category": "Image"
+      },
+      {
+        "command": "axiora.drafts.list",
+        "title": "Show Drafts",
+        "category": "Drafts"
+      },
+      {
+        "command": "axiora.drafts.new",
+        "title": "New Draft...",
+        "category": "Drafts"
+      },
+      {
+        "command": "axiora.approval.setMode",
+        "title": "Set Approval Mode...",
+        "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.screenshot.toChat",
+        "title": "Capture Screenshot to Chat...",
+        "category": "Axiora AI"
       }
     ],
     "menus": {
@@ -1804,6 +1939,12 @@
           "command": "axiora.sandbox.run",
           "group": "axiora@2"
         }
+      ],
+      "commandPalette": [
+        {
+          "command": "axiora.drafts.open",
+          "when": "false"
+        }
       ]
     },
     "configuration": {
@@ -2172,8 +2313,8 @@
         },
         "axiora.voice.model": {
           "type": "string",
-          "default": "whisper-1",
-          "description": "Model name sent to the transcription endpoint."
+          "default": "",
+          "description": "Transcription model (empty = whisper-1 for local, whisper-large-v3-turbo for the OpenAI-compatible provider)."
         },
         "axiora.container.engine": {
           "type": "string",
@@ -2213,6 +2354,129 @@
           ],
           "default": "node-permission",
           "description": "Sandbox for 'Run Current File in Sandbox': Node permission model (no child processes/workers, fs read limited to the workspace, writes to .axiora/sandbox-out; network is NOT blocked) or a no-network container."
+        },
+        "axiora.approval.mode": {
+          "type": "string",
+          "enum": [
+            "ask",
+            "always",
+            "never-for-safe"
+          ],
+          "default": "ask",
+          "enumDescriptions": [
+            "Confirm destructive and external actions (delete, git push, destructive shell, sends, deploy)",
+            "Confirm every agent action",
+            "Confirm only high-risk actions (sends are always confirmed)"
+          ],
+          "description": "Approval policy for agent / destructive actions, including /solo."
+        },
+        "axiora.agent.tools": {
+          "type": "boolean",
+          "default": true,
+          "description": "Let @axiora call tools itself (web search/fetch, browser, office files, charts, images, screenshots, drafts, gated shell)."
+        },
+        "axiora.web.readPages": {
+          "type": "number",
+          "default": 3,
+          "description": "How many top result pages /web opens and reads."
+        },
+        "axiora.browser.executablePath": {
+          "type": "string",
+          "default": "",
+          "description": "Chrome/Edge/Chromium executable for the agent browser (auto-detected when empty)."
+        },
+        "axiora.browser.headless": {
+          "type": "boolean",
+          "default": false,
+          "description": "Run the agent browser without a visible window."
+        },
+        "axiora.browser.maxSteps": {
+          "type": "number",
+          "default": 15,
+          "description": "Max steps for Browser: Run Task."
+        },
+        "axiora.google.clientId": {
+          "type": "string",
+          "default": "",
+          "description": "Your own Google OAuth client ID (Desktop app). The client secret is kept in secret storage."
+        },
+        "axiora.voice.provider": {
+          "type": "string",
+          "enum": [
+            "local",
+            "openai"
+          ],
+          "default": "local",
+          "description": "Speech-to-text: local Whisper server (axiora.voice.endpoint) or an OpenAI-compatible /audio/transcriptions endpoint (axiora.voice.baseUrl)."
+        },
+        "axiora.voice.baseUrl": {
+          "type": "string",
+          "default": "https://api.groq.com/openai/v1",
+          "description": "OpenAI-compatible base URL for speech-to-text (Groq, OpenAI, …)."
+        },
+        "axiora.voice.tts.provider": {
+          "type": "string",
+          "enum": [
+            "os",
+            "openai"
+          ],
+          "default": "os",
+          "description": "Text-to-speech: OS voice (Windows SAPI, macOS say, Linux spd-say/espeak-ng) or an OpenAI-compatible /audio/speech endpoint."
+        },
+        "axiora.voice.tts.autoSpeak": {
+          "type": "boolean",
+          "default": false,
+          "description": "Read every @axiora reply aloud automatically."
+        },
+        "axiora.voice.tts.rate": {
+          "type": "number",
+          "default": 0,
+          "description": "Speech rate (-10 … 10)."
+        },
+        "axiora.voice.tts.osVoice": {
+          "type": "string",
+          "default": "",
+          "description": "OS voice name (optional)."
+        },
+        "axiora.voice.tts.baseUrl": {
+          "type": "string",
+          "default": "",
+          "description": "OpenAI-compatible TTS base URL (empty = main AI base URL)."
+        },
+        "axiora.voice.tts.model": {
+          "type": "string",
+          "default": "gpt-4o-mini-tts",
+          "description": "TTS model."
+        },
+        "axiora.voice.tts.voice": {
+          "type": "string",
+          "default": "alloy",
+          "description": "TTS voice."
+        },
+        "axiora.image.model": {
+          "type": "string",
+          "default": "google/gemini-2.5-flash-image",
+          "description": "Image model (OpenRouter image-output model, or e.g. gpt-image-1 / dall-e-3 for /images/generations)."
+        },
+        "axiora.image.baseUrl": {
+          "type": "string",
+          "default": "",
+          "description": "Image API base URL (empty = main AI base URL)."
+        },
+        "axiora.image.api": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "chat",
+            "images"
+          ],
+          "default": "auto",
+          "description": "auto: OpenRouter → chat modalities, others → /images/generations."
+        },
+        "axiora.image.folder": {
+          "type": "string",
+          "default": ".axiora/images",
+          "description": "Where generated images are saved (relative to the workspace)."
         }
       }
     },
@@ -2783,9 +3047,126 @@
       "terminal.integrated.commandsToSkipShell": [
         "axiora.term.blocks"
       ]
-    }
+    },
+    "languageModelTools": [
+      {
+        "name": "axiora_web_search",
+        "displayName": "Axiora web search",
+        "toolReferenceName": "axiora_web_search",
+        "canBeReferencedInPrompt": true,
+        "modelDescription": "Search the web. Returns titles, URLs, snippets.",
+        "inputSchema": {
+          "type": "object"
+        }
+      },
+      {
+        "name": "axiora_web_fetch",
+        "displayName": "Axiora web fetch",
+        "toolReferenceName": "axiora_web_fetch",
+        "canBeReferencedInPrompt": true,
+        "modelDescription": "Open a URL and return its readable text (article/main content) and links.",
+        "inputSchema": {
+          "type": "object"
+        }
+      },
+      {
+        "name": "axiora_browser",
+        "displayName": "Axiora browser",
+        "toolReferenceName": "axiora_browser",
+        "canBeReferencedInPrompt": true,
+        "modelDescription": "Drive a real browser. action: goto(url) | click(n|selector|text) | fill(n|selector|text, value) | press(key) | select | check | back | text | snapshot | screenshot | assert(text) | close. Returns numbered interactive elements.",
+        "inputSchema": {
+          "type": "object"
+        }
+      },
+      {
+        "name": "axiora_browser_task",
+        "displayName": "Axiora browser task",
+        "toolReferenceName": "axiora_browser_task",
+        "canBeReferencedInPrompt": true,
+        "modelDescription": "Give a multi-step goal to the browser agent (it navigates, clicks, fills forms) and get the result + final screenshot.",
+        "inputSchema": {
+          "type": "object"
+        }
+      },
+      {
+        "name": "axiora_make_document",
+        "displayName": "Axiora make document",
+        "toolReferenceName": "axiora_make_document",
+        "canBeReferencedInPrompt": true,
+        "modelDescription": "Create an office file. kind: xlsx|docx|pptx|pdf. spec: {title, blocks:[{heading}|{text}|{bullets:[]}|{table:[[...]]}|{chart:{type,title,labels,series:[{name,values}]}}|{image}], sheets:[{name,rows}], slides:[{title,bullets,chart,image,notes}]}",
+        "inputSchema": {
+          "type": "object"
+        }
+      },
+      {
+        "name": "axiora_make_chart",
+        "displayName": "Axiora make chart",
+        "toolReferenceName": "axiora_make_chart",
+        "canBeReferencedInPrompt": true,
+        "modelDescription": "Render a chart to PNG + SVG. chart: {type:bar|line|pie, title, labels:[], series:[{name, values:[]}]}",
+        "inputSchema": {
+          "type": "object"
+        }
+      },
+      {
+        "name": "axiora_generate_image",
+        "displayName": "Axiora generate image",
+        "toolReferenceName": "axiora_generate_image",
+        "canBeReferencedInPrompt": true,
+        "modelDescription": "Generate an image from a text prompt; saved in the project.",
+        "inputSchema": {
+          "type": "object"
+        }
+      },
+      {
+        "name": "axiora_screenshot",
+        "displayName": "Axiora screenshot",
+        "toolReferenceName": "axiora_screenshot",
+        "canBeReferencedInPrompt": true,
+        "modelDescription": "Capture the editor window (or whole screen) and show it in chat.",
+        "inputSchema": {
+          "type": "object"
+        }
+      },
+      {
+        "name": "axiora_draft_message",
+        "displayName": "Axiora draft message",
+        "toolReferenceName": "axiora_draft_message",
+        "canBeReferencedInPrompt": true,
+        "modelDescription": "Prepare an email (gmail) or Slack message as a DRAFT card. It is never sent automatically; the user reviews and clicks Send.",
+        "inputSchema": {
+          "type": "object"
+        }
+      },
+      {
+        "name": "axiora_run_shell",
+        "displayName": "Axiora run shell",
+        "toolReferenceName": "axiora_run_shell",
+        "canBeReferencedInPrompt": true,
+        "modelDescription": "Run a shell command in the workspace (destructive commands need user approval).",
+        "inputSchema": {
+          "type": "object"
+        }
+      },
+      {
+        "name": "axiora_delete_file",
+        "displayName": "Axiora delete file",
+        "toolReferenceName": "axiora_delete_file",
+        "canBeReferencedInPrompt": true,
+        "modelDescription": "Delete a file in the workspace (requires user approval).",
+        "inputSchema": {
+          "type": "object"
+        }
+      }
+    ]
   },
   "dependencies": {
+    "docx": "^9.11.0",
+    "exceljs": "^4.4.0",
+    "pdf-lib": "^1.17.1",
+    "playwright-core": "^1.64.0",
+    "pptxgenjs": "^4.0.1",
     "vscode-languageclient": "^10.1.2"
   }
 }
