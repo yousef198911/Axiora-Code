@@ -882,6 +882,17 @@
         "command": "axiora.sel.merge",
         "title": "Merge Selections",
         "category": "Selection"
+      },
+      {
+        "command": "axiora.profile.run",
+        "title": "Profile Current Script...",
+        "category": "Profiler",
+        "icon": "$(flame)"
+      },
+      {
+        "command": "axiora.profile.open",
+        "title": "Open CPU Profile...",
+        "category": "Profiler"
       }
     ],
     "menus": {
@@ -1222,6 +1233,13 @@
         {
           "command": "axiora.sel.merge",
           "group": "1@6"
+        }
+      ],
+      "editor/title/run": [
+        {
+          "command": "axiora.profile.run",
+          "group": "navigation@90",
+          "when": "resourceLangId == javascript || resourceLangId == python"
         }
       ]
     },
