@@ -511,10 +511,28 @@ export function packageCopilotExtensionStream(): Stream {
 	const output = es.through();
 	localExtensionsStream.on('data', (file: unknown) => output.write(file));
 	localExtensionsStream.on('error', (err: unknown) => output.emit('error', err));
+	// Axiora: build/.moduleignore strips `@github/copilot/**` because the app (agent host) uses
+	// @github/copilot-sdk instead. That rule is meant for the app's node_modules, but it also
+	// matched this extension's own node_modules/@github/copilot, so the packaged extension had no
+	// `sdk/` folder and prepareBuiltInCopilotRipgrepShim failed. Package the extension's own
+	// Copilot CLI package separately, trimming only the payloads the extension does not ship
+	// (mirrors extensions/copilot/.vscodeignore; target-platform natives are re-added by
+	// prepareBuiltInCopilotRipgrepShim).
+	const ownCopilotCliDir = path.relative(root, path.join(extensionPath, 'node_modules', '@github', 'copilot')).split(path.sep).join('/');
+	const ownCopilotCliSrc = [
+		`${ownCopilotCliDir}/**`,
+		`!${ownCopilotCliDir}/**/{test,tests}/**`,
+		`!${ownCopilotCliDir}/{prebuilds,clipboard,ripgrep,pvrecorder,foundry-local-sdk,mxc-bin,sharp}/**`,
+		`!${ownCopilotCliDir}/**/keytar.node`,
+	];
+
 	localExtensionsStream.on('end', () => {
-		gulp.src(dependenciesSrc, { base: '.' })
-			.pipe(util2.cleanNodeModules(path.join(root, 'build', '.moduleignore')))
-			.pipe(util2.cleanNodeModules(path.join(root, 'build', `.moduleignore.${process.platform}`)))
+		es.merge(
+			gulp.src([...dependenciesSrc, `!${ownCopilotCliDir}/**`], { base: '.' })
+				.pipe(util2.cleanNodeModules(path.join(root, 'build', '.moduleignore')))
+				.pipe(util2.cleanNodeModules(path.join(root, 'build', `.moduleignore.${process.platform}`))),
+			gulp.src(ownCopilotCliSrc, { base: '.', dot: true, allowEmpty: true })
+		)
 			.on('data', (file: unknown) => output.write(file))
 			.on('error', (err: unknown) => output.emit('error', err))
 			.on('end', () => output.end());
