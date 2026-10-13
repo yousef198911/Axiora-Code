@@ -591,6 +591,36 @@
         "command": "axiora.hex.open",
         "title": "Open in Hex Editor",
         "category": "File"
+      },
+      {
+        "command": "axiora.org.cycleTodo",
+        "title": "Cycle TODO / Toggle Checkbox",
+        "category": "Org"
+      },
+      {
+        "command": "axiora.org.priority",
+        "title": "Cycle Priority",
+        "category": "Org"
+      },
+      {
+        "command": "axiora.org.promote",
+        "title": "Promote Heading",
+        "category": "Org"
+      },
+      {
+        "command": "axiora.org.demote",
+        "title": "Demote Heading",
+        "category": "Org"
+      },
+      {
+        "command": "axiora.org.timestamp",
+        "title": "Insert Timestamp",
+        "category": "Org"
+      },
+      {
+        "command": "axiora.org.agenda",
+        "title": "Agenda (open TODOs)",
+        "category": "Org"
       }
     ],
     "menus": {
@@ -1533,6 +1563,31 @@
         "command": "axiora.multibuffer.open",
         "key": "alt+enter",
         "when": "resourceScheme == axiora-multi && editorTextFocus"
+      },
+      {
+        "command": "axiora.org.cycleTodo",
+        "key": "ctrl+c ctrl+t",
+        "when": "editorLangId == org"
+      },
+      {
+        "command": "axiora.org.priority",
+        "key": "shift+up",
+        "when": "editorLangId == org && editorTextFocus && !editorHasSelection"
+      },
+      {
+        "command": "axiora.org.promote",
+        "key": "alt+left",
+        "when": "editorLangId == org && editorTextFocus"
+      },
+      {
+        "command": "axiora.org.demote",
+        "key": "alt+right",
+        "when": "editorLangId == org && editorTextFocus"
+      },
+      {
+        "command": "axiora.org.timestamp",
+        "key": "ctrl+c .",
+        "when": "editorLangId == org"
       }
     ],
     "languages": [
@@ -1572,6 +1627,15 @@
         "aliases": [
           "Typst"
         ]
+      },
+      {
+        "id": "org",
+        "extensions": [
+          ".org"
+        ],
+        "aliases": [
+          "Org"
+        ]
       }
     ],
     "customEditors": [
@@ -1584,6 +1648,13 @@
           }
         ],
         "priority": "option"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "org",
+        "scopeName": "text.org",
+        "path": "./syntaxes/org.tmLanguage.json"
       }
     ]
   }

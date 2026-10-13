@@ -1,0 +1,12 @@
+{"scopeName":"text.org","name":"Org","patterns":[
+ {"match":"^(\\*+)\\s+(TODO|NEXT|WAITING)?\\s*(DONE|CANCELLED)?\\s*(\\[#[ABC]\\])?\\s*(.*?)(\\s+:[\\w:@]+:)?$","captures":{"1":{"name":"punctuation.definition.heading.org"},"2":{"name":"keyword.control.todo.org"},"3":{"name":"comment.done.org"},"4":{"name":"constant.other.priority.org"},"5":{"name":"markup.heading.org entity.name.section"},"6":{"name":"entity.name.tag.org"}}},
+ {"begin":"^\\s*#\\+BEGIN_SRC\\b.*$","end":"^\\s*#\\+END_SRC\\b.*$","name":"markup.raw.block.org"},
+ {"match":"^\\s*#\\+\\w+:.*$","name":"comment.line.keyword.org"},
+ {"match":"^\\s*#\\s.*$","name":"comment.line.org"},
+ {"match":"\\[\\[([^\\]]+)\\](\\[([^\\]]+)\\])?\\]","name":"markup.underline.link.org"},
+ {"match":"(?<=\\s|^)\\*[^*\\s][^*]*\\*(?=\\s|$)","name":"markup.bold.org"},
+ {"match":"(?<=\\s|^)/[^/\\s][^/]*/(?=\\s|$)","name":"markup.italic.org"},
+ {"match":"(?<=\\s|^)[=~][^=~\\s][^=~]*[=~](?=\\s|$)","name":"markup.inline.raw.org"},
+ {"match":"^\\s*[-+]\\s+\\[[ X-]\\]","name":"markup.list.checkbox.org"},
+ {"match":"<\\d{4}-\\d{2}-\\d{2}[^>]*>","name":"constant.numeric.date.org"},
+ {"match":"^\\s*(SCHEDULED|DEADLINE|CLOSED):","name":"keyword.other.org"}]}
