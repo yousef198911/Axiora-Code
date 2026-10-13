@@ -17,12 +17,20 @@ export function parseCpuProfile(p: { nodes: { id: number; callFrame: { functionN
 	const byId = new Map(p.nodes.map(n => [n.id, n]));
 	const tot = new Map<number, number>(); const total = (id: number): number => { if (tot.has(id)) { return tot.get(id)!; } const n = byId.get(id)!; const t = (self.get(id) ?? 0) + (n.children ?? []).reduce((a, c) => a + total(c), 0); tot.set(id, t); return t; };
 	const agg = new Map<string, Row>();
-	for (const n of p.nodes) {
-		const f = n.callFrame; if (!f.url || f.url.startsWith('node:') || /^\((program|idle|garbage collector|root)\)$/.test(f.functionName)) { continue; }
-		const file = f.url.startsWith('file://') ? decodeURIComponent(f.url.slice(7)) : f.url; const k = `${f.functionName}|${file}|${f.lineNumber}`;
-		const r = agg.get(k) ?? { fn: f.functionName || '(anonymous)', file, line: f.lineNumber + 1, self: 0, total: 0 };
-		r.self += (self.get(n.id) ?? 0) / 1000; r.total += total(n.id) / 1000; agg.set(k, r);
-	}
+	const keyOf = (n: typeof p.nodes[number]) => `${n.callFrame.functionName}|${n.callFrame.url}|${n.callFrame.lineNumber}`;
+	const skip = (n: typeof p.nodes[number]) => !n.callFrame.url || n.callFrame.url.startsWith('node:') || /^\((program|idle|garbage collector|root)\)$/.test(n.callFrame.functionName);
+	// DFS from the root; total time counts only the outermost frame of a recursive function
+	const root = p.nodes[0]; const active = new Map<string, number>();
+	const walk = (id: number) => {
+		const n = byId.get(id)!; const k = keyOf(n);
+		if (!skip(n)) {
+			const f = n.callFrame; const file = f.url.startsWith('file://') ? decodeURIComponent(f.url.slice(7)) : f.url;
+			const r = agg.get(k) ?? { fn: f.functionName || '(anonymous)', file, line: f.lineNumber + 1, self: 0, total: 0 };
+			r.self += (self.get(id) ?? 0) / 1000; if (!active.get(k)) { r.total += total(id) / 1000; } agg.set(k, r);
+		}
+		active.set(k, (active.get(k) ?? 0) + 1); for (const c of n.children ?? []) { walk(c); } active.set(k, active.get(k)! - 1);
+	};
+	if (root) { walk(root.id); }
 	return [...agg.values()].sort((a, b) => b.self - a.self);
 }
 const PY = `import cProfile,pstats,sys,json,runpy
