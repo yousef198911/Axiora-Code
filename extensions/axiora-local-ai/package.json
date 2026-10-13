@@ -1305,6 +1305,52 @@
         "command": "axiora.collab.menu",
         "title": "Session Options",
         "category": "Collaboration"
+      },
+      {
+        "command": "axiora.render.gpu",
+        "title": "Rendering: GPU Acceleration...",
+        "category": "Axiora"
+      },
+      {
+        "command": "axiora.window.macNative",
+        "title": "Window: macOS Native Look...",
+        "category": "Axiora"
+      },
+      {
+        "command": "axiora.sandbox.run",
+        "title": "Run Current File in Sandbox",
+        "category": "Axiora",
+        "icon": "$(shield)"
+      },
+      {
+        "command": "axiora.finetune.export",
+        "title": "Fine-tune: Export Training Data",
+        "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.finetune.launch",
+        "title": "Fine-tune: Launch LoRA Job...",
+        "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.finetune.ollama",
+        "title": "Fine-tune: Import into Ollama...",
+        "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.computerUse.run",
+        "title": "Computer Use: Run Task...",
+        "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.device.remote",
+        "title": "Remote / Wi-Fi Device...",
+        "category": "Devices"
+      },
+      {
+        "command": "axiora.apk.manifest",
+        "title": "Show APK Manifest (aapt2)",
+        "category": "Android"
       }
     ],
     "menus": {
@@ -1605,6 +1651,11 @@
           "command": "axiora.apk.analyze",
           "when": "resourceExtname =~ /\\.(apk|aab)$/",
           "group": "7_axiora@8"
+        },
+        {
+          "command": "axiora.apk.manifest",
+          "when": "resourceExtname == .apk || resourceExtname == .aab",
+          "group": "axiora@2"
         }
       ],
       "scm/resourceState/context": [
@@ -1737,6 +1788,21 @@
           "command": "axiora.qml.preview",
           "when": "resourceLangId == qml",
           "group": "navigation@8"
+        },
+        {
+          "command": "axiora.sandbox.run",
+          "when": "resourceExtname =~ /\\.(m?js|cjs|py)$/",
+          "group": "navigation@9"
+        }
+      ],
+      "touchBar": [
+        {
+          "command": "axiora.ai.fixProblem",
+          "group": "axiora@1"
+        },
+        {
+          "command": "axiora.sandbox.run",
+          "group": "axiora@2"
         }
       ]
     },
@@ -2137,6 +2203,16 @@
           "type": "string",
           "default": "http://127.0.0.1:7790",
           "description": "Self-hosted relay (node bin/axiora-relay.mjs). Messages are end-to-end encrypted; the relay sees only ciphertext."
+        },
+        "axiora.sandbox.engine": {
+          "type": "string",
+          "enum": [
+            "node-permission",
+            "docker",
+            "podman"
+          ],
+          "default": "node-permission",
+          "description": "Sandbox for 'Run Current File in Sandbox': Node permission model (no network for child processes, fs limited to the workspace) or a no-network container."
         }
       }
     },
