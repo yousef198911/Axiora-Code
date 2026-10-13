@@ -457,6 +457,13 @@ export class ChatAgentService extends Disposable implements IChatAgentService {
 	}
 
 	getDefaultAgent(location: ChatAgentLocation, mode: ChatModeKind = ChatModeKind.Ask): IChatAgent | undefined {
+		// Axiora: plain chat messages (no @mention) go to the Axiora assistant unless the user opts out.
+		if (location === ChatAgentLocation.Chat && this.configurationService.getValue<boolean>('axiora.chat.defaultParticipant') !== false) {
+			const axiora = this.getActivatedAgents().find(a => a.id === 'axiora.local');
+			if (axiora) {
+				return axiora;
+			}
+		}
 		return this._preferExtensionAgent(this.getActivatedAgents().filter(a => {
 			if (mode && !a.modes.includes(mode)) {
 				return false;

@@ -259,7 +259,7 @@ button.sec{background:var(--vscode-button-secondaryBackground);color:var(--vscod
 </style></head><body><h1>Connected Services</h1><p class="sub">Only an AI key is needed — everything else is optional. Keys stay in your OS keychain.</p><div id="root"></div>
 <script nonce="${nonce}">
 const vs=acquireVsCodeApi();let M,R={};const $=s=>document.querySelector(s);const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-function st(id){const r=R[id];return r?'<div class="status '+(r.ok?'ok':'err')+'">'+esc(r.status)+'</div>':'<div class="status"></div>'}
+function st(id){const r=R[id];return r?'<div class="status '+(r.ok?'ok':/^(Disconnected|Not connected|Cancelled|Working)/.test(r.status)?'':'err')+'">'+esc(r.status)+'</div>':'<div class="status"></div>'}
 function render(){const a=M.ai;let h='';
 if(M.missing.length)h+='<div class="banner">Your team uses '+esc(M.missing.join(', '))+' — connect your personal key'+(M.missing.length>1?'s':'')+' below.</div>';
 h+='<div class="card ai"><div class="row"><span class="name">AI Assistant</span><span class="pill '+(a.ready?'on':'')+'">'+(a.ready?'Ready':'Not set up')+'</span></div><div class="blurb">'+(a.ready?esc(a.label):'Paste one key — the provider is detected automatically (OpenRouter, Groq, Gemini, Anthropic, OpenAI).')+'</div>'

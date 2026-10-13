@@ -47,6 +47,7 @@ export const axioraSettingLabels: { readonly [key: string]: { readonly category:
 	'axiora.dotfiles.installOnStartup': { category: "Dotfiles", label: "Apply on Startup" },
 	'axiora.dotfiles.ignore': { category: "Dotfiles", label: "Never Link" },
 	'axiora.agent.keepAwake': { category: "Power", label: "Keep Awake While Working" },
+	'axiora.chat.defaultParticipant': { category: "Axiora Assistant", label: "Answer Plain Messages" },
 	'axiora.ai.apiKey': { category: "", label: "AI Key" },
 	'axiora.connectors.jira.token': { category: "Jira", label: "Connection" },
 	'axiora.connectors.figma.token': { category: "Figma", label: "Connection" },

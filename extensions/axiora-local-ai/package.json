@@ -836,8 +836,9 @@
       },
       {
         "command": "axiora.chats.browse",
-        "title": "Browse Past Conversations",
-        "category": "Axiora AI"
+        "title": "Past Conversations",
+        "category": "Axiora",
+        "icon": "$(history)"
       },
       {
         "command": "axiora.ai.implementComment",
@@ -1881,6 +1882,11 @@
           "command": "axiora.build.analyze",
           "when": "view == workbench.debug.welcome || view == workbench.debug.variablesView",
           "group": "9_axiora@1"
+        },
+        {
+          "command": "axiora.chats.browse",
+          "when": "view == workbench.panel.chat.view.copilot",
+          "group": "navigation@-1"
         }
       ],
       "axiora.selection": [
@@ -2121,6 +2127,12 @@
         "id": "axiora.chat.axioraAssistant",
         "title": "Axiora: Axiora Assistant",
         "properties": {
+          "axiora.chat.defaultParticipant": {
+            "type": "boolean",
+            "default": true,
+            "order": 0,
+            "markdownDescription": "Answer plain chat messages with Axiora — no need to type `@axiora`. Turn off to send plain messages to another installed assistant instead. Past chats: **Axiora: Past Conversations**."
+          },
           "axiora.agent.tools": {
             "type": "boolean",
             "default": true,
