@@ -20,7 +20,7 @@ const sel=e=>{const p=[];for(;e&&e.nodeType===1&&e!==document.body;e=e.parentEle
 const off=()=>{on=false;b.style.opacity='.75';if(last)last.style.outline=last._o||''};
 b.onclick=e=>{e.stopPropagation();on=!on;b.style.opacity=on?'1':'.75'};
 document.addEventListener('mouseover',e=>{if(!on||e.target===b)return;if(last)last.style.outline=last._o||'';last=e.target;last._o=last.style.outline;last.style.outline='2px solid #3794ff'},true);
-document.addEventListener('click',e=>{if(!on||e.target===b)return;e.preventDefault();e.stopPropagation();const t=e.target;off();vs.postMessage({pick:{selector:sel(t),html:t.outerHTML.slice(0,3000),text:(t.innerText||'').slice(0,200)}})},true);
+document.addEventListener('click',e=>{if(!on||e.target===b)return;e.preventDefault();e.stopPropagation();const t=e.target;off();vs.postMessage({pick:{selector:sel(t),html:t.outerHTML.replace(/ style=""/,'').slice(0,3000),text:(t.innerText||'').slice(0,200)}})},true);
 document.addEventListener('keydown',e=>{if(e.key==='Escape')off()});document.documentElement.appendChild(b)})()</script>`;
 			html = /<\/body>/i.test(html) ? html.replace(/<\/body>/i, picker + '</body>') : html + picker;
 			panel.webview.html = html;
