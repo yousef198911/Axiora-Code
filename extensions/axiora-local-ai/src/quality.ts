@@ -135,7 +135,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 		const cmd = py ? `python3 -m pytest -q -p no:cacheprovider "${f}" 2>&1 || python3 "${f}" 2>&1` : `node --test "${f}" 2>&1`;
 		const res = await withProgress('Running property tests…', () => run('bash', ['-lc', `cd "${path.dirname(f)}" && (${cmd}); exit \${PIPESTATUS[0]}`], r.fsPath).then(o => ({ ok: true, o }), e => ({ ok: false, o: String(e.message) })));
 		const out = vscode.window.createOutputChannel('Axiora Property Tests'); out.clear(); out.append(res.o);
-		const fe = /Falsifying example:[\s\S]*?(?=\n\n|\n[A-Z][a-z]+Error|$)/.exec(res.o)?.[0] ?? /Counterexample: .*/.exec(res.o)?.[0];
+		const clean = res.o.replace(/^E {0,11}/gm, ''); const fe = /(?:Falsifying example|Failing test case):[\s\S]*?\n\)/.exec(clean)?.[0]?.replace(/\s+/g, ' ') ?? /Counterexample: .*/.exec(clean)?.[0];
 		if (res.ok && !/failed|Falsifying|Counterexample/i.test(res.o)) { vscode.window.showInformationMessage('All properties hold ✓'); out.show(true); return; }
 		const a = await vscode.window.showWarningMessage(fe ? `Property violated — ${fe.split('\n').slice(0, 3).join(' ').slice(0, 200)}` : 'Property tests failed.', 'Show Output', 'Fix with AI');
 		if (a === 'Show Output') { out.show(); }
