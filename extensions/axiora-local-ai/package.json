@@ -75,6 +75,14 @@
           {
             "name": "web",
             "description": "Search the web and answer with sources"
+          },
+          {
+            "name": "goal",
+            "description": "Break a goal into dependency-ordered tasks"
+          },
+          {
+            "name": "waves",
+            "description": "Show parallel execution waves for the open tasks file"
           }
         ]
       }
@@ -313,6 +321,18 @@
         "command": "axiora.ai.fixAllProblems",
         "title": "Fix All Errors in File (AI Loop)",
         "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.tasks.showWaves",
+        "title": "Show Task Execution Waves",
+        "category": "Axiora AI",
+        "icon": "$(list-tree)"
+      },
+      {
+        "command": "axiora.tasks.startNext",
+        "title": "Start Next Ready Task in Agent",
+        "category": "Axiora AI",
+        "icon": "$(play)"
       }
     ],
     "menus": {
@@ -406,6 +426,16 @@
           "command": "axiora.csv.preview",
           "group": "navigation",
           "when": "resourceExtname == .csv || resourceExtname == .tsv"
+        },
+        {
+          "command": "axiora.tasks.showWaves",
+          "group": "navigation@50",
+          "when": "resourcePath =~ /[\\\\/]\\.axiora[\\\\/](goals|specs)[\\\\/]/"
+        },
+        {
+          "command": "axiora.tasks.startNext",
+          "group": "navigation@51",
+          "when": "resourcePath =~ /[\\\\/]\\.axiora[\\\\/](goals|specs)[\\\\/]/"
         }
       ],
       "explorer/context": [
