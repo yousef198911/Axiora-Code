@@ -1183,6 +1183,16 @@
         "command": "axiora.lsp.manage",
         "title": "Manage...",
         "category": "Language Servers"
+      },
+      {
+        "command": "axiora.dotfiles.unlink",
+        "title": "Remove Links",
+        "category": "Dotfiles"
+      },
+      {
+        "command": "axiora.dotfiles.open",
+        "title": "Open Dotfiles Folder",
+        "category": "Dotfiles"
       }
     ],
     "menus": {
@@ -1949,6 +1959,19 @@
           "type": "object",
           "default": {},
           "description": "Per-server initializationOptions, keyed by server id."
+        },
+        "axiora.dotfiles.installOnStartup": {
+          "type": "boolean",
+          "default": false,
+          "description": "Pull and apply your dotfiles when the editor starts."
+        },
+        "axiora.dotfiles.ignore": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "Dotfiles that are never linked into your home folder."
         }
       }
     },
