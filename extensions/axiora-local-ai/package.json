@@ -1100,6 +1100,26 @@
         "command": "axiora.app.dataApp",
         "title": "Publish Data App from CSV...",
         "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.inspect.workspace",
+        "title": "Inspect Workspace",
+        "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.sca.scan",
+        "title": "Scan Dependencies for Vulnerabilities (OSV)",
+        "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.refactor.safe",
+        "title": "Safe Refactor (AI, test-verified)...",
+        "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.propertyTests.run",
+        "title": "Run Property Tests",
+        "category": "Axiora AI"
       }
     ],
     "menus": {
@@ -1492,6 +1512,10 @@
         {
           "command": "axiora.struct.next",
           "group": "2@3"
+        },
+        {
+          "command": "axiora.refactor.safe",
+          "group": "3_refactor@1"
         }
       ],
       "editor/title/run": [
@@ -1792,6 +1816,11 @@
           "type": "string",
           "default": "",
           "description": "Public base URL where you host .axiora/embeds (e.g. your own server); used in the copied iframe snippet."
+        },
+        "axiora.inspections.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Axiora inspections with quick fixes for JS/TS/Python."
         }
       }
     },
