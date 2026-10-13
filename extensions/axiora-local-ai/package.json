@@ -19,7 +19,8 @@
     }
   },
   "activationEvents": [
-    "onStartupFinished"
+    "onStartupFinished",
+    "onTerminalProfile:axiora.agentTerminal"
   ],
   "main": "./out/extension.js",
   "enabledApiProposals": [
@@ -824,6 +825,22 @@
         "title": "Toggle Agent Focus Mode",
         "category": "Axiora AI",
         "icon": "$(eye)"
+      },
+      {
+        "command": "axiora.term.blocks",
+        "title": "Command Blocks...",
+        "category": "Terminal",
+        "icon": "$(list-flat)"
+      },
+      {
+        "command": "axiora.term.agent",
+        "title": "New Axiora Agent Terminal",
+        "category": "Terminal"
+      },
+      {
+        "command": "axiora.edit.shellFilter",
+        "title": "Transform Selection with Shell Command...",
+        "category": "Edit"
       }
     ],
     "menus": {
@@ -964,6 +981,10 @@
         {
           "command": "axiora.ai.analyzeCrash",
           "group": "axiora@2"
+        },
+        {
+          "command": "axiora.term.blocks",
+          "group": "0_axiora@1"
         }
       ],
       "debug/callstack/context": [
@@ -1762,6 +1783,11 @@
       {
         "command": "axiora.focus.toggle",
         "key": "ctrl+k ctrl+alt+f"
+      },
+      {
+        "command": "axiora.term.blocks",
+        "key": "ctrl+alt+b",
+        "when": "terminalFocus"
       }
     ],
     "languages": [
@@ -1830,6 +1856,15 @@
         "scopeName": "text.org",
         "path": "./syntaxes/org.tmLanguage.json"
       }
-    ]
+    ],
+    "terminal": {
+      "profiles": [
+        {
+          "id": "axiora.agentTerminal",
+          "title": "Axiora Agent",
+          "icon": "sparkle"
+        }
+      ]
+    }
   }
 }
