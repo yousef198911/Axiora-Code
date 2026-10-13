@@ -777,6 +777,11 @@
         "command": "axiora.github.setToken",
         "title": "Set Token",
         "category": "GitHub"
+      },
+      {
+        "command": "axiora.prompts.edit",
+        "title": "Edit Prompts...",
+        "category": "Axiora AI"
       }
     ],
     "menus": {
@@ -1315,6 +1320,11 @@
           "type": "string",
           "default": "https://api.github.com",
           "description": "GitHub API URL (GitHub Enterprise: https://host/api/v3)."
+        },
+        "axiora.chat.maxContextTokens": {
+          "type": "number",
+          "default": 6000,
+          "description": "When a chat exceeds this many (estimated) tokens, older turns are summarized automatically."
         }
       }
     },

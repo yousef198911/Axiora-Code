@@ -8,6 +8,7 @@ import { chat, ChatMessage, complete, initLlm, listModels } from './llm';
 import { chatCommands, contextProviders } from './util';
 import { awake } from './keepAwake';
 import { setPrompt } from './liveContext';
+import { systemPrompt, compact } from './promptOps';
 import { activateFeatures } from './features';
 
 const out = vscode.window.createOutputChannel('Axiora Local AI', { log: true });
@@ -284,7 +285,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 			if (extra) { await extra(req, stream, token, _ctx); return; }
 			let more = '';
 			for (const p of contextProviders) { more += await p().catch(() => ''); }
-			const msgs: ChatMessage[] = [{ role: 'system', content: SYSTEM + await memoryContext() + more }];
+			let msgs: ChatMessage[] = [{ role: 'system', content: await systemPrompt(SYSTEM) + await memoryContext() + more }];
 			for (const h of _ctx.history) {
 				if (h instanceof vscode.ChatRequestTurn) { msgs.push({ role: 'user', content: h.prompt }); }
 				else if (h instanceof vscode.ChatResponseTurn) { msgs.push({ role: 'assistant', content: h.response.map(p => p instanceof vscode.ChatResponseMarkdownPart ? p.value.value : '').join('') }); }
@@ -292,6 +293,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 			const ed = vscode.window.activeTextEditor;
 			const sel = ed && !ed.selection.isEmpty ? `\n\nSelected code (${path.basename(ed.document.fileName)}):\n\`\`\`\n${ed.document.getText(ed.selection)}\n\`\`\`` : '';
 			msgs.push({ role: 'user', content: req.prompt + sel });
+			msgs = await compact(msgs, token, n => stream.progress(n));
 			await chat(msgs, s => stream.markdown(s), token);
 		} catch (e) {
 			stream.markdown(`**Error:** ${(e as Error).message}\n\nCheck **Settings → axiora.ai** (provider, base URL, model) or run **Axiora AI: Test Model Connection**.`);
