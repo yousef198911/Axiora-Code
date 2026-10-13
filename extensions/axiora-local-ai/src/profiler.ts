@@ -44,6 +44,8 @@ for (f,l,n),(cc,nc,tt,ct,_) in s.stats.items():
     out.append({'fn':n,'file':f,'line':l,'self':tt*1000,'total':ct*1000,'calls':nc})
 open(sys.argv_out if hasattr(sys,'argv_out') else __import__('os').environ['AXIORA_PROF_OUT'],'w').write(json.dumps(out))
 `;
+/** Python: hide interpreter built-ins ('~') unless they are a real hot spot (≥5% self time). */
+export function pyRows(rows: Row[]): Row[] { const sum = rows.reduce((n, r) => n + r.self, 0) || 1; return rows.filter(r => r.file !== '~' || r.self >= 0.05 * sum).map(r => r.file === '~' ? { ...r, file: '(built-in)', line: 0 } : r).sort((a, b) => b.self - a.self); }
 export function activate(ctx: vscode.ExtensionContext) {
 	register(ctx, 'axiora.profile.run', async (uri?: vscode.Uri) => {
 		const doc = uri ? await vscode.workspace.openTextDocument(uri) : vscode.window.activeTextEditor?.document;
@@ -60,7 +62,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 			let err = ''; pr.stderr.on('data', d => err += d); tok.onCancellationRequested(() => pr.kill()); pr.on('close', code => resolve({ code, err })); pr.on('error', e => resolve({ code: -1, err: e.message }));
 		}));
 		if (!fs.existsSync(out)) { vscode.window.showErrorMessage(`Profiling failed (exit ${res.code}): ${res.err.slice(0, 300)}`); return; }
-		const rows: Row[] = isPy ? (JSON.parse(fs.readFileSync(out, 'utf8')) as Row[]).sort((a, b) => b.self - a.self) : parseCpuProfile(JSON.parse(fs.readFileSync(out, 'utf8')));
+		const rows: Row[] = isPy ? pyRows(JSON.parse(fs.readFileSync(out, 'utf8')) as Row[]) : parseCpuProfile(JSON.parse(fs.readFileSync(out, 'utf8')));
 		show(rows, path.basename(file), Date.now() - t0, out);
 	});
 	register(ctx, 'axiora.profile.open', async () => {
