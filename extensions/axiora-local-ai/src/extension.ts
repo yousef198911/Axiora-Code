@@ -38,6 +38,7 @@ class LocalInlineProvider implements vscode.InlineCompletionItemProvider {
 		const c = vscode.workspace.getConfiguration('axiora.inlineCompletion');
 		if (!c.get<boolean>('enabled', true)) { return; }
 		await new Promise(r => setTimeout(r, c.get<number>('debounceMs', 300)));
+		if ((globalThis as { axioraNextEdit?: boolean }).axioraNextEdit) { return; } // a pending Next Edit owns Tab
 		if (token.isCancellationRequested) { return; }
 		this.ac?.abort();
 		const ac = this.ac = new AbortController();

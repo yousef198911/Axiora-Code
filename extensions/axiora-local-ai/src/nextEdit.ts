@@ -10,7 +10,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 	let pending: { uri: string; from: string; to: string; range: vscode.Range } | undefined;
 	let timer: NodeJS.Timeout | undefined; let lastEdit = 0;
 	let wordBefore: { uri: string; line: number; word: string; range: vscode.Range } | undefined;
-	const clear = () => { pending = undefined; vscode.window.activeTextEditor?.setDecorations(deco, []); vscode.commands.executeCommand('setContext', 'axiora.nextEditPending', false); };
+	const clear = () => { pending = undefined; vscode.window.activeTextEditor?.setDecorations(deco, []); vscode.commands.executeCommand('setContext', 'axiora.nextEditPending', false); (globalThis as { axioraNextEdit?: boolean }).axioraNextEdit = false; };
 	const findNext = (ed: vscode.TextEditor, from: string, after: vscode.Position): vscode.Range | undefined => {
 		const re = new RegExp(`\\b${from.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'g'); const text = ed.document.getText(); const off = ed.document.offsetAt(after);
 		const all = [...text.matchAll(re)].map(m => m.index!); const i = all.find(x => x >= off) ?? all[0];
@@ -19,7 +19,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 	const show = (ed: vscode.TextEditor, from: string, to: string, after: vscode.Position) => {
 		const r = findNext(ed, from, after); if (!r) { clear(); return; }
 		pending = { uri: ed.document.uri.toString(), from, to, range: r }; ed.setDecorations(deco, [r]);
-		vscode.commands.executeCommand('setContext', 'axiora.nextEditPending', true);
+		vscode.commands.executeCommand('setContext', 'axiora.nextEditPending', true); (globalThis as { axioraNextEdit?: boolean }).axioraNextEdit = true; vscode.commands.executeCommand('editor.action.inlineSuggest.hide');
 		ed.revealRange(r, vscode.TextEditorRevealType.InCenterIfOutsideViewport);
 	};
 	// remember the word under the cursor before an edit starts
