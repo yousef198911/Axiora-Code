@@ -3,7 +3,11 @@
  *--------------------------------------------------------------------------------------------*/
 import * as vscode from 'vscode';
 
-export interface ChatMessage { role: 'system' | 'user' | 'assistant'; content: string }
+export interface ChatMessage { role: 'system' | 'user' | 'assistant'; content: string; /** base64 PNG/JPEG for vision models */ images?: string[] }
+/** Provider-specific message shape (images: Ollama native field / OpenAI content parts). */
+export function wireMessages(messages: ChatMessage[], provider: string) {
+	return messages.map(m => !m.images?.length ? { role: m.role, content: m.content } : provider === 'ollama' ? { role: m.role, content: m.content, images: m.images } : { role: m.role, content: [{ type: 'text', text: m.content }, ...m.images.map(b => ({ type: 'image_url', image_url: { url: `data:image/${b.startsWith('/9j') ? 'jpeg' : 'png'};base64,${b}` } }))] });
+}
 
 let secrets: vscode.SecretStorage | undefined;
 /** Approximate token usage per model (chars/4), for the usage report. */
@@ -74,7 +78,7 @@ export async function chat(messages: ChatMessage[], onChunk: (s: string) => void
 	const ac = new AbortController();
 	token?.onCancellationRequested(() => ac.abort());
 	const url = provider === 'ollama' ? `${baseUrl}/api/chat` : `${baseUrl}/chat/completions`;
-	const r = await fetch(url, { method: 'POST', headers: await headers(), signal: ac.signal, body: JSON.stringify({ model: chatModel, messages, stream: true }) });
+	const r = await fetch(url, { method: 'POST', headers: await headers(), signal: ac.signal, body: JSON.stringify({ model: chatModel, messages: wireMessages(messages, provider), stream: true }) });
 	if (!r.ok || !r.body) { throw new Error(`${provider} ${r.status}: ${await r.text()}`); }
 	const dec = new TextDecoder();
 	let buf = '', full = '';

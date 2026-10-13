@@ -152,6 +152,10 @@
           {
             "name": "project",
             "description": "Long-running project: 'new <name>: <goal>' or continue '<name>'"
+          },
+          {
+            "name": "prototype",
+            "description": "Build a runnable app prototype from a description ('refine: …' to iterate)"
           }
         ]
       }
@@ -923,6 +927,17 @@
         "title": "Analyze Build...",
         "category": "Build",
         "icon": "$(dashboard)"
+      },
+      {
+        "command": "axiora.ui.fromImage",
+        "title": "Generate UI from Screenshot...",
+        "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.ui.designer",
+        "title": "Open in Visual Designer",
+        "category": "Design",
+        "icon": "$(layout)"
       }
     ],
     "menus": {
@@ -1132,6 +1147,11 @@
           "command": "axiora.scripts.runCurrent",
           "group": "navigation",
           "when": "resourcePath =~ /(axiora-scripts|\\.axiora\\/scripts)\\/[^/]+\\.js$/"
+        },
+        {
+          "command": "axiora.ui.designer",
+          "group": "navigation@95",
+          "when": "resourceExtname == .html"
         }
       ],
       "explorer/context": [
@@ -1178,6 +1198,16 @@
         {
           "command": "axiora.deploy.upload",
           "group": "7_deploy@1"
+        },
+        {
+          "command": "axiora.ui.fromImage",
+          "group": "9_axiora@3",
+          "when": "resourceExtname =~ /\\.(png|jpe?g|webp)$/"
+        },
+        {
+          "command": "axiora.ui.designer",
+          "group": "navigation@90",
+          "when": "resourceExtname == .html"
         }
       ],
       "scm/resourceState/context": [
@@ -1522,6 +1552,11 @@
           "type": "number",
           "default": 6000,
           "description": "When a chat exceeds this many (estimated) tokens, older turns are summarized automatically."
+        },
+        "axiora.ai.visionModel": {
+          "type": "string",
+          "default": "",
+          "description": "Model with image input used for screenshot-to-UI (e.g. llava, qwen2.5vl). Empty = chat model."
         }
       }
     },
