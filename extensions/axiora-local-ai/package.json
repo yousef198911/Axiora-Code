@@ -308,6 +308,11 @@
         "command": "axiora.macro.runSaved",
         "title": "Run Saved Macro...",
         "category": "Macros"
+      },
+      {
+        "command": "axiora.ai.fixAllProblems",
+        "title": "Fix All Errors in File (AI Loop)",
+        "category": "Axiora AI"
       }
     ],
     "menus": {
@@ -366,6 +371,10 @@
         {
           "command": "axiora.ai.generateTests",
           "group": "1@4"
+        },
+        {
+          "command": "axiora.ai.fixAllProblems",
+          "group": "1@2b"
         }
       ],
       "terminal/context": [
@@ -493,6 +502,16 @@
           "type": "number",
           "default": 0,
           "description": "Price per 1K output tokens for cost estimates."
+        },
+        "axiora.lintFix.onSave": {
+          "type": "boolean",
+          "default": false,
+          "description": "After saving, automatically let the AI fix remaining errors in the file (repeats until clean)."
+        },
+        "axiora.lintFix.maxIterations": {
+          "type": "number",
+          "default": 3,
+          "description": "Maximum fix/re-check passes for the AI lint-fix loop."
         }
       }
     },
