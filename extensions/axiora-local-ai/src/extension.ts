@@ -6,6 +6,7 @@ import * as cp from 'child_process';
 import * as path from 'path';
 import { chat, ChatMessage, complete, initLlm, listModels } from './llm';
 import { chatCommands, contextProviders } from './util';
+import { awake } from './keepAwake';
 import { activateFeatures } from './features';
 
 const out = vscode.window.createOutputChannel('Axiora Local AI', { log: true });
@@ -257,7 +258,8 @@ export function activate(ctx: vscode.ExtensionContext) {
 	}));
 
 	// @axiora chat participant
-	const participant = vscode.chat.createChatParticipant('axiora.local', async (req, _ctx, stream, token) => {
+	const participant = vscode.chat.createChatParticipant('axiora.local', (req, _ctx, stream, token) => awake(handleChat(req, _ctx, stream, token)));
+	async function handleChat(req: vscode.ChatRequest, _ctx: vscode.ChatContext, stream: vscode.ChatResponseStream, token: vscode.CancellationToken) {
 		try {
 			switch (req.command) {
 				case 'remember': await addMemory(req.prompt); stream.markdown(`Saved to \`.axiora/memory.md\`: ${req.prompt}`); return;
@@ -292,7 +294,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 		} catch (e) {
 			stream.markdown(`**Error:** ${(e as Error).message}\n\nCheck **Settings → axiora.ai** (provider, base URL, model) or run **Axiora AI: Test Model Connection**.`);
 		}
-	});
+	}
 	ctx.subscriptions.push(participant);
 	activateFeatures(ctx);
 	out.info('Axiora Local AI activated');
