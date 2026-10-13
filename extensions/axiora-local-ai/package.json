@@ -757,6 +757,21 @@
         "title": "Run This File as User Script",
         "category": "Scripts",
         "icon": "$(play)"
+      },
+      {
+        "command": "axiora.deploy.upload",
+        "title": "Upload to Server",
+        "category": "Deployment"
+      },
+      {
+        "command": "axiora.deploy.all",
+        "title": "Deploy Project to Server...",
+        "category": "Deployment"
+      },
+      {
+        "command": "axiora.deploy.configure",
+        "title": "Configure Deployment Targets",
+        "category": "Deployment"
       }
     ],
     "menus": {
@@ -995,6 +1010,10 @@
           "command": "axiora.hex.open",
           "group": "navigation@30",
           "when": "!explorerResourceIsFolder"
+        },
+        {
+          "command": "axiora.deploy.upload",
+          "group": "7_deploy@1"
         },
         {
           "command": "axiora.deploy.upload",

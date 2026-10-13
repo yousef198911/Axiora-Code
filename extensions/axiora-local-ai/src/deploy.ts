@@ -20,6 +20,11 @@ export function activate(ctx: vscode.ExtensionContext) {
 	const upload = async (t: T, rels: string[], mirror = false) => {
 		const root = wsRoot()!.fsPath; const dest = t.target.endsWith('/') ? t.target : t.target + '/';
 		const ex = ['.git', 'node_modules', '.axiora', ...(t.exclude ?? [])].flatMap(e => ['--exclude', e]);
+		if (!/^[^/\\]+:/.test(t.target)) { // local / mounted folder target: copy directly
+			const fs = await import('fs');
+			for (const r of rels) { const src = path.join(root, r), dst = path.join(t.target, r === '.' ? '' : r); fs.mkdirSync(path.dirname(dst), { recursive: true }); fs.cpSync(src, dst, { recursive: true, filter: s => !['.git', 'node_modules', '.axiora'].some(x => s.split(path.sep).includes(x)) }); out.appendLine(`copied ${r} -> ${dst}`); }
+			return;
+		}
 		try { await sh('rsync', ['-az', '--relative', ...(mirror ? ['--delete'] : []), ...ex, ...rels, dest], root); }
 		catch (e) { if (!/ENOENT/.test(String(e))) { throw e; } for (const r of rels) { await sh('scp', ['-r', path.join(root, r), dest + (r === '.' ? '' : path.dirname(r) + '/')], root); } }
 	};
