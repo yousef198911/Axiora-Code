@@ -143,6 +143,12 @@
         "command": "axiora.ai.explain",
         "title": "Explain Code",
         "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.ai.generateCommitMessage",
+        "title": "Generate Commit Message",
+        "category": "Axiora AI",
+        "icon": "$(sparkle)"
       }
     ],
     "menus": {
@@ -160,6 +166,11 @@
         {
           "command": "axiora.checkpoint.restore",
           "group": "z_axiora@2",
+          "when": "scmProvider == git"
+        },
+        {
+          "command": "axiora.ai.generateCommitMessage",
+          "group": "navigation@1",
           "when": "scmProvider == git"
         }
       ],
