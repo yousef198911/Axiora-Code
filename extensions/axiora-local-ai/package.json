@@ -756,6 +756,27 @@
         "command": "axiora.cells.restart",
         "title": "Restart Console",
         "category": "Data"
+      },
+      {
+        "command": "axiora.github.prs",
+        "title": "Pull Requests...",
+        "category": "GitHub",
+        "icon": "$(git-pull-request)"
+      },
+      {
+        "command": "axiora.github.issues",
+        "title": "Issues...",
+        "category": "GitHub"
+      },
+      {
+        "command": "axiora.github.ci",
+        "title": "CI Runs (GitHub Actions)...",
+        "category": "GitHub"
+      },
+      {
+        "command": "axiora.github.setToken",
+        "title": "Set Token",
+        "category": "GitHub"
       }
     ],
     "menus": {
@@ -808,6 +829,21 @@
         {
           "command": "axiora.changelist.commit",
           "group": "5_axiora@7",
+          "when": "scmProvider == git"
+        },
+        {
+          "command": "axiora.github.prs",
+          "group": "6_github@1",
+          "when": "scmProvider == git"
+        },
+        {
+          "command": "axiora.github.issues",
+          "group": "6_github@2",
+          "when": "scmProvider == git"
+        },
+        {
+          "command": "axiora.github.ci",
+          "group": "6_github@3",
           "when": "scmProvider == git"
         }
       ],
@@ -1269,6 +1305,16 @@
           "type": "number",
           "default": 3,
           "description": "How many subagents /parallel runs at once."
+        },
+        "axiora.github.repo": {
+          "type": "string",
+          "default": "",
+          "description": "GitHub repository owner/name (default: from the origin remote)."
+        },
+        "axiora.github.apiUrl": {
+          "type": "string",
+          "default": "https://api.github.com",
+          "description": "GitHub API URL (GitHub Enterprise: https://host/api/v3)."
         }
       }
     },
