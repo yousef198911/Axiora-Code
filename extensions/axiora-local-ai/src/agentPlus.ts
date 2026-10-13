@@ -22,7 +22,7 @@ export function applyPolicy(msgs: ChatMessage[], lines: Set<string>, res: RegExp
 	let n = 0;
 	const out = msgs.map(m => {
 		let c = m.content;
-		if (lines.size) { c = c.split('\n').map(l => { const t = l.trim(); if (t.length >= 12 && lines.has(t)) { n++; return '[excluded by policy]'; } return l; }).join('\n').replace(/(\[excluded by policy\]\n?)+/g, '[excluded by policy]\n'); }
+		if (lines.size) { for (const t of lines) { if (c.includes(t)) { c = c.split(t).join('[excluded by policy]'); n++; } else { const j = JSON.stringify(t).slice(1, -1); if (j !== t && c.includes(j)) { c = c.split(j).join('[excluded by policy]'); n++; } } } c = c.replace(/(\[excluded by policy\]\s*){2,}/g, '[excluded by policy]\n'); }
 		for (const r of res) { c = c.replace(r, () => { n++; return '[redacted]'; }); }
 		return { ...m, content: c };
 	});
