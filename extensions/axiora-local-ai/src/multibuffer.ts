@@ -34,7 +34,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 				const end = Math.min(doc.lineCount - 1, o.start + o.lines.length - 1);
 				edit.replace(u, new vscode.Range(o.start, 0, end, doc.lineAt(end).text.length), p.lines.join('\n')); changed++;
 			}
-			if (changed) { await vscode.workspace.applyEdit(edit); await vscode.workspace.saveAll(false); }
+			if (changed) { await vscode.workspace.applyEdit(edit); for (const [u] of edit.entries()) { const d = vscode.workspace.textDocuments.find(x => x.uri.toString() === u.toString()); await d?.save(); } }
 			// re-anchor offsets after line-count changes
 			const shift = new Map<string, number>();
 			const next = parsed.slice().sort((a, b) => a.file.localeCompare(b.file) || a.start - b.start).map(p => {
