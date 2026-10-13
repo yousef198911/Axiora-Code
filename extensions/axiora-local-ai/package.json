@@ -820,6 +820,11 @@
         "title": "Show Codemap",
         "category": "Axiora AI",
         "icon": "$(type-hierarchy)"
+      },
+      {
+        "command": "axiora.cli.install",
+        "title": "Install Headless CLI Agent (axiora-agent)",
+        "category": "Axiora AI"
       }
     ],
     "menus": {
