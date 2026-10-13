@@ -676,6 +676,17 @@
         "command": "axiora.dotfiles.install",
         "title": "Install Dotfiles",
         "category": "Dotfiles"
+      },
+      {
+        "command": "axiora.multibuffer.search",
+        "title": "Search into Editable Multibuffer...",
+        "category": "Search",
+        "icon": "$(files)"
+      },
+      {
+        "command": "axiora.multibuffer.open",
+        "title": "Open Excerpt Source",
+        "category": "Search"
       }
     ],
     "menus": {
@@ -765,6 +776,11 @@
           "command": "axiora.ai.analyzeCrash",
           "group": "1_axiora@9",
           "when": "editorHasSelection"
+        },
+        {
+          "command": "axiora.multibuffer.open",
+          "group": "navigation@0",
+          "when": "resourceScheme == axiora-multi"
         }
       ],
       "axiora.ai.editorMenu": [
@@ -954,6 +970,11 @@
           "command": "axiora.security.scanWorkspace",
           "group": "navigation@50",
           "when": "view == workbench.panel.markers.view"
+        },
+        {
+          "command": "axiora.multibuffer.search",
+          "group": "navigation@20",
+          "when": "view == workbench.view.search"
         }
       ]
     },
@@ -1694,6 +1715,11 @@
         "command": "axiora.org.timestamp",
         "key": "ctrl+c .",
         "when": "editorLangId == org"
+      },
+      {
+        "command": "axiora.multibuffer.open",
+        "key": "alt+enter",
+        "when": "resourceScheme == axiora-multi && editorTextFocus"
       }
     ],
     "languages": [

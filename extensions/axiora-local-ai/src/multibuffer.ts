@@ -25,7 +25,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 				const h = HDR.exec(l);
 				if (h) { cur = { file: h[1], start: +h[2] - 1, lines: [] }; parsed.push(cur); } else if (cur) { cur.lines.push(l); }
 			}
-			parsed.forEach(p => { while (p.lines.length && p.lines[p.lines.length - 1] === '' ) { p.lines.pop(); } });
+			parsed.forEach((p, i) => { if (i < parsed.length - 1 && p.lines[p.lines.length - 1] === '') { p.lines.pop(); } }); // drop the separator line
 			// group per file, apply bottom-up so line numbers stay valid
 			const edit = new vscode.WorkspaceEdit(); let changed = 0;
 			for (const p of parsed) {
