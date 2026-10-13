@@ -131,6 +131,10 @@
           {
             "name": "subagent",
             "description": "Run one isolated subagent (role: task) and get its summary"
+          },
+          {
+            "name": "data",
+            "description": "Ask about your live data session (variables, current cell)"
           }
         ]
       }
@@ -782,6 +786,11 @@
         "command": "axiora.prompts.edit",
         "title": "Edit Prompts...",
         "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.cells.runToTab",
+        "title": "Run Cell, Output in Tab",
+        "category": "Data"
       }
     ],
     "menus": {

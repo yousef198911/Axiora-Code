@@ -8,7 +8,8 @@ import * as cp from 'child_process';
 import * as os from 'os';
 import * as path from 'path';
 import * as fs from 'fs';
-import { register } from './util';
+import { register, chatCommands, SYS } from './util';
+import { chat } from './llm';
 
 const CELL = /^\s*(#\s*%%|#\s*In\[|##\s*%%)/;
 const REPL: Record<string, string> = { python: 'python3 -q -i', r: 'R --quiet --no-save', julia: 'julia -q' };
@@ -52,6 +53,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 				new vscode.CodeLens(r, { title: '▶ Run Cell', command: 'axiora.cells.run', arguments: [doc.uri, r.start.line] }),
 				new vscode.CodeLens(r, { title: 'Run Above', command: 'axiora.cells.runAbove', arguments: [doc.uri, r.start.line] }),
 				new vscode.CodeLens(r, { title: 'Variables', command: 'axiora.cells.variables', arguments: [doc.uri] }),
+				...(doc.languageId === 'python' ? [new vscode.CodeLens(r, { title: 'Output in Tab', command: 'axiora.cells.runToTab', arguments: [doc.uri, r.start.line] })] : []),
 			]);
 		}
 	}));
@@ -88,6 +90,60 @@ export function activate(ctx: vscode.ExtensionContext) {
 		const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
 		const p = vscode.window.createWebviewPanel('axiora.vars', 'Variables', { viewColumn: vscode.ViewColumn.Beside, preserveFocus: true }, {});
 		p.webview.html = `<!DOCTYPE html><html><head><style>body{font-family:var(--vscode-font-family);color:var(--vscode-foreground);font-size:12px}table{border-collapse:collapse;width:100%}th,td{border:1px solid var(--vscode-panel-border);padding:3px 8px;text-align:left;vertical-align:top}th{background:var(--vscode-editorGroupHeader-tabsBackground)}</style></head><body><table><tr><th>Name</th><th>Type</th><th>Shape</th><th>Value</th></tr>${Object.entries(vars).map(([k, v]) => `<tr><td>${esc(k)}</td><td>${esc(v.type)}</td><td>${esc(v.shape)}</td><td><code>${esc(v.value)}</code></td></tr>`).join('')}</table></body></html>`;
+	});
+
+	// --- run a Python cell with its output (text + matplotlib figures) shown in an editor tab
+	const pyRun = async (code: string, tag: string) => {
+		const base = path.join(os.tmpdir(), `axiora-cell-${process.pid}-${Date.now()}`);
+		fs.writeFileSync(`${base}.code.py`, code);
+		fs.writeFileSync(`${base}.run.py`, `import contextlib as _c, io as _i, traceback as _t, json as _j, sys as _s
+_b = _i.StringIO(); _imgs = []
+with _c.redirect_stdout(_b), _c.redirect_stderr(_b):
+    try:
+        exec(compile(open(${JSON.stringify(base + '.code.py')}).read(), ${JSON.stringify(tag)}, 'exec'), globals())
+    except Exception:
+        _t.print_exc()
+    if 'matplotlib.pyplot' in _s.modules:
+        _plt = _s.modules['matplotlib.pyplot']
+        for _n in _plt.get_fignums():
+            _f = ${JSON.stringify(base)} + '-%d.png' % _n; _plt.figure(_n).savefig(_f); _imgs.append(_f)
+        _plt.close('all')
+open(${JSON.stringify(base + '.out.json')}, 'w').write(_j.dumps({'text': _b.getvalue(), 'images': _imgs}))
+`);
+		consoleFor('python').sendText(`exec(open(${JSON.stringify(base + '.run.py')}).read())`);
+		const out = `${base}.out.json`;
+		for (let n = 0; n < 300 && !fs.existsSync(out); n++) { await new Promise(r => setTimeout(r, 200)); }
+		if (!fs.existsSync(out)) { throw new Error('No response from the Python console (still running?)'); }
+		return JSON.parse(fs.readFileSync(out, 'utf8')) as { text: string; images: string[] };
+	};
+	let outPanel: vscode.WebviewPanel | undefined;
+	register(ctx, 'axiora.cells.runToTab', async (uri?: vscode.Uri, line?: number) => {
+		const { doc, cs, i } = await at(uri, line);
+		if (doc.languageId !== 'python') { vscode.window.showInformationMessage('Output in a tab is available for Python cells.'); return; }
+		const code = i >= 0 ? doc.getText(cs[i]) : doc.getText();
+		const title = i >= 0 ? (doc.lineAt(cs[i].start.line).text.replace(/^#\s*%%\s*/, '') || `Cell ${i + 1}`) : path.basename(doc.fileName);
+		const r = await pyRun(code, `${path.basename(doc.fileName)}#cell${i + 1}`);
+		const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+		if (!outPanel) { outPanel = vscode.window.createWebviewPanel('axiora.cellOut', 'Cell Output', { viewColumn: vscode.ViewColumn.Beside, preserveFocus: true }, { localResourceRoots: [vscode.Uri.file(os.tmpdir())] }); outPanel.onDidDispose(() => outPanel = undefined); }
+		outPanel.title = `Output: ${title}`;
+		const w = outPanel.webview;
+		w.html = `<!DOCTYPE html><html><head><style>body{font-family:var(--vscode-font-family);color:var(--vscode-foreground);font-size:12px}pre{font-family:var(--vscode-editor-font-family);white-space:pre-wrap}img{max-width:100%;background:#fff}h3{font-weight:600;opacity:.8}</style></head><body><h3>${esc(title)} <small>· ${new Date().toLocaleTimeString()} · session ${esc(session)}</small></h3><pre>${esc(r.text) || '<i>(no output)</i>'}</pre>${r.images.map(f => `<img src="${w.asWebviewUri(vscode.Uri.file(f))}">`).join('')}</body></html>`;
+		outPanel.reveal(undefined, true);
+	});
+	// --- @axiora /data: assistant connected to the live data session (variables + current cell)
+	chatCommands.set('data', async (req, stream, token) => {
+		const ed = vscode.window.activeTextEditor; const doc = ed?.document;
+		let ctxText = '';
+		if (doc?.languageId === 'python') {
+			stream.progress('Reading the live Python session…');
+			try {
+				const r = await pyRun(`import json as _jj\nprint(_jj.dumps({k:{'type':type(v).__name__,'value':repr(v)[:300],'shape':str(getattr(v,'shape',''))} for k,v in globals().items() if not k.startswith('_') and type(v).__name__ not in ('module','function','type','builtin_function_or_method')}))`, 'vars');
+				ctxText += `\n\nLive session "${session}" variables (name: type shape = value):\n` + Object.entries(JSON.parse(r.text.trim().split('\n').pop() || '{}') as Record<string, { type: string; value: string; shape: string }>).map(([k, v]) => `- ${k}: ${v.type}${v.shape ? ` ${v.shape}` : ''} = ${v.value}`).join('\n');
+			} catch (e) { ctxText += `\n\n(session not readable: ${(e as Error).message})`; }
+			const { cs, i } = await at(doc.uri); if (i >= 0) { ctxText += `\n\nCurrent cell:\n\`\`\`python\n${doc.getText(cs[i])}\n\`\`\``; }
+		} else { ctxText = '\n\n(open a Python file with # %% cells to connect to its session)'; }
+		await chat([{ role: 'system', content: `${SYS}\nYou are a data-science assistant connected to the user's live Python session. Use the real variable names/types/shapes below. Give runnable code for a new # %% cell.` }, { role: 'user', content: req.prompt + ctxText }], s => stream.markdown(s), token);
+		stream.button({ command: 'axiora.cells.variables', title: 'Show Variables' });
 	});
 	void cp;
 }
