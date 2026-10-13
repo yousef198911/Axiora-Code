@@ -222,6 +222,11 @@
         "title": "Open as Table",
         "category": "CSV",
         "icon": "$(table)"
+      },
+      {
+        "command": "axiora.http.send",
+        "title": "Send Request",
+        "category": "HTTP"
       }
     ],
     "menus": {
@@ -407,6 +412,11 @@
       {
         "command": "axiora.bookmarks.list",
         "key": "ctrl+alt+j"
+      },
+      {
+        "command": "axiora.http.send",
+        "key": "ctrl+alt+r",
+        "when": "editorLangId == http"
       }
     ],
     "languages": [
@@ -426,6 +436,16 @@
         ],
         "aliases": [
           "TSV"
+        ]
+      },
+      {
+        "id": "http",
+        "extensions": [
+          ".http",
+          ".rest"
+        ],
+        "aliases": [
+          "HTTP"
         ]
       }
     ]
