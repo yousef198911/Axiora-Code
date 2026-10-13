@@ -25,7 +25,9 @@ export function activate(ctx: vscode.ExtensionContext) {
 		delete require.cache[require.resolve(f)];
 		// eslint-disable-next-line @typescript-eslint/no-require-imports
 		const fn = require(f);
-		await (typeof fn === 'function' ? fn : fn.default)(vscode, { run, log: (m: string) => log.info(`[script ${path.basename(f)}] ${m}`), workspace: wsRoot()?.fsPath });
+		const main = typeof fn === 'function' ? fn : fn?.default;
+		if (typeof main !== 'function') { throw new Error(`${path.basename(f)} does not export a function (module.exports = async (vscode, api) => {...})`); }
+		await main(vscode, { run, log: (m: string) => log.info(`[script ${path.basename(f)}] ${m}`), workspace: wsRoot()?.fsPath });
 	};
 	register(ctx, 'axiora.scripts.run', async () => {
 		const p = await vscode.window.showQuickPick(scripts().map(f => ({ label: `$(file-code) ${path.basename(f, '.js')}`, description: f.includes('.axiora') ? 'workspace' : 'user', f })), { placeHolder: 'Run user script' });
@@ -38,6 +40,6 @@ export function activate(ctx: vscode.ExtensionContext) {
 		const f = path.join(d, `${name}.js`); if (!fs.existsSync(f)) { fs.writeFileSync(f, TEMPLATE); }
 		await vscode.window.showTextDocument(vscode.Uri.file(f));
 	});
-	register(ctx, 'axiora.scripts.runCurrent', async () => { const d = vscode.window.activeTextEditor?.document; if (d?.fileName.endsWith('.js')) { await d.save(); await exec(d.fileName); } });
+	register(ctx, 'axiora.scripts.runCurrent', async () => { const d = vscode.window.activeTextEditor?.document; if (d?.fileName.endsWith('.js') && /axiora-scripts|[\\/]\.axiora[\\/]scripts/.test(d.fileName)) { await d.save(); await exec(d.fileName); } else { vscode.window.showInformationMessage('Open a file from .axiora/scripts or your user axiora-scripts folder.'); } });
 	for (const f of scripts().filter(f => path.basename(f) === 'init.js')) { exec(f).catch(e => log.warn(`init script: ${e.message}`)); }
 }
