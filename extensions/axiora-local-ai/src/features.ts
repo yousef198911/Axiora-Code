@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import * as shareChat from './shareChat';
 import * as sshFs from './sshFs';
 import * as shelve from './shelve';
 import * as rebase from './rebase';
@@ -30,5 +31,5 @@ import * as terminalNL from './terminalNL';
 import * as commitMsg from './commitMsg';
 import * as aiActions from './aiActions';
 export function activateFeatures(ctx: vscode.ExtensionContext) {
-	for (const f of [sshFs, shelve, rebase, dataCells, docsTypeset, kubernetes, mcpServer, docker, database, htmlPreview, vim, structural, goals, lintLoop, macros, usage, sessions, gitExtras, editorConfig, editing, httpClient, csvTable, bookmarks, debugThreads, webSearch, repoMap, promptTools, terminalNL, commitMsg, aiActions]) { try { f.activate(ctx); } catch (e) { console.error(e); } }
+	for (const f of [shareChat, sshFs, shelve, rebase, dataCells, docsTypeset, kubernetes, mcpServer, docker, database, htmlPreview, vim, structural, goals, lintLoop, macros, usage, sessions, gitExtras, editorConfig, editing, httpClient, csvTable, bookmarks, debugThreads, webSearch, repoMap, promptTools, terminalNL, commitMsg, aiActions]) { try { f.activate(ctx); } catch (e) { console.error(e); } }
 }

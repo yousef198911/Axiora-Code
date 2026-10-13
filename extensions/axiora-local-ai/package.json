@@ -83,6 +83,10 @@
           {
             "name": "waves",
             "description": "Show parallel execution waves for the open tasks file"
+          },
+          {
+            "name": "share",
+            "description": "Share this conversation (link via your server, or HTML file)"
           }
         ]
       }
@@ -728,7 +732,18 @@
           "when": "scmProvider == git"
         }
       ],
-      "file/newFile": []
+      "file/newFile": [],
+      "statusBar/remoteIndicator": [
+        {
+          "command": "axiora.ssh.openFolder",
+          "group": "remote_20_axiora_ssh@1"
+        },
+        {
+          "command": "axiora.ssh.terminal",
+          "group": "remote_20_axiora_ssh@2",
+          "when": "workspaceFolderCount > 0"
+        }
+      ]
     },
     "configuration": {
       "title": "Axiora Local AI",
@@ -868,6 +883,11 @@
           "type": "boolean",
           "default": true,
           "description": "Rebuild the PDF on save while its preview is open."
+        },
+        "axiora.share.endpoint": {
+          "type": "string",
+          "default": "",
+          "description": "Your share server: POST {title, markdown, html} -> {url}."
         }
       }
     },

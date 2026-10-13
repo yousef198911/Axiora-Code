@@ -29,7 +29,7 @@ export function register(ctx: vscode.ExtensionContext, id: string, fn: (...a: an
 		try { return await fn(...a); } catch (e) { log.error(`${id}: ${(e as Error).message}`); vscode.window.showErrorMessage(`Axiora: ${(e as Error).message}`); }
 	}));
 }
-export type ChatCommandHandler = (req: vscode.ChatRequest, stream: vscode.ChatResponseStream, token: vscode.CancellationToken) => Promise<void>;
+export type ChatCommandHandler = (req: vscode.ChatRequest, stream: vscode.ChatResponseStream, token: vscode.CancellationToken, chatCtx?: vscode.ChatContext) => Promise<void>;
 export const chatCommands = new Map<string, ChatCommandHandler>();
 /** Extra context providers appended to @axiora prompts (repo map, etc.). */
 export const contextProviders: (() => Promise<string>)[] = [];

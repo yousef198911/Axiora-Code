@@ -277,7 +277,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 				}
 			}
 			const extra = chatCommands.get(req.command ?? '');
-			if (extra) { await extra(req, stream, token); return; }
+			if (extra) { await extra(req, stream, token, _ctx); return; }
 			let more = '';
 			for (const p of contextProviders) { more += await p().catch(() => ''); }
 			const msgs: ChatMessage[] = [{ role: 'system', content: SYSTEM + await memoryContext() + more }];
