@@ -656,6 +656,21 @@
         "command": "axiora.ai.analyzeCrash",
         "title": "Analyze Crash / Stack Trace",
         "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.deploy.upload",
+        "title": "Upload to Server",
+        "category": "Deployment"
+      },
+      {
+        "command": "axiora.deploy.all",
+        "title": "Deploy Project to Server...",
+        "category": "Deployment"
+      },
+      {
+        "command": "axiora.deploy.configure",
+        "title": "Configure Deployment Targets",
+        "category": "Deployment"
       }
     ],
     "menus": {
@@ -875,6 +890,10 @@
           "command": "axiora.hex.open",
           "group": "navigation@30",
           "when": "!explorerResourceIsFolder"
+        },
+        {
+          "command": "axiora.deploy.upload",
+          "group": "7_deploy@1"
         }
       ],
       "scm/resourceState/context": [
