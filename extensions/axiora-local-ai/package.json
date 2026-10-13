@@ -938,6 +938,12 @@
         "title": "Open in Visual Designer",
         "category": "Design",
         "icon": "$(layout)"
+      },
+      {
+        "command": "axiora.md.visual",
+        "title": "Open Visual Editor",
+        "category": "Markdown",
+        "icon": "$(eye)"
       }
     ],
     "menus": {
@@ -1152,6 +1158,11 @@
           "command": "axiora.ui.designer",
           "group": "navigation@95",
           "when": "resourceExtname == .html"
+        },
+        {
+          "command": "axiora.md.visual",
+          "group": "3_open@1",
+          "when": "resourceLangId == markdown && activeCustomEditorId != axiora.mdVisual"
         }
       ],
       "explorer/context": [
@@ -2033,6 +2044,19 @@
         "selector": [
           {
             "filenamePattern": "*.{bin,exe,dll,so,dylib,o,class,dat,img,iso,wasm}"
+          }
+        ],
+        "priority": "option"
+      },
+      {
+        "viewType": "axiora.mdVisual",
+        "displayName": "Markdown Visual Editor",
+        "selector": [
+          {
+            "filenamePattern": "*.md"
+          },
+          {
+            "filenamePattern": "*.qmd"
           }
         ],
         "priority": "option"
