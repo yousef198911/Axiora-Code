@@ -1,0 +1,44 @@
+/*---------------------------------------------------------------------------------------------
+ *  Design Canvas: a free-form canvas for UI mockups (frames, boxes, text, buttons, inputs,
+ *  images) with drag, resize, 8px snapping and inline text editing. Saved as
+ *  .axiora/designs/<name>.design.json; export to HTML or hand the layout to @axiora to build
+ *  real components.
+ *--------------------------------------------------------------------------------------------*/
+import * as vscode from 'vscode';
+import { register, wsRoot } from './util';
+
+export type El = { id: string; type: 'frame' | 'box' | 'text' | 'button' | 'input' | 'image'; x: number; y: number; w: number; h: number; text?: string; color?: string };
+export function toHtml(els: El[], title = 'Design'): string {
+	const css: Record<El['type'], string> = { frame: 'background:#fff;border:1px solid #d0d7de;border-radius:12px;box-shadow:0 4px 16px #0001', box: 'background:#f1f5f9;border-radius:8px', text: 'color:#111;font-size:16px', button: 'background:#2563eb;color:#fff;border:0;border-radius:6px;font-size:14px', input: 'border:1px solid #cbd5e1;border-radius:6px;padding:0 10px;font-size:14px', image: 'background:#e2e8f0 repeating-linear-gradient(45deg,#e2e8f0 0 10px,#cbd5e1 10px 20px);border-radius:6px' };
+	const tag = (e: El) => e.type === 'button' ? 'button' : e.type === 'input' ? 'input' : 'div';
+	const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+	return `<!doctype html><html><head><meta charset="utf-8"><title>${esc(title)}</title><style>body{margin:0;font-family:system-ui;background:#f8fafc}.d{position:relative;width:${Math.max(400, ...els.map(e => e.x + e.w)) + 40}px;height:${Math.max(300, ...els.map(e => e.y + e.h)) + 40}px}.d>*{position:absolute;box-sizing:border-box}</style></head><body><div class="d">\n${els.map(e => `  <${tag(e)} style="left:${e.x}px;top:${e.y}px;width:${e.w}px;height:${e.h}px;${css[e.type]}${e.color ? `;background:${e.color}` : ''}"${e.type === 'input' ? ` placeholder="${esc(e.text ?? '')}">` : `>${esc(e.text ?? '')}</${tag(e)}>`}`).join('\n')}\n</div></body></html>`;
+}
+export function activate(ctx: vscode.ExtensionContext) {
+	register(ctx, 'axiora.canvas.open', async (u?: vscode.Uri) => {
+		const r = wsRoot(); if (!r) { return; } const dir = vscode.Uri.joinPath(r, '.axiora', 'designs'); await vscode.workspace.fs.createDirectory(dir);
+		let file = u;
+		if (!file) { const ex = (await vscode.workspace.fs.readDirectory(dir)).filter(([n]) => n.endsWith('.design.json')).map(([n]) => n); const p = await vscode.window.showQuickPick(['$(add) New design…', ...ex], { placeHolder: 'Design Canvas' }); if (!p) { return; } if (p.startsWith('$(add)')) { const n = await vscode.window.showInputBox({ prompt: 'Design name', value: 'screen' }); if (!n) { return; } file = vscode.Uri.joinPath(dir, `${n}.design.json`); await vscode.workspace.fs.writeFile(file, new TextEncoder().encode(JSON.stringify([{ id: 'f1', type: 'frame', x: 40, y: 40, w: 360, h: 520, text: '' }], null, 2))); } else { file = vscode.Uri.joinPath(dir, p); } }
+		const name = file.path.split('/').pop()!.replace('.design.json', '');
+		const els = JSON.parse(new TextDecoder().decode(await vscode.workspace.fs.readFile(file))) as El[];
+		const panel = vscode.window.createWebviewPanel('axioraCanvas', `Design: ${name}`, vscode.ViewColumn.Active, { enableScripts: true, retainContextWhenHidden: true });
+		panel.webview.html = `<!doctype html><html><head><style>body{margin:0;font-family:var(--vscode-font-family);color:var(--vscode-foreground);overflow:hidden}#tb{display:flex;gap:4px;padding:6px 8px;border-bottom:1px solid var(--vscode-panel-border);align-items:center}#tb button{background:var(--vscode-button-secondaryBackground);color:var(--vscode-button-secondaryForeground);border:0;padding:4px 10px;border-radius:3px;cursor:pointer}#tb .p{background:var(--vscode-button-background);color:var(--vscode-button-foreground)}#tb .sp{flex:1}#cv{position:relative;height:calc(100vh - 40px);overflow:auto;background:var(--vscode-editor-background) radial-gradient(var(--vscode-panel-border) 1px,transparent 1px) 0 0/16px 16px}.e{position:absolute;box-sizing:border-box;cursor:move;display:flex;align-items:center;justify-content:center;user-select:none;font-size:14px}.e.sel{outline:2px solid var(--vscode-focusBorder)}.h{position:absolute;right:-5px;bottom:-5px;width:10px;height:10px;background:var(--vscode-focusBorder);cursor:nwse-resize}.frame{background:#fff;border:1px solid #d0d7de;border-radius:12px}.box{background:#f1f5f9;border-radius:8px}.text{color:#111;justify-content:flex-start}.button{background:#2563eb;color:#fff;border-radius:6px}.input{background:#fff;border:1px solid #cbd5e1;border-radius:6px;color:#94a3b8;justify-content:flex-start;padding-left:10px}.image{background:repeating-linear-gradient(45deg,#e2e8f0 0 10px,#cbd5e1 10px 20px);border-radius:6px;color:#64748b}</style></head><body><div id=tb>${['frame', 'box', 'text', 'button', 'input', 'image'].map(t => `<button data-add=${t}>+ ${t[0].toUpperCase() + t.slice(1)}</button>`).join('')}<button id=del>Delete</button><span class=sp></span><span id=st></span><button id=html>Export HTML</button><button id=ai class=p>Build with @axiora</button></div><div id=cv></div><script>
+const v=acquireVsCodeApi();let E=${JSON.stringify(els)};let sel=null;const cv=document.getElementById('cv');const snap=n=>Math.round(n/8)*8;
+const def={frame:[360,520,''],box:[160,100,''],text:[200,32,'Heading'],button:[120,40,'Button'],input:[240,40,'Placeholder'],image:[200,140,'Image']};
+function save(){v.postMessage({type:'save',els:E});document.getElementById('st').textContent=E.length+' elements · saved'}
+function draw(){cv.innerHTML='';for(const e of E){const d=document.createElement('div');d.className='e '+e.type+(e.id===sel?' sel':'');Object.assign(d.style,{left:e.x+'px',top:e.y+'px',width:e.w+'px',height:e.h+'px',zIndex:e.type==='frame'?0:1});if(e.color)d.style.background=e.color;d.textContent=e.text||'';
+d.onmousedown=ev=>{if(ev.target.classList.contains('h'))return;ev.stopPropagation();sel=e.id;const sx=ev.clientX,sy=ev.clientY,ox=e.x,oy=e.y;const kids=e.type==='frame'?E.filter(k=>k!==e&&k.x>=e.x&&k.y>=e.y&&k.x+k.w<=e.x+e.w&&k.y+k.h<=e.y+e.h).map(k=>[k,k.x,k.y]):[];onmousemove=m=>{e.x=snap(ox+m.clientX-sx);e.y=snap(oy+m.clientY-sy);for(const[k,kx,ky]of kids){k.x=kx+e.x-ox;k.y=ky+e.y-oy}draw()};onmouseup=()=>{onmousemove=null;onmouseup=null;save()};draw()};
+d.ondblclick=()=>{if(e.type==='frame'||e.type==='box')return;const t=prompt('Text',e.text||'');if(t!==null){e.text=t;draw();save()}};
+if(e.id===sel){const h=document.createElement('div');h.className='h';h.onmousedown=ev=>{ev.stopPropagation();const sx=ev.clientX,sy=ev.clientY,ow=e.w,oh=e.h;onmousemove=m=>{e.w=Math.max(16,snap(ow+m.clientX-sx));e.h=Math.max(16,snap(oh+m.clientY-sy));draw()};onmouseup=()=>{onmousemove=null;onmouseup=null;save()}};d.appendChild(h)}cv.appendChild(d)}}
+cv.onmousedown=()=>{sel=null;draw()};
+document.querySelectorAll('[data-add]').forEach(b=>b.onclick=()=>{const t=b.dataset.add,[w,h,tx]=def[t];const f=E.find(x=>x.type==='frame');const e={id:Math.random().toString(36).slice(2,8),type:t,x:f&&t!=='frame'?f.x+24:snap(40+E.length*16),y:f&&t!=='frame'?f.y+24+E.filter(x=>x.type!=='frame').length*56:snap(40+E.length*16),w,h,text:tx};E.push(e);sel=e.id;draw();save()});
+document.getElementById('del').onclick=()=>{E=E.filter(e=>e.id!==sel);sel=null;draw();save()};addEventListener('keydown',k=>{if((k.key==='Delete'||k.key==='Backspace')&&sel&&document.activeElement===document.body){E=E.filter(e=>e.id!==sel);sel=null;draw();save()}});
+document.getElementById('html').onclick=()=>v.postMessage({type:'html'});document.getElementById('ai').onclick=()=>v.postMessage({type:'ai'});draw();document.getElementById('st').textContent=E.length+' elements';</script></body></html>`;
+		let cur = els;
+		panel.webview.onDidReceiveMessage(async m => {
+			if (m.type === 'save') { cur = m.els; await vscode.workspace.fs.writeFile(file!, new TextEncoder().encode(JSON.stringify(cur, null, 2))); }
+			if (m.type === 'html') { const h = vscode.Uri.joinPath(dir, `${name}.html`); await vscode.workspace.fs.writeFile(h, new TextEncoder().encode(toHtml(cur, name))); await vscode.commands.executeCommand('axiora.html.preview', h).then(undefined, () => vscode.window.showTextDocument(h)); }
+			if (m.type === 'ai') { await vscode.commands.executeCommand('workbench.action.chat.open', { query: `@axiora /prototype Build this screen as clean, responsive HTML/CSS (flex/grid, not absolute positions). Layout from my design canvas (x,y,w,h in px):\n${JSON.stringify(cur.map(({ id: _i, ...e }) => e))}` }); }
+		});
+	});
+}

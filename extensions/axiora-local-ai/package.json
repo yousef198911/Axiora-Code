@@ -1164,6 +1164,11 @@
         "command": "axiora.agents.externalCli",
         "title": "Run External Agent CLI...",
         "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.canvas.open",
+        "title": "Open Design Canvas...",
+        "category": "Axiora AI"
       }
     ],
     "menus": {
