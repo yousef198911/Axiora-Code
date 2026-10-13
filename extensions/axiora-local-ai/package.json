@@ -944,6 +944,47 @@
         "title": "Open Visual Editor",
         "category": "Markdown",
         "icon": "$(eye)"
+      },
+      {
+        "command": "axiora.hot.run",
+        "title": "Run with Hot Reload",
+        "category": "Run",
+        "icon": "$(flame)"
+      },
+      {
+        "command": "axiora.struct.function",
+        "title": "Select Enclosing Function",
+        "category": "Selection"
+      },
+      {
+        "command": "axiora.struct.class",
+        "title": "Select Enclosing Class",
+        "category": "Selection"
+      },
+      {
+        "command": "axiora.struct.symbol",
+        "title": "Select Enclosing Symbol",
+        "category": "Selection"
+      },
+      {
+        "command": "axiora.struct.next",
+        "title": "Select Next Symbol",
+        "category": "Selection"
+      },
+      {
+        "command": "axiora.struct.prev",
+        "title": "Select Previous Symbol",
+        "category": "Selection"
+      },
+      {
+        "command": "axiora.sketch.open",
+        "title": "Open Tool Sketchpad",
+        "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.sketch.run",
+        "title": "Run in Tool Sketchpad",
+        "category": "Axiora AI"
       }
     ],
     "menus": {
@@ -1309,12 +1350,29 @@
         {
           "command": "axiora.sel.merge",
           "group": "1@6"
+        },
+        {
+          "command": "axiora.struct.function",
+          "group": "2@1"
+        },
+        {
+          "command": "axiora.struct.class",
+          "group": "2@2"
+        },
+        {
+          "command": "axiora.struct.next",
+          "group": "2@3"
         }
       ],
       "editor/title/run": [
         {
           "command": "axiora.profile.run",
           "group": "navigation@90",
+          "when": "resourceLangId == javascript || resourceLangId == python"
+        },
+        {
+          "command": "axiora.hot.run",
+          "group": "navigation@91",
           "when": "resourceLangId == javascript || resourceLangId == python"
         }
       ]
@@ -1987,6 +2045,21 @@
         "command": "axiora.sel.keep",
         "key": "ctrl+k alt+k",
         "when": "editorTextFocus"
+      },
+      {
+        "command": "axiora.struct.function",
+        "key": "ctrl+k alt+f",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "axiora.struct.class",
+        "key": "ctrl+k alt+c",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "axiora.sketch.run",
+        "key": "ctrl+enter",
+        "when": "editorTextFocus && resourceFilename == sketchpad.js"
       }
     ],
     "languages": [
