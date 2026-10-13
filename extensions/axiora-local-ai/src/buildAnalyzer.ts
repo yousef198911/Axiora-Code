@@ -12,7 +12,7 @@ import { register, wsRoot } from './util';
 
 export type Line = { t: number; s: string };
 export function analyze(lines: Line[], total: number) {
-	const steps = [{ s: '(startup — before first output)', dur: lines[0]?.t ?? total }, ...lines.map((l, i) => ({ s: l.s, dur: (lines[i + 1]?.t ?? total) - l.t })))].filter(x => x.s.trim());
+	const steps = [{ s: '(startup — before first output)', dur: lines[0]?.t ?? total }, ...lines.map((l, i) => ({ s: l.s, dur: (lines[i + 1]?.t ?? total) - l.t }))].filter(x => x.s.trim());
 	const slow = [...steps].sort((a, b) => b.dur - a.dur).slice(0, 10);
 	const norm = (s: string) => s.replace(/\d+/g, 'N').replace(/(['"`]).*?\1/g, '…').replace(/\S+\.(ts|js|py|java|kt|rs|c|cpp|go)\b/g, '‹file›').trim().slice(0, 140);
 	const group = (re: RegExp) => { const m = new Map<string, number>(); for (const l of lines) { if (re.test(l.s)) { const k = norm(l.s); m.set(k, (m.get(k) ?? 0) + 1); } } return [...m.entries()].sort((a, b) => b[1] - a[1]); };
