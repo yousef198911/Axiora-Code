@@ -13,7 +13,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 	register(ctx, 'axiora.git.interactiveRebase', async () => {
 		const root = wsRoot()?.fsPath; if (!root) { return; }
 		const log = (await run('git', ['log', '--format=%h%x09%s%x09%an%x09%ar', '-n', '30'], root)).trim().split('\n');
-		const base = await vscode.window.showQuickPick(log.slice(1).map(l => { const [h, s, a, r] = l.split('\t'); return { label: `$(git-commit) ${h}`, description: s, detail: `${a} · ${r}`, h }; }), { placeHolder: 'Rebase commits after which commit? (the base stays unchanged)' });
+		const base = await vscode.window.showQuickPick(log.slice(1).map(l => { const [h, s, a, r] = l.split('\t'); return { label: `$(git-commit) ${h}`, description: s, detail: `${a} · ${r}`, h }; }), { placeHolder: 'Rebase commits after which commit? (the base stays unchanged)', matchOnDescription: true });
 		if (!base) { return; }
 		const commits = (await run('git', ['log', '--reverse', '--format=%h%x09%s', `${base.h}..HEAD`], root)).trim().split('\n').filter(Boolean).map(l => { const [h, s] = l.split('\t'); return { h, s }; });
 		const p = vscode.window.createWebviewPanel('axiora.rebase', `Interactive Rebase onto ${base.h}`, vscode.ViewColumn.Active, { enableScripts: true });
