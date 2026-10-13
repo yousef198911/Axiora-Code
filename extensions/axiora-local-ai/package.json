@@ -405,6 +405,36 @@
         "command": "axiora.mcp.regenerateToken",
         "title": "Regenerate Editor MCP Server Token",
         "category": "MCP"
+      },
+      {
+        "command": "axiora.k8s.context",
+        "title": "Switch Context...",
+        "category": "Kubernetes"
+      },
+      {
+        "command": "axiora.k8s.namespace",
+        "title": "Switch Namespace...",
+        "category": "Kubernetes"
+      },
+      {
+        "command": "axiora.k8s.pods",
+        "title": "Pods...",
+        "category": "Kubernetes"
+      },
+      {
+        "command": "axiora.k8s.deployments",
+        "title": "Deployments...",
+        "category": "Kubernetes"
+      },
+      {
+        "command": "axiora.k8s.apply",
+        "title": "Apply Manifest",
+        "category": "Kubernetes"
+      },
+      {
+        "command": "axiora.k8s.delete",
+        "title": "Delete Resources in Manifest",
+        "category": "Kubernetes"
       }
     ],
     "menus": {
@@ -449,6 +479,11 @@
           "command": "axiora.db.runQuery",
           "group": "navigation@0",
           "when": "editorLangId == sql"
+        },
+        {
+          "command": "axiora.k8s.apply",
+          "group": "z_k8s@1",
+          "when": "editorLangId == yaml"
         }
       ],
       "axiora.ai.editorMenu": [
@@ -550,6 +585,11 @@
           "command": "axiora.docker.composeDown",
           "group": "7_docker@3",
           "when": "resourceFilename =~ /^(docker-)?compose.*\\.ya?ml$/"
+        },
+        {
+          "command": "axiora.k8s.apply",
+          "group": "7_k8s@1",
+          "when": "resourceExtname =~ /\\.ya?ml$/"
         }
       ]
     },
