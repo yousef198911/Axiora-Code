@@ -27,7 +27,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 	register(ctx, 'axiora.term.blocks', async () => {
 		const term = vscode.window.activeTerminal;
 		const list = [...blocks].reverse().filter(b => !term || b.term === term || !blocks.some(x => x.term === term));
-		if (!list.length) { vscode.window.showInformationMessage('No command blocks yet (needs shell integration: bash/zsh/fish/pwsh).'); return; }
+		if (!list.length) { vscode.window.showInformationMessage('No command blocks recorded in this window yet (terminals need shell integration: bash, zsh, fish or pwsh).'); return; }
 		const icon = (b: Block) => b.exit === undefined ? '$(sync~spin)' : b.exit === 0 ? '$(pass)' : '$(error)';
 		const p = await vscode.window.showQuickPick(list.map(b => ({ label: `${icon(b)} ${b.cmd}`, description: `${b.exit === undefined ? 'running' : `exit ${b.exit}`} · ${(((b.end ?? Date.now()) - b.start) / 1000).toFixed(1)}s`, detail: strip(b.out).trim().split('\n').slice(-1)[0]?.slice(0, 120), b })), { placeHolder: 'Command blocks (newest first)', matchOnDetail: true });
 		if (!p) { return; }

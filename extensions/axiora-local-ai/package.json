@@ -1876,6 +1876,11 @@
           "icon": "sparkle"
         }
       ]
+    },
+    "configurationDefaults": {
+      "terminal.integrated.commandsToSkipShell": [
+        "axiora.term.blocks"
+      ]
     }
   }
 }
