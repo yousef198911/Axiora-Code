@@ -180,6 +180,10 @@
           {
             "name": "semantic",
             "description": "Semantic code search over the local embeddings index"
+          },
+          {
+            "name": "acp",
+            "description": "Talk to an external ACP agent: [name] <prompt>"
           }
         ]
       }
@@ -1155,6 +1159,11 @@
         "command": "axiora.wasi.run",
         "title": "Run WASI Plugin...",
         "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.agents.externalCli",
+        "title": "Run External Agent CLI...",
+        "category": "Axiora AI"
       }
     ],
     "menus": {
@@ -1876,6 +1885,28 @@
           "type": "boolean",
           "default": true,
           "description": "WASI plugin output replaces the document/selection (otherwise opens in a new tab)."
+        },
+        "axiora.acp.agents": {
+          "type": "array",
+          "default": [],
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "command": {
+                "type": "string"
+              },
+              "args": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "description": "Agent Client Protocol agents, e.g. {\"name\":\"gemini\",\"command\":\"gemini\",\"args\":[\"--experimental-acp\"]}."
         }
       }
     },
