@@ -781,3 +781,10 @@
 .settings-editor > .settings-body .settings-tree-container .monaco-list-row.focused .setting-item-contents .codicon {
 	color: inherit !important;
 }
+
+/* Axiora key / sign-in rows */
+.settings-editor > .settings-body .settings-tree-container .setting-item-axiora-secret .setting-item-control { max-width: 420px; }
+.settings-editor > .settings-body .settings-tree-container .setting-item-axiora-secret .setting-item-axiora-secret-status { margin-top: 6px; color: var(--vscode-descriptionForeground); }
+.settings-editor > .settings-body .settings-tree-container .setting-item-axiora-secret .setting-item-axiora-secret-status.ok { color: var(--vscode-testing-iconPassed, #73c991); }
+.settings-editor > .settings-body .settings-tree-container .setting-item-axiora-secret .setting-item-axiora-secret-buttons { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+.settings-editor > .settings-body .settings-tree-container .setting-item-axiora-secret .setting-item-axiora-secret-buttons .monaco-button { width: auto; padding: 2px 14px; }

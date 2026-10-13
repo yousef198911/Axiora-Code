@@ -300,7 +300,14 @@ export function activate(ctx: vscode.ExtensionContext) {
 			if (reply.trim()) { stream.button({ command: 'axiora.voice.readAloud', arguments: [reply], title: '$(unmute) Read aloud' }); }
 			if (vscode.workspace.getConfiguration('axiora.voice.tts').get('autoSpeak', false)) { void vscode.commands.executeCommand('axiora.voice.readAloud', reply); }
 		} catch (e) {
-			stream.markdown(`**Error:** ${(e as Error).message}\n\nCheck **Settings → axiora.ai** (provider, base URL, model) or run **Axiora AI: Test Model Connection**.`);
+			const msg = (e as Error).message;
+			const friendly = /429/.test(msg) && /per-day|daily/i.test(msg) ? 'Your AI provider\'s **free daily limit is used up**. It resets in a few hours — or add credits, or switch to another key or Ollama.'
+				: /429/.test(msg) ? 'The AI provider is **rate-limiting** right now. Wait a minute and try again.'
+				: /401|403/.test(msg) ? 'The AI provider **rejected the key**. Paste a new one to continue.'
+				: /ECONNREFUSED|fetch failed/i.test(msg) ? '**No AI model is reachable.** Paste one key (OpenRouter, Groq, Gemini, Anthropic or OpenAI) or start Ollama on your computer.'
+				: `**Error:** ${msg.slice(0, 300)}`;
+			const md = new vscode.MarkdownString(`${friendly}\n\n[Set Up AI](command:axiora.ai.setup) · [Connected Services](command:axiora.services.open)`); md.isTrusted = { enabledCommands: ['axiora.ai.setup', 'axiora.services.open'] };
+			stream.markdown(md);
 		}
 	}
 	ctx.subscriptions.push(participant);

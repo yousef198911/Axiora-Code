@@ -1146,3 +1146,14 @@
 .monaco-workbench .part.editor > .content .gettingStartedContainer .gettingStartedSlide .getting-started-checkbox {
 	border-color: var(--vscode-checkbox-border) !important;
 }
+
+/* Axiora AI status card (top of the Welcome page) */
+.monaco-workbench .part.editor > .content .gettingStartedContainer .axiora-ai-card { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 16px; padding: 12px 16px; border: 1px solid var(--vscode-welcomePage-tileBorder, var(--vscode-widget-border, transparent)); border-radius: 6px; background: var(--vscode-welcomePage-tileBackground); max-width: 720px; }
+.monaco-workbench .part.editor > .content .gettingStartedContainer .axiora-ai-card .axiora-ai-card-text { display: flex; flex-direction: column; gap: 2px; }
+.monaco-workbench .part.editor > .content .gettingStartedContainer .axiora-ai-card .axiora-ai-card-title { font-weight: 600; font-size: 14px; }
+.monaco-workbench .part.editor > .content .gettingStartedContainer .axiora-ai-card .axiora-ai-card-detail { color: var(--vscode-descriptionForeground); font-size: 12px; }
+.monaco-workbench .part.editor > .content .gettingStartedContainer .axiora-ai-card.ready { justify-content: flex-start; padding: 8px 16px; }
+.monaco-workbench .part.editor > .content .gettingStartedContainer .axiora-ai-card .axiora-ai-card-actions { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.monaco-workbench .part.editor > .content .gettingStartedContainer .axiora-ai-card .axiora-ai-card-button { background: var(--vscode-button-background); color: var(--vscode-button-foreground); border: none; border-radius: 4px; padding: 5px 14px; cursor: pointer; font-family: inherit; }
+.monaco-workbench .part.editor > .content .gettingStartedContainer .axiora-ai-card .axiora-ai-card-button:hover { background: var(--vscode-button-hoverBackground); }
+.monaco-workbench .part.editor > .content .gettingStartedContainer .axiora-ai-card .axiora-ai-card-link { color: var(--vscode-textLink-foreground); }

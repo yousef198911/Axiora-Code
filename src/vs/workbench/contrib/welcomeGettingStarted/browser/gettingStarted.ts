@@ -930,6 +930,28 @@ export class GettingStartedPage extends EditorPane {
 			$('p.subtitle.description', {}, localize({ key: 'gettingStarted.editingEvolved', comment: ['Shown as subtitle on the Welcome page.'] }, "Editing evolved"))
 		);
 
+		// Axiora: one-glance AI status card. Extension sets the `axiora.aiReady` context key.
+		const aiCard = $('.axiora-ai-card');
+		const renderAiCard = () => {
+			const ready = !!this.contextService.getContextKeyValue<boolean>('axiora.aiReady');
+			const detail = this.contextService.getContextKeyValue<string>('axiora.aiProviderLabel') ?? '';
+			aiCard.classList.toggle('ready', ready);
+			if (ready) {
+				reset(aiCard, $('span.axiora-ai-card-title', {}, localize('axiora.welcome.ready', "Assistant ready ✅")), $('span.axiora-ai-card-detail', {}, detail));
+			} else {
+				const setup = $('button.axiora-ai-card-button', {}, localize('axiora.welcome.setup', "Set Up AI"));
+				const free = $('a.axiora-ai-card-link', { href: '#' }, localize('axiora.welcome.free', "Get a free key"));
+				this.categoriesSlideDisposables.add(addDisposableListener(setup, 'click', () => this.commandService.executeCommand('axiora.ai.setup')));
+				this.categoriesSlideDisposables.add(addDisposableListener(free, 'click', e => { e.preventDefault(); this.commandService.executeCommand('axiora.ai.getFreeKey'); }));
+				reset(aiCard,
+					$('div.axiora-ai-card-text', {}, $('span.axiora-ai-card-title', {}, localize('axiora.welcome.enable', "Enable AI assistant")), $('span.axiora-ai-card-detail', {}, localize('axiora.welcome.enableDetail', "Paste one key from OpenRouter, Groq, Gemini, Anthropic or OpenAI — or use Ollama on your computer."))),
+					$('div.axiora-ai-card-actions', {}, setup, free));
+			}
+		};
+		renderAiCard();
+		header.appendChild(aiCard);
+		this.categoriesSlideDisposables.add(this.contextService.onDidChangeContext(e => { if (e.affectsSome(new Set(['axiora.aiReady', 'axiora.aiProviderLabel']))) { renderAiCard(); } }));
+
 		const leftColumn = $('.categories-column.categories-column-left', {},);
 		const rightColumn = $('.categories-column.categories-column-right', {},);
 
