@@ -671,6 +671,11 @@
         "command": "axiora.deploy.configure",
         "title": "Configure Deployment Targets",
         "category": "Deployment"
+      },
+      {
+        "command": "axiora.dotfiles.install",
+        "title": "Install Dotfiles",
+        "category": "Dotfiles"
       }
     ],
     "menus": {
@@ -1108,6 +1113,21 @@
           },
           "default": [],
           "description": "Models to pit against each other in /arena (default: all available)."
+        },
+        "axiora.dotfiles.repository": {
+          "type": "string",
+          "default": "",
+          "description": "Dotfiles repository (URL, owner/repo or local path)."
+        },
+        "axiora.dotfiles.targetPath": {
+          "type": "string",
+          "default": "~/dotfiles",
+          "description": "Where to clone the dotfiles."
+        },
+        "axiora.dotfiles.installCommand": {
+          "type": "string",
+          "default": "",
+          "description": "Install command (default: install.sh/bootstrap.sh/setup.sh, else symlink dotfiles into $HOME)."
         }
       }
     },
