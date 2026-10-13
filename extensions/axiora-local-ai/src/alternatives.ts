@@ -60,24 +60,27 @@ export function activate(ctx: vscode.ExtensionContext) {
 		const ed = vscode.window.activeTextEditor; const r = wsRoot(); if (!ed || !r) { return; } await ed.document.save();
 		const f = ed.document.fileName; const engine = conf().get<string>('axiora.sandbox.engine', 'node-permission');
 		const outDir = path.join(r.fsPath, '.axiora', 'sandbox-out'); fs.mkdirSync(outDir, { recursive: true });
-		const t = vscode.window.createTerminal({ name: 'Sandbox', cwd: r.fsPath }); t.show();
+		vscode.window.terminals.filter(x => x.name === 'Sandbox').forEach(x => x.dispose()); const t = vscode.window.createTerminal({ name: 'Sandbox', cwd: r.fsPath }); t.show();
 		if (engine === 'node-permission') {
 			if (!/\.(m?js|cjs)$/.test(f)) { vscode.window.showWarningMessage('Node permission sandbox runs .js/.mjs/.cjs files; use engine "docker"/"podman" for other languages.'); return; }
-			t.sendText(`node --permission --allow-fs-read="${r.fsPath}" --allow-fs-write="${outDir}" "${f}"`);
+			const v = +((await runOut('node', ['--version'], r.fsPath).catch(() => 'v0')).match(/v(\d+)/)?.[1] ?? 0);
+			if (v < 20) { t.dispose(); vscode.window.showErrorMessage(`The Node permission sandbox needs Node.js 20+ (found ${v ? 'v' + v : 'none'} on PATH). Install a newer Node or set axiora.sandbox.engine to "docker".`); return; }
+			t.sendText(`node ${v >= 22 ? '--permission' : '--experimental-permission'} --allow-fs-read="${r.fsPath}" --allow-fs-write="${outDir}" "${f}"`);
 		} else {
 			const image = /\.py$/.test(f) ? 'python:3.12-slim' : 'node:22-slim'; const rel = path.relative(r.fsPath, f).split(path.sep).join('/');
 			t.sendText(`${engine} run --rm -it --network none --read-only --tmpfs /tmp --cpus 1 --memory 512m --pids-limit 128 --security-opt no-new-privileges -v "${r.fsPath}:/work:ro" -v "${outDir}:/out" -w /work ${image} ${/\.py$/.test(f) ? 'python' : 'node'} ${rel}`);
 		}
-		vscode.window.setStatusBarMessage(`$(shield) Sandboxed (${engine}): no network, writes only to .axiora/sandbox-out`, 6000);
+		vscode.window.setStatusBarMessage(engine === 'node-permission' ? '$(shield) Sandboxed (Node permission model): no child processes/workers/addons, reads only the workspace, writes only to .axiora/sandbox-out' : `$(shield) Sandboxed (${engine}): no network, read-only workspace, writes only to .axiora/sandbox-out`, 6000);
 	});
 	// ---- #47 fine-tuning
 	register(ctx, 'axiora.finetune.export', async () => {
 		const r = wsRoot(); if (!r) { return; }
 		const out = path.join(r.fsPath, '.axiora', 'finetune'); fs.mkdirSync(out, { recursive: true });
-		const files = (await runOut('git', ['ls-files'], r.fsPath).catch(() => '')).split('\n').filter(x => /\.(ts|js|py|go|rs|java|kt|c|cc|cpp|h|cs|rb|php|swift)$/.test(x)).slice(0, 2000);
+		const files = (await runOut('git', ['ls-files', '--cached', '--others', '--exclude-standard'], r.fsPath).catch(() => '')).split('\n')
+			.filter(x => /\.(ts|js|py|go|rs|java|kt|c|cc|cpp|h|cs|rb|php|swift)$/.test(x) && !/(^|\/)(\.axiora|node_modules|dist|out|build|vendor)\/|secret|credential|\.env|key/i.test(x)).slice(0, 2000);
 		const lines: string[] = []; let fim = 0, cm = 0;
 		for (const rel of files) {
-			let t = ''; try { t = fs.readFileSync(path.join(r.fsPath, rel), 'utf8'); } catch { continue; } if (t.length < 200 || t.length > 60000) { continue; }
+			let t = ''; try { t = fs.readFileSync(path.join(r.fsPath, rel), 'utf8'); } catch { continue; } if (t.length < 200 || t.length > 60000 || /(api[_-]?key|secret|password|token)\s*[:=]\s*['"][^'"]{8,}|-----BEGIN [A-Z ]*PRIVATE KEY|\b(sk|rk|pk)_(live|test)_\w{10,}|ghp_\w{20,}|figd_\w{10,}/i.test(t)) { continue; }
 			for (let k = 0; k < 3; k++) { const a = Math.floor(Math.random() * (t.length - 120)), b = a + 20 + Math.floor(Math.random() * 100); lines.push(JSON.stringify({ messages: [{ role: 'system', content: 'Complete the code at <CURSOR>.' }, { role: 'user', content: `// ${rel}\n${t.slice(Math.max(0, a - 1500), a)}<CURSOR>${t.slice(b, b + 500)}` }, { role: 'assistant', content: t.slice(a, b) }] })); fim++; }
 		}
 		const logOut = await runOut('git', ['log', '-n', '300', '--no-merges', '--format=%H%x00%B%x01'], r.fsPath).catch(() => '');
@@ -144,6 +147,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 		let xml = '';
 		if (uri.fsPath.endsWith('.aab')) { xml = await runOut('bundletool', ['dump', 'manifest', `--bundle=${uri.fsPath}`]).catch(e => `bundletool failed: ${e.message}`); }
 		else { xml = await runOut(aapt2, ['dump', 'xmltree', uri.fsPath, '--file', 'AndroidManifest.xml']).catch(async e => (await runOut('apkanalyzer', ['manifest', 'print', uri!.fsPath]).catch(() => `aapt2/apkanalyzer not found (${e.message}). Install Android SDK build-tools or cmdline-tools.`))); }
+		if (/not found \(|bundletool failed/.test(xml) && xml.length < 400) { vscode.window.showErrorMessage(xml); return; }
 		const doc = await vscode.workspace.openTextDocument({ content: xml, language: 'xml' }); await vscode.window.showTextDocument(doc, { preview: true });
 	});
 }

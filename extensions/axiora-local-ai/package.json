@@ -2212,7 +2212,7 @@
             "podman"
           ],
           "default": "node-permission",
-          "description": "Sandbox for 'Run Current File in Sandbox': Node permission model (no network for child processes, fs limited to the workspace) or a no-network container."
+          "description": "Sandbox for 'Run Current File in Sandbox': Node permission model (no child processes/workers, fs read limited to the workspace, writes to .axiora/sandbox-out; network is NOT blocked) or a no-network container."
         }
       }
     },
