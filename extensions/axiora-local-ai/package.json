@@ -67,6 +67,10 @@
           {
             "name": "improve",
             "description": "Rewrite a prompt to be specific and complete"
+          },
+          {
+            "name": "map",
+            "description": "Show the repository map (files and symbols)"
           }
         ]
       }
@@ -172,6 +176,11 @@
       {
         "command": "axiora.ai.improvePrompt",
         "title": "Improve Prompt...",
+        "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.ai.showRepoMap",
+        "title": "Show Repository Map",
         "category": "Axiora AI"
       }
     ],
@@ -298,6 +307,11 @@
           "type": "boolean",
           "default": false,
           "description": "Upload settings automatically when settings.json or keybindings.json change."
+        },
+        "axiora.context.repoMap": {
+          "type": "boolean",
+          "default": true,
+          "description": "Include a compact repository map (files + top-level symbols) in @axiora prompts. Files matching .axioraignore are excluded."
         }
       }
     },
