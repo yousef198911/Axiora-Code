@@ -11,6 +11,10 @@
  *
  *  Endpoints (Bearer token): GET /health · POST /tasks · GET /tasks · GET /tasks/:id
  *  POST /prebuild {bundle, branch, setup} · POST /webhook/github (issue comments with "@axiora")
+ *  POST /webhook/slack (slash command "/axiora …" or app_mention; SLACK_SIGNING_SECRET, SLACK_BOT_TOKEN)
+ *  POST /webhook/linear (comments with "@axiora"; LINEAR_WEBHOOK_SECRET, LINEAR_API_KEY)
+ *  Isolation: AXIORA_RUNNER_ISOLATION=none|docker|podman|vm  (AXIORA_RUNNER_IMAGE, AXIORA_RUNNER_NETWORK=none|bridge,
+ *    AXIORA_RUNNER_VM_CMD e.g. 'limactl shell axiora -- bash -lc "cd {dir} && {cmd}"' or a Firecracker/multipass wrapper)
  *  POST /rum (no auth, from your site's RUM snippet) · GET /rum · GET /dashboard (mobile web UI)
  *--------------------------------------------------------------------------------------------*/
 import http from 'node:http';
@@ -29,6 +33,15 @@ const BASE = process.env.AXIORA_BASE_URL || 'http://127.0.0.1:11434', MODEL = pr
 const CAP = +(process.env.AXIORA_RUNNER_CAPACITY || 2);
 const tasks = new Map(); const rum = []; const prebuilds = new Map();
 const sh = (cmd, args, cwd, input) => new Promise(res => { const p = execFile(cmd, args, { cwd, maxBuffer: 64 << 20, timeout: 15 * 60_000 }, (e, so, se) => res({ ok: !e, out: `${so}${se}` })); if (input) { p.stdin.end(input); } });
+// ---- isolation backends: setup/test commands run inside a container or VM instead of on the host
+const ISO = process.env.AXIORA_RUNNER_ISOLATION || 'none', IMAGE = process.env.AXIORA_RUNNER_IMAGE || 'node:22-bookworm', NET = process.env.AXIORA_RUNNER_NETWORK || 'none';
+const q = s => `'${String(s).replace(/'/g, `'\\''`)}'`;
+function isolated(cmd, dir) {
+	if (ISO === 'docker' || ISO === 'podman') { return sh(ISO, ['run', '--rm', '--network', NET, '--cpus', process.env.AXIORA_RUNNER_CPUS || '2', '--memory', process.env.AXIORA_RUNNER_MEMORY || '4g', '--pids-limit', '512', '--security-opt', 'no-new-privileges', '-v', `${dir}:/work`, '-w', '/work', IMAGE, 'bash', '-lc', cmd], dir); }
+	if (ISO === 'vm') { const tpl = process.env.AXIORA_RUNNER_VM_CMD; if (!tpl) { return Promise.resolve({ ok: false, out: 'AXIORA_RUNNER_VM_CMD not set' }); } return sh('bash', ['-lc', tpl.replaceAll('{dir}', dir).replaceAll('{cmd}', cmd.replace(/"/g, '\\"'))], dir); }
+	return sh('bash', ['-lc', cmd], dir);
+}
+const rawBody = req => new Promise(r => { let s = ''; req.on('data', d => s += d); req.on('end', () => r(s)); });
 async function ask(messages) {
 	const url = PROVIDER === 'ollama' ? `${BASE}/api/chat` : `${BASE}/chat/completions`;
 	const r = await fetch(url, { method: 'POST', headers: { 'content-type': 'application/json', ...(process.env.AXIORA_API_KEY ? { authorization: `Bearer ${process.env.AXIORA_API_KEY}` } : {}) }, body: JSON.stringify({ model: MODEL, messages, stream: false }) });
@@ -48,7 +61,7 @@ async function runTask(t) {
 	const dir = path.join(ROOT, t.id); t.state = 'running'; t.dir = dir;
 	try {
 		await checkout(t, dir); t.log.push('workspace ready');
-		for (const c of t.env?.setup ?? []) { const r = await sh('bash', ['-lc', c], dir); t.log.push(`$ ${c} → ${r.ok ? 'ok' : 'failed'}`); }
+		for (const c of t.env?.setup ?? []) { const r = await isolated(c, dir); t.log.push(`$ ${c} → ${r.ok ? 'ok' : 'failed'}`); }
 		const test = t.test || t.env?.test || '';
 		let feedback = ''; const listing = (await sh('git', ['ls-files'], dir)).out.split('\n').slice(0, 300).join('\n');
 		for (let i = 1; i <= (t.maxIterations || 4); i++) {
@@ -57,7 +70,7 @@ async function runTask(t) {
 			for (const f of fsx) { const p = path.resolve(dir, f.file); if (!p.startsWith(dir + path.sep)) { continue; } fs.mkdirSync(path.dirname(p), { recursive: true }); fs.writeFileSync(p, f.body); }
 			t.log.push(`iteration ${i}: ${fsx.length} file(s)`); t.summary = reply.replace(/<<<FILE[\s\S]*?<<<END>>>/g, '').trim().slice(0, 2000);
 			if (!test) { break; }
-			const r = await sh('bash', ['-lc', `${test} 2>&1`], dir); t.log.push(`verify: ${r.ok ? 'passed' : 'failed'}`);
+			const r = await isolated(`${test} 2>&1`, dir); t.log.push(`verify: ${r.ok ? 'passed' : 'failed'}`);
 			if (r.ok || !fsx.length) { break; } feedback = r.out.slice(-3000);
 		}
 		await sh('git', ['add', '-A'], dir); t.patch = (await sh('git', ['diff', '--cached', '--binary'], dir)).out; t.state = 'done';
@@ -82,7 +95,35 @@ http.createServer(async (req, res) => {
 			reply: async t => { const gh = process.env.GITHUB_TOKEN; if (!gh || !b.issue?.comments_url) { return; } await fetch(b.issue.comments_url, { method: 'POST', headers: { authorization: `Bearer ${gh}`, 'content-type': 'application/json' }, body: JSON.stringify({ body: `**Axiora** finished (${t.state}).\n\n${t.summary ?? ''}\n\n<details><summary>patch</summary>\n\n\`\`\`diff\n${(t.patch ?? '').slice(0, 60000)}\n\`\`\`\n</details>` }) }); } });
 		return json(202, { task: t.id });
 	}
-	if (u.pathname === '/dashboard') { res.writeHead(200, { 'content-type': 'text/html' }); return res.end(`<!doctype html><meta name=viewport content="width=device-width"><title>Axiora runner ${NAME}</title><style>body{font-family:system-ui;margin:12px;background:#111;color:#eee}.t{border:1px solid #333;border-radius:8px;padding:10px;margin:8px 0}small{opacity:.6}</style><h3>Axiora runner · ${NAME}</h3><input id=k placeholder="token" type=password style="width:100%;padding:8px"><div id=l></div><script>const k=document.getElementById('k');k.value=localStorage.t||'';async function f(){localStorage.t=k.value;const r=await fetch('/tasks',{headers:{authorization:'Bearer '+k.value}});if(!r.ok)return;const j=await r.json();document.getElementById('l').innerHTML=j.map(t=>'<div class=t><b>'+t.state+'</b> '+t.prompt.replace(/</g,'&lt;').slice(0,140)+'<br><small>'+t.id+' · '+t.source+' · '+t.created+'</small></div>').join('')}setInterval(f,3000);f()</script>`); }
+	if (u.pathname === '/webhook/slack' && req.method === 'POST') {
+		const raw = await rawBody(req); const sec = process.env.SLACK_SIGNING_SECRET;
+		if (sec) { const ts = req.headers['x-slack-request-timestamp']; const sig = 'v0=' + crypto.createHmac('sha256', sec).update(`v0:${ts}:${raw}`).digest('hex'); if (Math.abs(Date.now() / 1000 - +ts) > 300 || req.headers['x-slack-signature'] !== sig) { return json(401, { error: 'bad signature' }); } }
+		const ct = String(req.headers['content-type'] || ''); const b = ct.includes('json') ? JSON.parse(raw || '{}') : Object.fromEntries(new URLSearchParams(raw));
+		if (b.type === 'url_verification') { return json(200, { challenge: b.challenge }); }
+		const ev = b.event; const text = (b.text ?? ev?.text ?? '').replace(/<@[^>]+>/g, '').trim(); if (!text || ev?.bot_id) { return json(200, {}); }
+		const [repo, ...rest] = /^(\S+:\/\/|git@)\S+/.test(text) ? text.split(/\s+/) : [process.env.AXIORA_DEFAULT_REPO, text];
+		enqueue({ prompt: rest.join(' '), repo, source: `slack:${b.channel_id ?? ev?.channel}`, reply: async t => {
+			const msg = `*Axiora* ${t.state}: ${(t.summary ?? '').slice(0, 2500)}\n\`\`\`${(t.patch ?? '').slice(0, 3000)}\`\`\``;
+			if (b.response_url) { await fetch(b.response_url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ response_type: 'in_channel', text: msg }) }); }
+			else if (process.env.SLACK_BOT_TOKEN && ev) { await fetch('https://slack.com/api/chat.postMessage', { method: 'POST', headers: { authorization: `Bearer ${process.env.SLACK_BOT_TOKEN}`, 'content-type': 'application/json' }, body: JSON.stringify({ channel: ev.channel, thread_ts: ev.thread_ts ?? ev.ts, text: msg }) }); }
+		} });
+		return json(200, { response_type: 'ephemeral', text: 'Axiora queued the task on runner ' + NAME });
+	}
+	if (u.pathname === '/webhook/linear' && req.method === 'POST') {
+		const raw = await rawBody(req); const sec = process.env.LINEAR_WEBHOOK_SECRET;
+		if (sec && req.headers['linear-signature'] !== crypto.createHmac('sha256', sec).update(raw).digest('hex')) { return json(401, { error: 'bad signature' }); }
+		const b = JSON.parse(raw || '{}'); if (b.type !== 'Comment' || b.action !== 'create' || !/@axiora\b/i.test(b.data?.body ?? '')) { return json(200, { ignored: true }); }
+		const issueId = b.data.issueId ?? b.data.issue?.id;
+		const gql = (query, variables) => fetch('https://api.linear.app/graphql', { method: 'POST', headers: { authorization: process.env.LINEAR_API_KEY ?? '', 'content-type': 'application/json' }, body: JSON.stringify({ query, variables }) }).then(r => r.json());
+		const issue = process.env.LINEAR_API_KEY ? (await gql('query($id:String!){issue(id:$id){title description}}', { id: issueId })).data?.issue : undefined;
+		enqueue({ prompt: `${issue?.title ?? ''}\n${issue?.description ?? ''}\n\nRequest: ${b.data.body.replace(/@axiora/ig, '').trim()}`, repo: process.env.AXIORA_DEFAULT_REPO, source: `linear:${issueId}`, reply: async t => {
+			if (!process.env.LINEAR_API_KEY) { return; } await gql('mutation($i:String!,$b:String!){commentCreate(input:{issueId:$i,body:$b}){success}}', { i: issueId, b: `**Axiora** ${t.state}\n\n${t.summary ?? ''}\n\n\`\`\`diff\n${(t.patch ?? '').slice(0, 50000)}\n\`\`\`` });
+		} });
+		return json(202, { queued: true });
+	}
+	if (u.pathname === '/manifest.webmanifest') { res.writeHead(200, { 'content-type': 'application/manifest+json' }); return res.end(JSON.stringify({ name: `Axiora runner ${NAME}`, short_name: 'Axiora', start_url: '/dashboard', display: 'standalone', background_color: '#111111', theme_color: '#111111', icons: [{ src: '/icon.svg', sizes: 'any', type: 'image/svg+xml' }] })); }
+	if (u.pathname === '/icon.svg') { res.writeHead(200, { 'content-type': 'image/svg+xml' }); return res.end('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#4f46e5"/><text x="32" y="44" font-size="34" text-anchor="middle" fill="#fff" font-family="sans-serif">A</text></svg>'); }
+	if (u.pathname === '/dashboard') { res.writeHead(200, { 'content-type': 'text/html' }); return res.end(`<!doctype html><meta name=viewport content="width=device-width"><title>Axiora runner ${NAME}</title><link rel=manifest href=/manifest.webmanifest><meta name=theme-color content=#111111><link rel=icon href=/icon.svg><style>body{font-family:system-ui;margin:12px;background:#111;color:#eee}.t{border:1px solid #333;border-radius:8px;padding:10px;margin:8px 0}small{opacity:.6}</style><h3>Axiora runner · ${NAME}</h3><input id=k placeholder="token" type=password style="width:100%;padding:8px"><div id=l></div><script>const k=document.getElementById('k');k.value=localStorage.t||'';async function f(){localStorage.t=k.value;const r=await fetch('/tasks',{headers:{authorization:'Bearer '+k.value}});if(!r.ok)return;const j=await r.json();document.getElementById('l').innerHTML=j.map(t=>'<div class=t><b>'+t.state+'</b> '+t.prompt.replace(/</g,'&lt;').slice(0,140)+'<br><small>'+t.id+' · '+t.source+' · '+t.created+'</small></div>').join('')}setInterval(f,3000);f()</script>`); }
 	if (req.headers.authorization !== `Bearer ${TOKEN}`) { return json(401, { error: 'unauthorized' }); }
 	if (u.pathname === '/health') { return json(200, { name: NAME, os: `${os.platform()} ${os.release()}`, cpus: os.cpus().length, capacity: CAP, running: [...tasks.values()].filter(t => t.state === 'running').length, queued: [...tasks.values()].filter(t => t.state === 'queued').length, prebuilds: [...prebuilds.keys()] }); }
 	if (u.pathname === '/tasks' && req.method === 'POST') { const b = await body(req); if (!b.prompt) { return json(400, { error: 'prompt required' }); } return json(202, pub(enqueue({ ...b, source: b.source || 'editor' }))); }
