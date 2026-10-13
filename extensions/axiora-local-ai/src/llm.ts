@@ -69,7 +69,7 @@ export function route(messages: ChatMessage[]): string | undefined {
 	const small = r.get<string>('smallModel', ''), large = r.get<string>('largeModel', '');
 	if (!small || !large) { return undefined; }
 	const last = messages[messages.length - 1]?.content ?? '';
-	const total = messages.reduce((n, m) => n + m.content.length, 0);
+	const total = messages.filter(m => m.role !== 'system').reduce((n, m) => n + m.content.length, 0); // conversation size, not injected context
 	const hard = /\b(refactor|architect|design|debug|why|prove|optimi[sz]e|security|migrat|plan|spec|review|complex)\w*/i.test(last) || /```/.test(last);
 	const pick = total > r.get<number>('threshold', 4000) || hard ? large : small;
 	routed = pick; return pick;
