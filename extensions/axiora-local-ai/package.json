@@ -621,6 +621,17 @@
         "command": "axiora.org.agenda",
         "title": "Agenda (open TODOs)",
         "category": "Org"
+      },
+      {
+        "command": "axiora.security.scanWorkspace",
+        "title": "Scan Workspace for Secrets and Vulnerabilities",
+        "category": "Security",
+        "icon": "$(shield)"
+      },
+      {
+        "command": "axiora.security.auditDeps",
+        "title": "Audit Dependencies",
+        "category": "Security"
       }
     ],
     "menus": {
@@ -881,6 +892,11 @@
           "command": "axiora.multibuffer.search",
           "group": "navigation@20",
           "when": "view == workbench.view.search"
+        },
+        {
+          "command": "axiora.security.scanWorkspace",
+          "group": "navigation@50",
+          "when": "view == workbench.panel.markers.view"
         }
       ]
     },
@@ -1027,6 +1043,11 @@
           "type": "string",
           "default": "",
           "description": "Your share server: POST {title, markdown, html} -> {url}."
+        },
+        "axiora.security.scanOnSave": {
+          "type": "boolean",
+          "default": true,
+          "description": "Scan files for secrets and insecure code on open/save (results in Problems)."
         }
       }
     },
