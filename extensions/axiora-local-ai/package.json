@@ -449,8 +449,7 @@
           "group": "navigation@99",
           "when": "resourceExtname == .csv || resourceExtname == .tsv"
         }
-      ],
-      "menubar/edit": []
+      ]
     },
     "configuration": {
       "title": "Axiora Local AI",
