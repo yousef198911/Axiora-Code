@@ -395,6 +395,16 @@
         "command": "axiora.docker.composeDown",
         "title": "Compose Down",
         "category": "Docker"
+      },
+      {
+        "command": "axiora.mcp.copyConfig",
+        "title": "Start Editor MCP Server and Copy Client Config",
+        "category": "MCP"
+      },
+      {
+        "command": "axiora.mcp.regenerateToken",
+        "title": "Regenerate Editor MCP Server Token",
+        "category": "MCP"
       }
     ],
     "menus": {
@@ -649,6 +659,21 @@
           ],
           "default": "default",
           "description": "Built-in keymap: Vim modal editing or Emacs key bindings."
+        },
+        "axiora.mcpServer.enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Expose this editor as an MCP server on 127.0.0.1 (tools: open editors, selection, read file, diagnostics, find files, open file, write file)."
+        },
+        "axiora.mcpServer.port": {
+          "type": "number",
+          "default": 3917,
+          "description": "Port for the editor MCP server."
+        },
+        "axiora.mcpServer.allowWrites": {
+          "type": "boolean",
+          "default": false,
+          "description": "Allow MCP clients to write files through the editor."
         }
       }
     },
