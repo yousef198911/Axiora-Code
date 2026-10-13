@@ -123,7 +123,8 @@
       {
         "command": "axiora.review.changes",
         "title": "Review Uncommitted Changes",
-        "category": "Axiora AI"
+        "category": "Axiora AI",
+        "icon": "$(checklist)"
       },
       {
         "command": "axiora.sync.push",
@@ -255,7 +256,7 @@
       },
       {
         "command": "axiora.git.blamePrevious",
-        "title": "Show File Before the Commit That Changed This Line (Blame Previous Revision)",
+        "title": "Blame Previous Revision of This Line",
         "category": "Git"
       },
       {
@@ -341,13 +342,6 @@
         {
           "command": "axiora.ai.terminalCommand",
           "group": "0_axiora"
-        }
-      ],
-      "view/title": [
-        {
-          "command": "axiora.ai.terminalCommand",
-          "group": "navigation@0",
-          "when": "view == terminal"
         }
       ],
       "debug/callstack/context": [
@@ -479,11 +473,6 @@
       }
     ],
     "keybindings": [
-      {
-        "command": "axiora.ai.terminalCommand",
-        "key": "ctrl+alt+k",
-        "when": "terminalFocus"
-      },
       {
         "command": "axiora.bookmarks.toggle",
         "key": "ctrl+alt+b",
