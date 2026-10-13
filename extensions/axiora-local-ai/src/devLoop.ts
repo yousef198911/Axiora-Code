@@ -13,6 +13,8 @@
 import * as vscode from 'vscode';
 import * as cp from 'child_process';
 import * as path from 'path';
+import * as os from 'os';
+import * as fs from 'fs';
 import { register, wsRoot, ask, run } from './util';
 
 export function activate(ctx: vscode.ExtensionContext) {
@@ -21,7 +23,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 		const doc = uri ? await vscode.workspace.openTextDocument(uri) : vscode.window.activeTextEditor?.document; if (!doc) { return; } await doc.save();
 		const f = doc.fileName; const q = (s: string) => `'${s.replace(/'/g, `'\\''`)}'`;
 		const t = vscode.window.createTerminal({ name: `Hot: ${path.basename(f)}`, cwd: path.dirname(f), iconPath: new vscode.ThemeIcon('flame') });
-		if (doc.languageId === 'python') { t.sendText(`python3 -c ${q(`import os,sys,time,subprocess\nf=sys.argv[1];m=0;p=None\nwhile True:\n    n=os.stat(f).st_mtime\n    if n!=m:\n        m=n\n        if p: p.terminate(); p.wait()\n        print('\\x1b[2m[hot] running',os.path.basename(f),time.strftime('%X'),'\\x1b[0m',flush=True)\n        p=subprocess.Popen([sys.executable,f])\n    time.sleep(0.3)`)} ${q(f)}`); }
+		if (doc.languageId === 'python') { const w = path.join(os.tmpdir(), 'axiora-hot.py'); fs.writeFileSync(w, `import os,sys,time,subprocess\nf=sys.argv[1];m=0;p=None\nwhile True:\n    n=os.stat(f).st_mtime\n    if n!=m:\n        m=n\n        if p: p.terminate(); p.wait()\n        print('\\x1b[2m[hot] running',os.path.basename(f),time.strftime('%X'),'\\x1b[0m',flush=True)\n        p=subprocess.Popen([sys.executable,f])\n    time.sleep(0.3)`); t.sendText(`python3 ${q(w)} ${q(f)}`); }
 		else { t.sendText(`node --watch ${q(f)}`); }
 		t.show(true);
 	});
