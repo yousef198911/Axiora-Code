@@ -87,6 +87,10 @@
           {
             "name": "share",
             "description": "Share this conversation (link via your server, or HTML file)"
+          },
+          {
+            "name": "arena",
+            "description": "Compare two models side by side (blind) and vote"
           }
         ]
       }
@@ -642,6 +646,11 @@
         "command": "axiora.automations.run",
         "title": "Run Automation Now...",
         "category": "Automations"
+      },
+      {
+        "command": "axiora.arena.leaderboard",
+        "title": "Arena Leaderboard",
+        "category": "Axiora AI"
       }
     ],
     "menus": {
@@ -1058,6 +1067,14 @@
           "type": "boolean",
           "default": true,
           "description": "Scan files for secrets and insecure code on open/save (results in Problems)."
+        },
+        "axiora.arena.models": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "Models to pit against each other in /arena (default: all available)."
         }
       }
     },
