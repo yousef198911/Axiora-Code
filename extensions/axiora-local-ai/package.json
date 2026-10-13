@@ -781,6 +781,11 @@
         "command": "axiora.chats.browse",
         "title": "Browse Past Conversations",
         "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.ai.implementComment",
+        "title": "Implement Function from Comment",
+        "category": "Axiora AI"
       }
     ],
     "menus": {
@@ -884,6 +889,10 @@
         {
           "command": "axiora.ai.propertyTests",
           "group": "1_axiora@4"
+        },
+        {
+          "command": "axiora.ai.implementComment",
+          "group": "1_axiora@3"
         }
       ],
       "axiora.ai.editorMenu": [
@@ -1885,6 +1894,11 @@
         "command": "axiora.multibuffer.open",
         "key": "alt+enter",
         "when": "resourceScheme == axiora-multi && editorTextFocus"
+      },
+      {
+        "command": "axiora.ai.implementComment",
+        "key": "ctrl+alt+enter",
+        "when": "editorTextFocus && !editorReadonly"
       }
     ],
     "languages": [
