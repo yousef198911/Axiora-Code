@@ -216,6 +216,12 @@
         "command": "axiora.bookmarks.clear",
         "title": "Clear All Bookmarks",
         "category": "Bookmarks"
+      },
+      {
+        "command": "axiora.csv.preview",
+        "title": "Open as Table",
+        "category": "CSV",
+        "icon": "$(table)"
       }
     ],
     "menus": {
@@ -295,6 +301,20 @@
         {
           "command": "axiora.bookmarks.toggle",
           "group": "navigation"
+        }
+      ],
+      "editor/title": [
+        {
+          "command": "axiora.csv.preview",
+          "group": "navigation",
+          "when": "resourceExtname == .csv || resourceExtname == .tsv"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "axiora.csv.preview",
+          "group": "navigation@99",
+          "when": "resourceExtname == .csv || resourceExtname == .tsv"
         }
       ]
     },
@@ -387,6 +407,26 @@
       {
         "command": "axiora.bookmarks.list",
         "key": "ctrl+alt+j"
+      }
+    ],
+    "languages": [
+      {
+        "id": "csv",
+        "extensions": [
+          ".csv"
+        ],
+        "aliases": [
+          "CSV"
+        ]
+      },
+      {
+        "id": "tsv",
+        "extensions": [
+          ".tsv"
+        ],
+        "aliases": [
+          "TSV"
+        ]
       }
     ]
   }
