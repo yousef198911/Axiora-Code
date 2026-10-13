@@ -23,14 +23,17 @@ const model = process.env.AXIORA_MODEL ?? s['axiora.ai.chatModel'] ?? 'qwen2.5-c
 const key = process.env.AXIORA_API_KEY ?? '';
 const args = process.argv.slice(2); const opt = { files: [], diff: false, edit: '' }; const rest = [];
 for (let i = 0; i < args.length; i++) { const a = args[i]; if (a === '--diff') { opt.diff = true; } else if (a === '--edit') { opt.edit = args[++i]; } else if (a === '--files') { while (args[i + 1] && !args[i + 1].startsWith('--') && fs.existsSync(args[i + 1])) { opt.files.push(args[++i]); } } else if (a === '-h' || a === '--help') { console.log(fs.readFileSync(new URL(import.meta.url), 'utf8').split('\n').slice(1, 12).map(l => l.replace(/^\/\/ ?/, '')).join('\n')); process.exit(0); } else { rest.push(a); } }
-const prompt = rest.join(' ');
+let prompt = rest.join(' ');
+let stdinText = '';
+try { const st = fs.fstatSync(0); if (!process.stdin.isTTY && (st.isFIFO() || st.isFile())) { const inp = fs.readFileSync(0, 'utf8'); stdinText = inp.slice(0, 40000); } } catch { /* no stdin */ }
+if (!prompt && stdinText) { prompt = stdinText; stdinText = ''; }
 if (!prompt) { console.error('axiora-agent: give a prompt (see --help)'); process.exit(2); }
 const sh = (c, a) => { try { return execFileSync(c, a, { encoding: 'utf8', maxBuffer: 32 << 20 }); } catch { return ''; } };
 let ctx = '';
 const ls = sh('git', ['ls-files']); if (ls) { ctx += `\nRepository files:\n${ls.split('\n').slice(0, 300).join('\n')}`; }
 if (opt.diff) { ctx += `\n\nGit diff:\n${sh('git', ['diff', 'HEAD']).slice(0, 40000)}`; }
 for (const f of opt.files) { ctx += `\n\n--- ${f}\n${fs.readFileSync(f, 'utf8').slice(0, 20000)}`; }
-try { const st = fs.fstatSync(0); if (!process.stdin.isTTY && (st.isFIFO() || st.isFile())) { const inp = fs.readFileSync(0, 'utf8'); if (inp) { ctx += `\n\nInput:\n${inp.slice(0, 40000)}`; } } } catch { /* no stdin */ }
+if (stdinText) { ctx += `\n\nInput:\n${stdinText}`; }
 let user = prompt + ctx;
 const sys = 'You are Axiora, a precise senior software engineer working headless in a terminal. Be concise.';
 if (opt.edit) { user = `Rewrite this file applying: ${prompt}\nOutput ONLY the full new file content, no fences.\n\n--- ${opt.edit}\n${fs.readFileSync(opt.edit, 'utf8')}`; }
