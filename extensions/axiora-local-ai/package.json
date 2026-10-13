@@ -278,6 +278,36 @@
         "command": "axiora.ai.showUsage",
         "title": "Show Token Usage and Cost",
         "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.macro.start",
+        "title": "Start/Stop Recording Macro",
+        "category": "Macros"
+      },
+      {
+        "command": "axiora.macro.stop",
+        "title": "Stop Recording Macro",
+        "category": "Macros"
+      },
+      {
+        "command": "axiora.macro.play",
+        "title": "Play Last Macro",
+        "category": "Macros"
+      },
+      {
+        "command": "axiora.macro.playN",
+        "title": "Play Last Macro N Times...",
+        "category": "Macros"
+      },
+      {
+        "command": "axiora.macro.save",
+        "title": "Save Last Macro As...",
+        "category": "Macros"
+      },
+      {
+        "command": "axiora.macro.runSaved",
+        "title": "Run Saved Macro...",
+        "category": "Macros"
       }
     ],
     "menus": {
@@ -490,6 +520,111 @@
       {
         "command": "axiora.edit.pasteFromHistory",
         "key": "ctrl+shift+alt+v",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "axiora.macro.rec.cursorDown",
+        "key": "down",
+        "when": "editorTextFocus && axiora.macroRecording && !suggestWidgetVisible"
+      },
+      {
+        "command": "axiora.macro.rec.cursorUp",
+        "key": "up",
+        "when": "editorTextFocus && axiora.macroRecording && !suggestWidgetVisible"
+      },
+      {
+        "command": "axiora.macro.rec.cursorLeft",
+        "key": "left",
+        "when": "editorTextFocus && axiora.macroRecording && !suggestWidgetVisible"
+      },
+      {
+        "command": "axiora.macro.rec.cursorRight",
+        "key": "right",
+        "when": "editorTextFocus && axiora.macroRecording && !suggestWidgetVisible"
+      },
+      {
+        "command": "axiora.macro.rec.cursorHome",
+        "key": "home",
+        "when": "editorTextFocus && axiora.macroRecording && !suggestWidgetVisible"
+      },
+      {
+        "command": "axiora.macro.rec.cursorEnd",
+        "key": "end",
+        "when": "editorTextFocus && axiora.macroRecording && !suggestWidgetVisible"
+      },
+      {
+        "command": "axiora.macro.rec.cursorWordLeft",
+        "key": "ctrl+left",
+        "when": "editorTextFocus && axiora.macroRecording && !suggestWidgetVisible"
+      },
+      {
+        "command": "axiora.macro.rec.cursorWordRight",
+        "key": "ctrl+right",
+        "when": "editorTextFocus && axiora.macroRecording && !suggestWidgetVisible"
+      },
+      {
+        "command": "axiora.macro.rec.deleteLeft",
+        "key": "backspace",
+        "when": "editorTextFocus && axiora.macroRecording && !suggestWidgetVisible"
+      },
+      {
+        "command": "axiora.macro.rec.deleteRight",
+        "key": "delete",
+        "when": "editorTextFocus && axiora.macroRecording && !suggestWidgetVisible"
+      },
+      {
+        "command": "axiora.macro.rec.tab",
+        "key": "tab",
+        "when": "editorTextFocus && axiora.macroRecording && !suggestWidgetVisible"
+      },
+      {
+        "command": "axiora.macro.rec.cursorDownSelect",
+        "key": "shift+down",
+        "when": "editorTextFocus && axiora.macroRecording && !suggestWidgetVisible"
+      },
+      {
+        "command": "axiora.macro.rec.cursorUpSelect",
+        "key": "shift+up",
+        "when": "editorTextFocus && axiora.macroRecording && !suggestWidgetVisible"
+      },
+      {
+        "command": "axiora.macro.rec.cursorEndSelect",
+        "key": "shift+end",
+        "when": "editorTextFocus && axiora.macroRecording && !suggestWidgetVisible"
+      },
+      {
+        "command": "axiora.macro.rec.cursorHomeSelect",
+        "key": "shift+home",
+        "when": "editorTextFocus && axiora.macroRecording && !suggestWidgetVisible"
+      },
+      {
+        "command": "axiora.macro.rec.editor.action.clipboardCopyAction",
+        "key": "ctrl+c",
+        "when": "editorTextFocus && axiora.macroRecording && !suggestWidgetVisible"
+      },
+      {
+        "command": "axiora.macro.rec.editor.action.clipboardPasteAction",
+        "key": "ctrl+v",
+        "when": "editorTextFocus && axiora.macroRecording && !suggestWidgetVisible"
+      },
+      {
+        "command": "axiora.macro.rec.editor.action.clipboardCutAction",
+        "key": "ctrl+x",
+        "when": "editorTextFocus && axiora.macroRecording && !suggestWidgetVisible"
+      },
+      {
+        "command": "axiora.macro.rec.editor.action.deleteLines",
+        "key": "ctrl+shift+k",
+        "when": "editorTextFocus && axiora.macroRecording && !suggestWidgetVisible"
+      },
+      {
+        "command": "axiora.macro.start",
+        "key": "ctrl+alt+m ctrl+alt+r",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "axiora.macro.play",
+        "key": "ctrl+alt+m ctrl+alt+p",
         "when": "editorTextFocus"
       }
     ],
