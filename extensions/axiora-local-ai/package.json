@@ -149,6 +149,12 @@
         "title": "Generate Commit Message",
         "category": "Axiora AI",
         "icon": "$(sparkle)"
+      },
+      {
+        "command": "axiora.ai.terminalCommand",
+        "title": "Generate Terminal Command from Description...",
+        "category": "Axiora AI",
+        "icon": "$(sparkle)"
       }
     ],
     "menus": {
@@ -197,6 +203,19 @@
         {
           "command": "axiora.ai.generateTests",
           "group": "1@4"
+        }
+      ],
+      "terminal/context": [
+        {
+          "command": "axiora.ai.terminalCommand",
+          "group": "0_axiora"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "axiora.ai.terminalCommand",
+          "group": "navigation@0",
+          "when": "view == terminal"
         }
       ]
     },
@@ -268,6 +287,13 @@
       {
         "id": "axiora.ai.editorMenu",
         "label": "Axiora AI"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "axiora.ai.terminalCommand",
+        "key": "ctrl+alt+k",
+        "when": "terminalFocus"
       }
     ]
   }
