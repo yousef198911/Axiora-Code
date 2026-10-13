@@ -786,6 +786,16 @@
         "command": "axiora.ai.implementComment",
         "title": "Implement Function from Comment",
         "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.nextEdit.accept",
+        "title": "Accept Next Edit Suggestion",
+        "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.nextEdit.dismiss",
+        "title": "Dismiss Next Edit Suggestion",
+        "category": "Axiora AI"
       }
     ],
     "menus": {
@@ -1323,6 +1333,11 @@
           },
           "default": [],
           "description": "Extra repository folders whose file lists are included in @axiora context."
+        },
+        "axiora.nextEdit.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Suggest the same change at the next occurrence after you rename a word (Tab to apply)."
         }
       }
     },
@@ -1899,6 +1914,16 @@
         "command": "axiora.ai.implementComment",
         "key": "ctrl+alt+enter",
         "when": "editorTextFocus && !editorReadonly"
+      },
+      {
+        "command": "axiora.nextEdit.accept",
+        "key": "tab",
+        "when": "editorTextFocus && axiora.nextEditPending && !suggestWidgetVisible && !inlineSuggestionVisible && !inSnippetMode"
+      },
+      {
+        "command": "axiora.nextEdit.dismiss",
+        "key": "escape",
+        "when": "editorTextFocus && axiora.nextEditPending"
       }
     ],
     "languages": [
