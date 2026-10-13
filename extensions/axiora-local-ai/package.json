@@ -806,6 +806,12 @@
         "command": "axiora.nextEdit.dismiss",
         "title": "Dismiss Next Edit Suggestion",
         "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.codemap.show",
+        "title": "Show Codemap",
+        "category": "Axiora AI",
+        "icon": "$(type-hierarchy)"
       }
     ],
     "menus": {
@@ -1121,6 +1127,11 @@
           "command": "axiora.multibuffer.search",
           "group": "navigation@20",
           "when": "view == workbench.view.search"
+        },
+        {
+          "command": "axiora.codemap.show",
+          "group": "navigation@90",
+          "when": "view == workbench.explorer.fileView"
         }
       ]
     },
