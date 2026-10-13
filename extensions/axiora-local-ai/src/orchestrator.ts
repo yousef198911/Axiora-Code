@@ -28,7 +28,7 @@ export function activate(_ctx: vscode.ExtensionContext) {
 			results[i] = await quiet(`${SYS}\nYou are subagent #${i + 1}. Do ONLY your subtask, concisely, with code where needed.`, `Overall task: ${req.prompt}\nYour subtask: ${t}${base}`, token).catch(e => `Error: ${e.message}`);
 			stream.progress(`Subagents finished: ${++done}/${plan.length}`);
 		});
-		stream.markdown(results.map((r, i) => `<details><summary>Subagent ${i + 1}: ${plan[i]}</summary>\n\n${r}\n\n</details>`).join('\n') + '\n\n---\n**Merged result:**\n\n');
+		stream.markdown(results.map((r, i) => `#### Subagent ${i + 1}: ${plan[i]}\n\n${r}\n`).join("\n") + "\n\n---\n**Merged result:**\n\n");
 		await chat([{ role: 'system', content: `${SYS}\nYou are the coordinator. Merge the subagent results into one coherent, deduplicated answer; resolve conflicts.` }, { role: 'user', content: `Task: ${req.prompt}\n\n${results.map((r, i) => `## Subagent ${i + 1} (${plan[i]})\n${r}`).join('\n\n')}` }], s => stream.markdown(s), token);
 	});
 	chatCommands.set('subagent', async (req, stream, token) => {
