@@ -119,6 +119,10 @@
           {
             "name": "docs",
             "description": "Answer from indexed external documentation (#name to pick a source)"
+          },
+          {
+            "name": "recall",
+            "description": "Find past conversations (use #chat:<words> to include one)"
           }
         ]
       }
@@ -772,6 +776,11 @@
         "command": "axiora.deploy.configure",
         "title": "Configure Deployment Targets",
         "category": "Deployment"
+      },
+      {
+        "command": "axiora.chats.browse",
+        "title": "Browse Past Conversations",
+        "category": "Axiora AI"
       }
     ],
     "menus": {
@@ -1287,6 +1296,24 @@
           "type": "number",
           "default": 40,
           "description": "Max pages crawled per documentation source."
+        },
+        "axiora.context.liveActions": {
+          "type": "boolean",
+          "default": true,
+          "description": "Include what you are doing (active file, recent edits, terminal commands, errors) in @axiora prompts."
+        },
+        "axiora.context.fastContext": {
+          "type": "boolean",
+          "default": true,
+          "description": "Retrieve the most relevant code for each prompt by keyword search."
+        },
+        "axiora.context.extraRepos": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "Extra repository folders whose file lists are included in @axiora context."
         }
       }
     },

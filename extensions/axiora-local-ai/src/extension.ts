@@ -7,6 +7,7 @@ import * as path from 'path';
 import { chat, ChatMessage, complete, initLlm, listModels } from './llm';
 import { chatCommands, contextProviders } from './util';
 import { awake } from './keepAwake';
+import { setPrompt } from './liveContext';
 import { activateFeatures } from './features';
 
 const out = vscode.window.createOutputChannel('Axiora Local AI', { log: true });
@@ -258,7 +259,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 	}));
 
 	// @axiora chat participant
-	const participant = vscode.chat.createChatParticipant('axiora.local', (req, _ctx, stream, token) => awake(handleChat(req, _ctx, stream, token)));
+	const participant = vscode.chat.createChatParticipant('axiora.local', (req, _ctx, stream, token) => { setPrompt(req.prompt); vscode.commands.executeCommand('axiora.chats.save', _ctx.history, req.prompt).then(undefined, () => undefined); return awake(handleChat(req, _ctx, stream, token)); });
 	async function handleChat(req: vscode.ChatRequest, _ctx: vscode.ChatContext, stream: vscode.ChatResponseStream, token: vscode.CancellationToken) {
 		try {
 			switch (req.command) {
