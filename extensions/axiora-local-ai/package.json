@@ -123,6 +123,14 @@
           {
             "name": "recall",
             "description": "Find past conversations (use #chat:<words> to include one)"
+          },
+          {
+            "name": "parallel",
+            "description": "Split into subtasks, run subagents in parallel, merge"
+          },
+          {
+            "name": "subagent",
+            "description": "Run one isolated subagent (role: task) and get its summary"
           }
         ]
       }
@@ -1130,7 +1138,7 @@
         },
         {
           "command": "axiora.codemap.show",
-          "group": "navigation@90",
+          "group": "9_axiora@1",
           "when": "view == workbench.explorer.fileView"
         }
       ]
@@ -1359,6 +1367,11 @@
           "type": "boolean",
           "default": true,
           "description": "Suggest the same change at the next occurrence after you rename a word (Tab to apply)."
+        },
+        "axiora.agents.concurrency": {
+          "type": "number",
+          "default": 3,
+          "description": "How many subagents /parallel runs at once."
         }
       }
     },
