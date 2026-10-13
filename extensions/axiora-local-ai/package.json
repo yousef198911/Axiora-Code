@@ -435,6 +435,17 @@
         "command": "axiora.k8s.delete",
         "title": "Delete Resources in Manifest",
         "category": "Kubernetes"
+      },
+      {
+        "command": "axiora.tex.build",
+        "title": "Build and Preview PDF",
+        "category": "LaTeX/Typst",
+        "icon": "$(open-preview)"
+      },
+      {
+        "command": "axiora.tex.openPdf",
+        "title": "Open PDF Externally",
+        "category": "LaTeX/Typst"
       }
     ],
     "menus": {
@@ -558,6 +569,11 @@
           "command": "axiora.db.runQuery",
           "group": "navigation",
           "when": "editorLangId == sql"
+        },
+        {
+          "command": "axiora.tex.build",
+          "group": "navigation",
+          "when": "resourceExtname == .tex || resourceExtname == .typ"
         }
       ],
       "explorer/context": [
@@ -714,6 +730,23 @@
           "type": "boolean",
           "default": false,
           "description": "Allow MCP clients to write files through the editor."
+        },
+        "axiora.latex.engine": {
+          "type": "string",
+          "enum": [
+            "latexmk",
+            "pdflatex",
+            "xelatex",
+            "lualatex",
+            "tectonic"
+          ],
+          "default": "latexmk",
+          "description": "LaTeX build tool."
+        },
+        "axiora.latex.buildOnSave": {
+          "type": "boolean",
+          "default": true,
+          "description": "Rebuild the PDF on save while its preview is open."
         }
       }
     },
@@ -1041,6 +1074,11 @@
         "command": "axiora.db.runQuery",
         "key": "ctrl+enter",
         "when": "editorTextFocus && editorLangId == sql"
+      },
+      {
+        "command": "axiora.tex.build",
+        "key": "ctrl+alt+b",
+        "when": "resourceExtname == .tex || resourceExtname == .typ"
       }
     ],
     "languages": [
@@ -1070,6 +1108,15 @@
         ],
         "aliases": [
           "HTTP"
+        ]
+      },
+      {
+        "id": "typst",
+        "extensions": [
+          ".typ"
+        ],
+        "aliases": [
+          "Typst"
         ]
       }
     ]
