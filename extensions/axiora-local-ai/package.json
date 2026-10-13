@@ -176,6 +176,10 @@
           {
             "name": "handoff",
             "description": "Hand this chat + branch over to your runner"
+          },
+          {
+            "name": "semantic",
+            "description": "Semantic code search over the local embeddings index"
           }
         ]
       }
@@ -1120,6 +1124,37 @@
         "command": "axiora.propertyTests.run",
         "title": "Run Property Tests",
         "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.timeTravel.record",
+        "title": "Time-Travel: Record Python Script",
+        "category": "Axiora AI",
+        "icon": "$(history)"
+      },
+      {
+        "command": "axiora.instruments.open",
+        "title": "Open Instruments",
+        "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.apk.analyze",
+        "title": "Analyze APK / AAB...",
+        "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.semantic.build",
+        "title": "Build Semantic Index",
+        "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.repl.open",
+        "title": "Open Extension REPL",
+        "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.wasi.run",
+        "title": "Run WASI Plugin...",
+        "category": "Axiora AI"
       }
     ],
     "menus": {
@@ -1410,6 +1445,11 @@
           "command": "axiora.app.dataApp",
           "when": "resourceExtname == .csv",
           "group": "7_axiora@7"
+        },
+        {
+          "command": "axiora.apk.analyze",
+          "when": "resourceExtname =~ /\\.(apk|aab)$/",
+          "group": "7_axiora@8"
         }
       ],
       "scm/resourceState/context": [
@@ -1528,6 +1568,11 @@
           "command": "axiora.hot.run",
           "group": "navigation@91",
           "when": "resourceLangId == javascript || resourceLangId == python"
+        },
+        {
+          "command": "axiora.timeTravel.record",
+          "when": "resourceLangId == python",
+          "group": "navigation@9"
         }
       ]
     },
@@ -1821,6 +1866,16 @@
           "type": "boolean",
           "default": true,
           "description": "Axiora inspections with quick fixes for JS/TS/Python."
+        },
+        "axiora.ai.embeddingModel": {
+          "type": "string",
+          "default": "nomic-embed-text",
+          "description": "Embedding model on your model server for the semantic index (falls back to local hashed vectors)."
+        },
+        "axiora.wasi.replace": {
+          "type": "boolean",
+          "default": true,
+          "description": "WASI plugin output replaces the document/selection (otherwise opens in a new tab)."
         }
       }
     },
