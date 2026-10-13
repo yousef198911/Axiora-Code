@@ -91,6 +91,30 @@
           {
             "name": "arena",
             "description": "Compare two models side by side (blind) and vote"
+          },
+          {
+            "name": "tester",
+            "description": "Test engineer agent"
+          },
+          {
+            "name": "architect",
+            "description": "Architecture agent"
+          },
+          {
+            "name": "security",
+            "description": "Security reviewer agent"
+          },
+          {
+            "name": "docs-writer",
+            "description": "Documentation agent"
+          },
+          {
+            "name": "debugger",
+            "description": "Debugging agent"
+          },
+          {
+            "name": "perf",
+            "description": "Performance agent"
           }
         ]
       }
@@ -698,6 +722,11 @@
         "command": "axiora.multibuffer.open",
         "title": "Open Excerpt Source",
         "category": "Search"
+      },
+      {
+        "command": "axiora.ai.propertyTests",
+        "title": "Generate Property-Based Tests",
+        "category": "Axiora AI"
       }
     ],
     "menus": {
@@ -797,6 +826,10 @@
           "command": "axiora.multibuffer.open",
           "group": "navigation@0",
           "when": "resourceScheme == axiora-multi"
+        },
+        {
+          "command": "axiora.ai.propertyTests",
+          "group": "1_axiora@4"
         }
       ],
       "axiora.ai.editorMenu": [
@@ -1175,6 +1208,26 @@
           "type": "boolean",
           "default": true,
           "description": "Prevent system sleep while @axiora or tasks are running."
+        },
+        "axiora.ai.router.enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Adaptive model router: pick small vs large model per request."
+        },
+        "axiora.ai.router.smallModel": {
+          "type": "string",
+          "default": "",
+          "description": "Model for short/simple requests."
+        },
+        "axiora.ai.router.largeModel": {
+          "type": "string",
+          "default": "",
+          "description": "Model for long/complex requests (refactor, debug, design, code blocks)."
+        },
+        "axiora.ai.router.threshold": {
+          "type": "number",
+          "default": 4000,
+          "description": "Prompt size (chars) above which the large model is used."
         }
       }
     },

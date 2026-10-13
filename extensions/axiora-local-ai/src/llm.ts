@@ -54,10 +54,23 @@ export async function complete(prefix: string, suffix: string, model: string, ma
 	return res;
 }
 
+/** Adaptive model router: small model for short/simple requests, large model for complex ones. */
+export function route(messages: ChatMessage[]): string | undefined {
+	const r = vscode.workspace.getConfiguration('axiora.ai.router');
+	if (!r.get('enabled', false)) { return undefined; }
+	const small = r.get<string>('smallModel', ''), large = r.get<string>('largeModel', '');
+	if (!small || !large) { return undefined; }
+	const last = messages[messages.length - 1]?.content ?? '';
+	const total = messages.reduce((n, m) => n + m.content.length, 0);
+	const hard = /\b(refactor|architect|design|debug|why|prove|optimi[sz]e|security|migrat|plan|spec|review|complex)\w*/i.test(last) || /```/.test(last);
+	const pick = total > r.get<number>('threshold', 4000) || hard ? large : small;
+	routed = pick; return pick;
+}
+export let routed = '';
 /** Streaming chat. Calls onChunk for every text delta, returns full text. */
 export async function chat(messages: ChatMessage[], onChunk: (s: string) => void, token?: vscode.CancellationToken, model?: string): Promise<string> {
 	const { provider, baseUrl } = cfg();
-	const chatModel = model || cfg().chatModel;
+	const chatModel = model || route(messages) || cfg().chatModel;
 	const ac = new AbortController();
 	token?.onCancellationRequested(() => ac.abort());
 	const url = provider === 'ollama' ? `${baseUrl}/api/chat` : `${baseUrl}/chat/completions`;
