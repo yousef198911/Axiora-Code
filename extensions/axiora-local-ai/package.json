@@ -349,6 +349,27 @@
         "title": "Open Live Preview",
         "category": "HTML",
         "icon": "$(open-preview)"
+      },
+      {
+        "command": "axiora.db.add",
+        "title": "Add Connection...",
+        "category": "Database"
+      },
+      {
+        "command": "axiora.db.select",
+        "title": "Select Connection...",
+        "category": "Database"
+      },
+      {
+        "command": "axiora.db.runQuery",
+        "title": "Run Query",
+        "category": "Database",
+        "icon": "$(play)"
+      },
+      {
+        "command": "axiora.db.browse",
+        "title": "Browse Tables...",
+        "category": "Database"
       }
     ],
     "menus": {
@@ -388,6 +409,11 @@
           "command": "axiora.git.blamePrevious",
           "group": "z_git@1",
           "when": "resourceScheme == file && gitOpenRepositoryCount != 0"
+        },
+        {
+          "command": "axiora.db.runQuery",
+          "group": "navigation@0",
+          "when": "editorLangId == sql"
         }
       ],
       "axiora.ai.editorMenu": [
@@ -457,6 +483,11 @@
           "command": "axiora.html.preview",
           "group": "navigation",
           "when": "editorLangId == html"
+        },
+        {
+          "command": "axiora.db.runQuery",
+          "group": "navigation",
+          "when": "editorLangId == sql"
         }
       ],
       "explorer/context": [
@@ -900,6 +931,11 @@
         "command": "axiora.html.preview",
         "key": "ctrl+k v",
         "when": "editorLangId == html"
+      },
+      {
+        "command": "axiora.db.runQuery",
+        "key": "ctrl+enter",
+        "when": "editorTextFocus && editorLangId == sql"
       }
     ],
     "languages": [
