@@ -156,6 +156,18 @@
           {
             "name": "prototype",
             "description": "Build a runnable app prototype from a description ('refine: …' to iterate)"
+          },
+          {
+            "name": "caps",
+            "description": "Show and toggle agent capability chips"
+          },
+          {
+            "name": "solo",
+            "description": "SOLO: autonomous write → test → fix loop for a goal"
+          },
+          {
+            "name": "workflow",
+            "description": "Run a saved workflow: <name>"
           }
         ]
       }
@@ -985,6 +997,31 @@
         "command": "axiora.sketch.run",
         "title": "Run in Tool Sketchpad",
         "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.policy.show",
+        "title": "Context Policy...",
+        "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.caps.toggle",
+        "title": "Toggle Agent Capabilities...",
+        "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.workflow.record",
+        "title": "Record Workflow (start/stop)",
+        "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.workflow.run",
+        "title": "Run Workflow...",
+        "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.board.open",
+        "title": "Open Agent Board (Kanban)",
+        "category": "Axiora AI"
       }
     ],
     "menus": {
@@ -1626,6 +1663,21 @@
           "type": "string",
           "default": "",
           "description": "Model with image input used for screenshot-to-UI (e.g. llava, qwen2.5vl). Empty = chat model."
+        },
+        "axiora.policy.url": {
+          "type": "string",
+          "default": "",
+          "description": "Optional org context policy JSON ({exclude, redact}) served from your own server; merged with .axiora/policy.json."
+        },
+        "axiora.solo.testCommand": {
+          "type": "string",
+          "default": "",
+          "description": "Verification command for /solo (default: npm test when package.json has a test script)."
+        },
+        "axiora.solo.maxIterations": {
+          "type": "number",
+          "default": 5,
+          "description": "Maximum /solo iterations."
         }
       }
     },

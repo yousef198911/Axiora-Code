@@ -261,7 +261,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 	}));
 
 	// @axiora chat participant
-	const participant = vscode.chat.createChatParticipant('axiora.local', (req, _ctx, stream, token) => { setPrompt(req.prompt); vscode.commands.executeCommand('axiora.chats.save', _ctx.history, req.prompt).then(undefined, () => undefined); return awake(handleChat(req, _ctx, stream, token)); });
+	const participant = vscode.chat.createChatParticipant('axiora.local', (req, _ctx, stream, token) => { setPrompt(req.prompt); (globalThis as any).axioraOnPrompt?.(req.command, req.prompt); vscode.commands.executeCommand('axiora.chats.save', _ctx.history, req.prompt).then(undefined, () => undefined); return awake(handleChat(req, _ctx, stream, token)); });
 	async function handleChat(req: vscode.ChatRequest, _ctx: vscode.ChatContext, stream: vscode.ChatResponseStream, token: vscode.CancellationToken) {
 		try {
 			switch (req.command) {

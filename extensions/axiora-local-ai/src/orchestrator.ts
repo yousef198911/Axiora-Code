@@ -13,6 +13,10 @@ export function parsePlan(s: string): string[] {
 	const lines = s.split('\n').map(l => l.replace(/^\s*(?:[-*]|\d+[.)])\s*/, '').trim()).filter(l => l.length > 3 && !/^(subtasks?|plan)\b[:]?$/i.test(l));
 	return lines.slice(0, 8);
 }
+/** Parse coordinator lines "N: RETRY reason" → indices to re-dispatch. */
+export function parseVerdict(s: string, n: number): { i: number; why: string }[] {
+	return [...s.matchAll(/^\s*#?(\d+)\s*[:.)-]\s*RETRY\b[:\s-]*(.*)$/gim)].map(m => ({ i: +m[1] - 1, why: m[2].trim() || 'incomplete' })).filter(r => r.i >= 0 && r.i < n);
+}
 async function pool<T>(items: T[], n: number, fn: (t: T, i: number) => Promise<void>) { let i = 0; await Promise.all(Array.from({ length: Math.min(n, items.length) }, async () => { while (i < items.length) { const k = i++; await fn(items[k], k); } })); }
 export function activate(_ctx: vscode.ExtensionContext) {
 	chatCommands.set('parallel', async (req, stream, token) => {
@@ -28,6 +32,14 @@ export function activate(_ctx: vscode.ExtensionContext) {
 			results[i] = await quiet(`${SYS}\nYou are subagent #${i + 1}. Do ONLY your subtask, concisely, with code where needed.`, `Overall task: ${req.prompt}\nYour subtask: ${t}${base}`, token).catch(e => `Error: ${e.message}`);
 			stream.progress(`Subagents finished: ${++done}/${plan.length}`);
 		});
+		// coordinator supervision: verify each result, re-dispatch incomplete ones once with feedback
+		stream.progress('Coordinator verifying subagent results…');
+		const verdict = await quiet(`${SYS}\nYou are the coordinator supervising subagents. For each subagent result, reply one line: "N: OK" or "N: RETRY <what is missing>". Nothing else.`, `Task: ${req.prompt}\n\n${results.map((r, i) => `## Subagent ${i + 1} (${plan[i]})\n${r.slice(0, 3000)}`).join('\n\n')}`, token).catch(() => '');
+		const retries = parseVerdict(verdict, plan.length);
+		if (retries.length) {
+			stream.markdown(`**Coordinator:** re-dispatching ${retries.map(r => `#${r.i + 1}`).join(', ')}.\n\n`);
+			await pool(retries, n, async r => { results[r.i] = await quiet(`${SYS}\nYou are subagent #${r.i + 1}. Your previous answer was incomplete: ${r.why}. Redo your subtask fully.`, `Overall task: ${req.prompt}\nYour subtask: ${plan[r.i]}\nPrevious answer:\n${results[r.i]}${base}`, token).catch(e => `Error: ${e.message}`); });
+		} else { stream.markdown('**Coordinator:** all subagent results verified ✓\n\n'); }
 		stream.markdown(results.map((r, i) => `#### Subagent ${i + 1}: ${plan[i]}\n\n${r}\n`).join("\n") + "\n\n---\n**Merged result:**\n\n");
 		await chat([{ role: 'system', content: `${SYS}\nYou are the coordinator. Merge the subagent results into one coherent, deduplicated answer; resolve conflicts.` }, { role: 'user', content: `Task: ${req.prompt}\n\n${results.map((r, i) => `## Subagent ${i + 1} (${plan[i]})\n${r}`).join('\n\n')}` }], s => stream.markdown(s), token);
 	});

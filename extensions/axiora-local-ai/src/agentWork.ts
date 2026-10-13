@@ -76,6 +76,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 		})();
 		return t;
 	};
+	(globalThis as any).axioraBg = { tasks, start: (p: string) => startBg(p) };
 	chatCommands.set('background', async (req, stream) => {
 		if (!req.prompt.trim()) { stream.markdown('Usage: `/background <task>` — runs without blocking the chat.'); return; }
 		const t = startBg(req.prompt);

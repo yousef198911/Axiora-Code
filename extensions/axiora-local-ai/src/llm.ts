@@ -35,8 +35,12 @@ async function headers(): Promise<Record<string, string>> {
 	return h;
 }
 
+/** Outbound filters (e.g. context policy) applied to every request before it leaves the editor. */
+export const outboundFilters: ((m: ChatMessage[]) => ChatMessage[])[] = [];
+const filtered = (m: ChatMessage[]) => outboundFilters.reduce((a, f) => f(a), m);
 /** Fill-in-the-middle completion. */
 export async function complete(prefix: string, suffix: string, model: string, maxTokens: number, signal: AbortSignal): Promise<string> {
+	if (outboundFilters.length) { const f = filtered([{ role: 'user', content: prefix }, { role: 'user', content: suffix }]); prefix = f[0].content; suffix = f[1].content; }
 	const { provider, baseUrl } = cfg();
 	if (provider === 'ollama') {
 		const r = await fetch(`${baseUrl}/api/generate`, {
@@ -73,6 +77,7 @@ export function route(messages: ChatMessage[]): string | undefined {
 export let routed = '';
 /** Streaming chat. Calls onChunk for every text delta, returns full text. */
 export async function chat(messages: ChatMessage[], onChunk: (s: string) => void, token?: vscode.CancellationToken, model?: string): Promise<string> {
+	messages = filtered(messages);
 	const { provider, baseUrl } = cfg();
 	const chatModel = model || route(messages) || cfg().chatModel;
 	const ac = new AbortController();
