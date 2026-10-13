@@ -1,6 +1,7 @@
 /*---------------------------------------------------------------------------------------------
  *  Axiora Local AI - local-first AI features that work without a Copilot account.
  *--------------------------------------------------------------------------------------------*/
+import { toolLoop, setLastReply } from './tools';
 import * as vscode from 'vscode';
 import * as cp from 'child_process';
 import * as path from 'path';
@@ -294,7 +295,10 @@ export function activate(ctx: vscode.ExtensionContext) {
 			const sel = ed && !ed.selection.isEmpty ? `\n\nSelected code (${path.basename(ed.document.fileName)}):\n\`\`\`\n${ed.document.getText(ed.selection)}\n\`\`\`` : '';
 			msgs.push({ role: 'user', content: req.prompt + sel });
 			msgs = await compact(msgs, token, n => stream.progress(n));
-			await chat(msgs, s => stream.markdown(s), token);
+			const reply = await toolLoop(msgs, stream, token);
+			setLastReply(reply);
+			if (reply.trim()) { stream.button({ command: 'axiora.voice.readAloud', arguments: [reply], title: '$(unmute) Read aloud' }); }
+			if (vscode.workspace.getConfiguration('axiora.voice.tts').get('autoSpeak', false)) { void vscode.commands.executeCommand('axiora.voice.readAloud', reply); }
 		} catch (e) {
 			stream.markdown(`**Error:** ${(e as Error).message}\n\nCheck **Settings → axiora.ai** (provider, base URL, model) or run **Axiora AI: Test Model Connection**.`);
 		}

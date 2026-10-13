@@ -11,6 +11,7 @@
  *  - Agent Board: Kanban of project tasks + background agent tasks; drag Backlog → Running
  *    starts a background agent on that task.
  *--------------------------------------------------------------------------------------------*/
+import { approve } from './approval';
 import * as vscode from 'vscode';
 import * as path from 'path';
 import { chatCommands, register, wsRoot, SYS, contextProviders, run } from './util';
@@ -91,9 +92,11 @@ export function activate(ctx: vscode.ExtensionContext) {
 			stream.progress(`SOLO iteration ${it}/${max}…`);
 			const reply = await chat([{ role: 'system', content: `${SYS}\nYou are working autonomously (SOLO). Output complete files ONLY as blocks:\n<<<FILE relative/path>>>\n<full content>\n<<<END>>>\nThen one line "DONE" if the goal is fully met.` }, { role: 'user', content: `Goal: ${req.prompt}${feedback ? `\n\nThe last verification failed:\n${feedback}` : ''}${ctxs}` }], () => undefined, token);
 			const files = parseFiles(reply);
+			if (files.length && !await approve('write', `SOLO wants to write: ${files.map(f => f.file).join(', ')}`)) { stream.markdown('- writes denied by approval policy, stopping.\n'); break; }
 			for (const f of files) { const u = vscode.Uri.joinPath(r, f.file.replace(/^\/+/, '')); if (!u.fsPath.startsWith(r.fsPath)) { continue; } await vscode.workspace.fs.createDirectory(vscode.Uri.file(path.dirname(u.fsPath))); await vscode.workspace.fs.writeFile(u, new TextEncoder().encode(f.body)); touched.add(f.file); }
 			stream.markdown(`- iteration ${it}: ${files.length ? `wrote ${files.map(f => `\`${f.file}\``).join(', ')}` : 'no file changes proposed'}`);
 			if (!test) { stream.markdown(' — no test command, stopping.\n'); break; }
+			if (!await approve('shell', test)) { stream.markdown(' — test command denied by approval policy, stopping.\n'); break; }
 			const res = await run('bash', ['-lc', `${test} 2>&1`], r.fsPath).then(o => ({ ok: true, o }), e => ({ ok: false, o: String(e.message) }));
 			stream.markdown(res.ok ? ' — ✅ verification passed\n' : ' — ❌ verification failed\n');
 			if (res.ok && (files.length === 0 || /\bDONE\b/.test(reply))) { break; }
@@ -123,7 +126,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 		for (const [i, s] of wf.steps.entries()) {
 			say(`${i + 1}. ${s.chat ? `💬 ${s.chat}` : s.command ? `⚙️ ${s.command}` : `$ ${s.shell}`}`);
 			if (s.command) { await vscode.commands.executeCommand(s.command); }
-			else if (s.shell) { term ??= vscode.window.createTerminal(`Workflow: ${name}`); term.show(true); term.sendText(s.shell); }
+			else if (s.shell && await approve('shell', s.shell)) { term ??= vscode.window.createTerminal(`Workflow: ${name}`); term.show(true); term.sendText(s.shell); }
 			else if (s.chat) { await vscode.commands.executeCommand('workbench.action.chat.open', { query: `@axiora ${s.chat}` }); await new Promise(r => setTimeout(r, 1500)); }
 		}
 	};

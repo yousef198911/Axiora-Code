@@ -2,6 +2,7 @@
  *  Kubernetes tools via kubectl: contexts, namespaces, pods (logs/exec/describe/delete),
  *  deployments (scale/restart), apply/delete manifests.
  *--------------------------------------------------------------------------------------------*/
+import { approve } from './approval';
 import * as vscode from 'vscode';
 import { register, run } from './util';
 
@@ -43,5 +44,5 @@ export function activate(ctx: vscode.ExtensionContext) {
 		else { await vscode.window.showTextDocument(await vscode.workspace.openTextDocument({ language: 'yaml', content: await k(['get', 'deploy', p.name, '-n', ns(), '-o', 'yaml']) })); }
 	});
 	register(ctx, 'axiora.k8s.apply', async (uri?: vscode.Uri) => { const f = uri ?? vscode.window.activeTextEditor?.document.uri; if (f) { term('kubectl apply', `kubectl apply -n ${ns()} -f "${f.fsPath}"`); } });
-	register(ctx, 'axiora.k8s.delete', async (uri?: vscode.Uri) => { const f = uri ?? vscode.window.activeTextEditor?.document.uri; if (f) { term('kubectl delete', `kubectl delete -n ${ns()} -f "${f.fsPath}"`); } });
+	register(ctx, 'axiora.k8s.delete', async (uri?: vscode.Uri) => { const f = uri ?? vscode.window.activeTextEditor?.document.uri; if (f && await approve('delete', `kubectl delete -n ${ns()} -f ${f.fsPath}`, 'high')) { term('kubectl delete', `kubectl delete -n ${ns()} -f "${f.fsPath}"`); } });
 }

@@ -3,6 +3,7 @@
  *  targets in .axiora/deploy.json { "name", "target": "user@host:/var/www/app" | "/local/path",
  *  "exclude": [...], "uploadOnSave": true }. Uses rsync (falls back to scp).
  *--------------------------------------------------------------------------------------------*/
+import { approve } from './approval';
 import * as vscode from 'vscode';
 import * as cp from 'child_process';
 import * as path from 'path';
@@ -46,12 +47,13 @@ export function activate(ctx: vscode.ExtensionContext) {
 	register(ctx, 'axiora.deploy.upload', async (u?: vscode.Uri, us?: vscode.Uri[]) => {
 		const t = await pick(); if (!t) { return; } const root = wsRoot()!;
 		const sel = (us?.length ? us : u ? [u] : vscode.window.activeTextEditor ? [vscode.window.activeTextEditor.document.uri] : []).map(x => path.relative(root.fsPath, x.fsPath) || '.');
+		if (!await approve('deploy', `Upload ${sel.join(', ')} to ${t.name} (${t.target})`, 'medium')) { return; }
 		await vscode.window.withProgress({ location: vscode.ProgressLocation.Notification, title: `Uploading to ${t.name}…` }, () => upload(t, sel));
 		vscode.window.setStatusBarMessage(`$(cloud-upload) Uploaded ${sel.length} item(s) to ${t.name}`, 5000);
 	});
 	register(ctx, 'axiora.deploy.all', async () => {
 		const t = await pick(); if (!t) { return; }
-		if (await vscode.window.showWarningMessage(`Sync whole project to ${t.target}? Remote files not in the project will be deleted.`, { modal: true }, 'Deploy') !== 'Deploy') { return; }
+		if (!await approve('deploy', `Sync whole project to ${t.target}? Remote files not in the project will be deleted.`, 'high')) { return; }
 		await vscode.window.withProgress({ location: vscode.ProgressLocation.Notification, title: `Deploying to ${t.name}…` }, () => upload(t, ['.'], true));
 		vscode.window.showInformationMessage(`Deployed to ${t.name}.`);
 	});
@@ -70,7 +72,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 	};
 	register(ctx, 'axiora.deploy.oneClick', async () => {
 		const t = await pick(); if (!t) { return; }
-		if (t.confirm !== false && await vscode.window.showWarningMessage(`Deploy to ${t.name} (${t.target})?`, { modal: true }, 'Deploy') !== 'Deploy') { return; }
+		if (!await approve('deploy', `Deploy to ${t.name} (${t.target})`, t.confirm === false ? 'medium' : 'high')) { return; }
 		await vscode.window.withProgress({ location: vscode.ProgressLocation.Notification, title: `Deploying to ${t.name}…` }, async p => { if (t.build) { p.report({ message: 'building' }); await sh('bash', ['-lc', t.build], wsRoot()!.fsPath); } p.report({ message: 'syncing' }); await upload(t, ['.'], true); });
 		out.appendLine(`deployed to ${t.name}`); await rollout(t);
 	});

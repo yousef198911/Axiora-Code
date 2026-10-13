@@ -1,6 +1,7 @@
 /*---------------------------------------------------------------------------------------------
  *  Docker tools via the docker CLI: containers / images / compose, with actions.
  *--------------------------------------------------------------------------------------------*/
+import { approve } from './approval';
 import * as vscode from 'vscode';
 import { register, run, wsRoot } from './util';
 
@@ -38,5 +39,5 @@ export function activate(ctx: vscode.ExtensionContext) {
 		term('docker build', `docker build -f "${f.fsPath}" -t ${tag} "${vscode.Uri.joinPath(f, '..').fsPath}"`);
 	});
 	register(ctx, 'axiora.docker.composeUp', (uri?: vscode.Uri) => { const f = uri ?? vscode.window.activeTextEditor?.document.uri; if (f) { term('compose', `docker compose -f "${f.fsPath}" up -d`); } });
-	register(ctx, 'axiora.docker.composeDown', (uri?: vscode.Uri) => { const f = uri ?? vscode.window.activeTextEditor?.document.uri; if (f) { term('compose', `docker compose -f "${f.fsPath}" down`); } });
+	register(ctx, 'axiora.docker.composeDown', async (uri?: vscode.Uri) => { const f = uri ?? vscode.window.activeTextEditor?.document.uri; if (f && await approve('other', `docker compose -f "${f.fsPath}" down`, 'medium')) { term('compose', `docker compose -f "${f.fsPath}" down`); } });
 }

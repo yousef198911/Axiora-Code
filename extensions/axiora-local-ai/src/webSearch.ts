@@ -4,6 +4,7 @@
 import * as vscode from 'vscode';
 import { chat } from './llm';
 import { chatCommands, SYS } from './util';
+import { fetchPage } from './web';
 
 export async function webSearch(q: string): Promise<{ title: string; url: string; snippet: string }[]> {
 	const r = await fetch(`https://html.duckduckgo.com/html/?q=${encodeURIComponent(q)}`, { headers: { 'user-agent': 'Mozilla/5.0 Axiora' }, signal: AbortSignal.timeout(10000) });
@@ -23,8 +24,12 @@ export function activate(_ctx: vscode.ExtensionContext) {
 		stream.progress('Searching the web…');
 		const res = await webSearch(req.prompt);
 		if (!res.length) { stream.markdown('No web results (network blocked or no matches).'); return; }
-		const ctx = res.map((r, i) => `[${i + 1}] ${r.title} — ${r.url}\n${r.snippet}`).join('\n\n');
-		await chat([{ role: 'system', content: SYS }, { role: 'user', content: `Answer using these web results, cite as [n].\n\n${ctx}\n\nQuestion: ${req.prompt}` }], s => stream.markdown(s), token);
-		stream.markdown('\n\n' + res.map((r, i) => `${i + 1}. [${r.title}](${r.url})`).join('\n'));
+		const n = vscode.workspace.getConfiguration('axiora.web').get<number>('readPages', 3);
+		stream.progress(`Reading top ${Math.min(n, res.length)} pages…`);
+		const pages = await Promise.all(res.slice(0, n).map(r => fetchPage(r.url, 6000).then(p => p.text, () => '')));
+		const ctx = res.map((r, i) => `[${i + 1}] ${r.title} — ${r.url}\n${pages[i] ? `Page text:\n${pages[i]}` : `Snippet: ${r.snippet}`}`).join('\n\n---\n\n');
+		stream.markdown(`_Read ${pages.filter(Boolean).length} of ${res.length} result pages._\n\n`);
+		await chat([{ role: 'system', content: SYS }, { role: 'user', content: `Answer using these web results (full page text where available), cite as [n].\n\n${ctx}\n\nQuestion: ${req.prompt}` }], s => stream.markdown(s), token);
+		stream.markdown('\n\n' + res.map((r, i) => `${i + 1}. [${r.title}](${r.url})${pages[i] ? ' · read' : ''}`).join('\n'));
 	});
 }

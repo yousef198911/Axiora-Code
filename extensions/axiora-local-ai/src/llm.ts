@@ -137,3 +137,19 @@ export async function listModels(): Promise<string[]> {
 	} catch { /* offline */ }
 	return [...names];
 }
+
+/** Provider endpoint + auth headers for non-chat calls (images, audio, TTS). */
+export async function aiEndpoint() { return { ...cfg(), headers: await headers() }; }
+
+/** One non-streaming OpenAI-style call with native function calling. Returns content + tool_calls. */
+export async function chatTools(wire: any[], tools: { name: string; description: string; parameters: unknown }[], token?: vscode.CancellationToken, model?: string): Promise<{ content: string; tool_calls?: { id: string; function: { name: string; arguments: string } }[] }> {
+	const { baseUrl } = cfg(); const chatModel = model || cfg().chatModel;
+	const ac = new AbortController(); token?.onCancellationRequested(() => ac.abort());
+	const r = await fetch(`${baseUrl}/chat/completions`, { method: 'POST', headers: await headers(), signal: ac.signal, body: JSON.stringify({ model: chatModel, messages: wire, tools: tools.map(t => ({ type: 'function', function: t })), tool_choice: 'auto' }) });
+	const t = await r.text(); if (!r.ok) { throw Object.assign(new Error(`Provider ${r.status}: ${t.slice(0, 300)}`), { status: r.status }); }
+	const j = JSON.parse(t); if (j.error) { throw new Error(`Provider: ${j.error.message ?? JSON.stringify(j.error)}`); }
+	const m = j.choices?.[0]?.message ?? {}; track(chatModel, JSON.stringify(wire).slice(0, 20000), m.content ?? '');
+	return { content: m.content ?? '', tool_calls: m.tool_calls?.length ? m.tool_calls : undefined };
+}
+export function providerKind() { return cfg().provider; }
+export function applyFilters(m: ChatMessage[]) { return filtered(m); }
