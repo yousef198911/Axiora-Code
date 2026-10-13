@@ -1285,6 +1285,26 @@
         "command": "axiora.connectors.manage",
         "title": "Connectors: Manage (Figma, Jira, Linear, Stripe)...",
         "category": "Axiora AI"
+      },
+      {
+        "command": "axiora.collab.start",
+        "title": "Start Session (copy invite link)",
+        "category": "Collaboration"
+      },
+      {
+        "command": "axiora.collab.join",
+        "title": "Join Session...",
+        "category": "Collaboration"
+      },
+      {
+        "command": "axiora.collab.leave",
+        "title": "Leave Session",
+        "category": "Collaboration"
+      },
+      {
+        "command": "axiora.collab.menu",
+        "title": "Session Options",
+        "category": "Collaboration"
       }
     ],
     "menus": {
@@ -2112,6 +2132,11 @@
           "type": "string",
           "default": "",
           "description": "Atlassian account email used with the Jira API token."
+        },
+        "axiora.collab.relayUrl": {
+          "type": "string",
+          "default": "http://127.0.0.1:7790",
+          "description": "Self-hosted relay (node bin/axiora-relay.mjs). Messages are end-to-end encrypted; the relay sees only ciphertext."
         }
       }
     },
