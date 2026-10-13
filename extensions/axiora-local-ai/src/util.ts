@@ -6,7 +6,7 @@ import * as cp from 'child_process';
 import { chat, ChatMessage } from './llm';
 
 export const log = vscode.window.createOutputChannel('Axiora Features', { log: true });
-export const SYS = 'You are Axiora, a precise senior software engineer assistant inside the Axiora code editor. Be concise.';
+export const SYS = 'You are Axiora, a precise senior software engineer assistant inside the Axiora code editor. Be concise. Always reply in the same language as the user\'s request (English unless they write in another language).';
 export function wsRoot(): vscode.Uri | undefined { return vscode.workspace.workspaceFolders?.[0]?.uri; }
 export function run(cmd: string, args: string[], cwd: string): Promise<string> {
 	return new Promise((res, rej) => cp.execFile(cmd, args, { cwd, maxBuffer: 64 * 1024 * 1024 }, (e, so, se) => e ? rej(new Error(se || e.message)) : res(so)));

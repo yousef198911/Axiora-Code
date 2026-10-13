@@ -32,6 +32,7 @@ async function headers(): Promise<Record<string, string>> {
 	const h: Record<string, string> = { 'content-type': 'application/json' };
 	const key = await secrets?.get('axiora.ai.apiKey');
 	if (key) { h['authorization'] = `Bearer ${key}`; }
+	if (cfg().baseUrl.includes('openrouter.ai')) { h['x-title'] = 'Axiora Code'; h['http-referer'] = 'https://github.com/yousef198911/Axiora-Code'; }
 	return h;
 }
 
@@ -52,12 +53,29 @@ export async function complete(prefix: string, suffix: string, model: string, ma
 		track(model, prefix + suffix, res);
 		return res;
 	}
+	let res = '';
 	const r = await fetch(`${baseUrl}/completions`, {
 		method: 'POST', headers: await headers(), signal,
 		body: JSON.stringify({ model, prompt: prefix, suffix, max_tokens: maxTokens, temperature: 0.1 })
 	});
-	if (!r.ok) { throw new Error(`Provider ${r.status}: ${await r.text()}`); }
-	const res = ((await r.json()) as { choices?: { text?: string }[] }).choices?.[0]?.text ?? '';
+	if (r.ok) { res = ((await r.json()) as { choices?: { text?: string }[] }).choices?.[0]?.text ?? ''; }
+	else if (r.status !== 404 && r.status !== 400) { throw new Error(`Provider ${r.status}: ${await r.text()}`); }
+	if (!res.trim()) {
+		// Chat-only / reasoning models (common on OpenRouter) return no text from /completions: fall back to a chat FIM prompt.
+		const c = await fetch(`${baseUrl}/chat/completions`, {
+			method: 'POST', headers: await headers(), signal,
+			body: JSON.stringify({ model, temperature: 0.1, max_tokens: Math.max(maxTokens * 8, 512), reasoning: { enabled: false }, messages: [
+				{ role: 'system', content: 'You are a code completion engine. Output ONLY the code that belongs at <CURSOR> (no explanations, no markdown fences, do not repeat the code before or after the cursor).' },
+				{ role: 'user', content: `${prefix.slice(-6000)}<CURSOR>${suffix.slice(0, 2000)}` }] })
+		});
+		if (!c.ok) { throw new Error(`Provider ${c.status}: ${await c.text()}`); }
+		res = (((await c.json()) as { choices?: { message?: { content?: string } }[] }).choices?.[0]?.message?.content ?? '').replace(/^```\w*\n?|\n?```\s*$/g, '');
+		// chat models often echo the current line; drop the overlap with the text before the cursor
+		const cur = prefix.slice(prefix.lastIndexOf('\n') + 1).trim(); const t = res.trimStart();
+		let k = 0; while (k < cur.length && k < t.length && cur[k] === t[k]) { k++; }
+		if (cur && k >= Math.ceil(cur.length * 0.6)) { res = (prefix.endsWith(' ') && t[k] === ' ' ? t.slice(k + 1) : t.slice(k)); }
+		const lines = res.split('\n'); if (lines.length > 12) { res = lines.slice(0, 12).join('\n'); }
+	}
 	track(model, prefix + suffix, res);
 	return res;
 }
@@ -97,9 +115,10 @@ export async function chat(messages: ChatMessage[], onChunk: (s: string) => void
 			if (line === '[DONE]') { continue; }
 			try {
 				const j = JSON.parse(line);
+				if (j.error) { throw new Error(`${provider}: ${j.error.message ?? JSON.stringify(j.error)}`); }
 				const t: string = provider === 'ollama' ? (j.message?.content ?? '') : (j.choices?.[0]?.delta?.content ?? '');
 				if (t) { full += t; onChunk(t); }
-			} catch { /* partial line */ }
+			} catch (e) { if (/^(ollama|openai):/.test((e as Error).message)) { throw e; } /* partial line */ }
 		}
 	}
 	track(chatModel, messages.map(m => m.content).join(''), full);

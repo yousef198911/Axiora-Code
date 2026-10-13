@@ -133,7 +133,7 @@ function slug(s: string) { return s.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, '-
 const SPEC_STEPS: { file: string; ask: string }[] = [
 	{ file: 'requirements.md', ask: 'Write requirements.md: user stories with acceptance criteria in EARS format ("WHEN ... THE SYSTEM SHALL ...").' },
 	{ file: 'design.md', ask: 'Write design.md: architecture, components, data models, interfaces, error handling and testing strategy, based on the requirements.' },
-	{ file: 'tasks.md', ask: 'Write tasks.md: a numbered checklist ("- [ ] 1. ...") of small implementation tasks, each referencing requirement numbers.' },
+	{ file: 'tasks.md', ask: 'Write tasks.md: a checklist of small implementation tasks, formatted EXACTLY "- [ ] T1. title (REQ-1, REQ-2)" (ids T1, T2, …), each referencing requirement numbers.' },
 ];
 async function generateSpec(feature: string, onProgress: (s: string) => void, token?: vscode.CancellationToken): Promise<vscode.Uri> {
 	const r = root(); if (!r) { throw new Error('Open a folder first.'); }

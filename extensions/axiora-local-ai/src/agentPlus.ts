@@ -48,7 +48,9 @@ const getCap = (k: string, d: boolean) => { const i = k.lastIndexOf('.'); return
 const setCap = (k: string, v: boolean) => { const i = k.lastIndexOf('.'); return vscode.workspace.getConfiguration(k.slice(0, i)).update(k.slice(i + 1), v, vscode.ConfigurationTarget.Global); };
 /** Parse "<<<FILE path>>>\n...\n<<<END>>>" blocks from a model reply. */
 export function parseFiles(s: string): { file: string; body: string }[] {
-	return [...s.matchAll(/<<<FILE\s+([^>\n]+?)>>>\n([\s\S]*?)\n?<<<END>>>/g)].map(m => ({ file: m[1].trim(), body: m[2] }));
+	// tolerant of real-model quirks: CRLF, a ``` fence inside the block, a missing final <<<END>>>
+	s = s.replace(/\r\n/g, '\n');
+	return [...s.matchAll(/<<<FILE\s+([^>\n]+?)\s*>>>[ \t]*\n([\s\S]*?)(?:\n?<<<END>>>|(?=\n<<<FILE\s)|$(?![\s\S]))/g)].map(m => ({ file: m[1].trim().replace(/^[`'"]|[`'"]$/g, ''), body: m[2].replace(/^```[\w+-]*\n/, '').replace(/\n```\s*$/, '').replace(/\nDONE\s*$/, '') + (m[2].endsWith('\n') ? '' : '\n') }));
 }
 type Step = { chat?: string; command?: string; shell?: string };
 export function activate(ctx: vscode.ExtensionContext) {
