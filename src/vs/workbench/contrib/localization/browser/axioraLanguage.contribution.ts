@@ -81,7 +81,7 @@ async function switchLanguage(configurationService: IConfigurationService, local
 function applyLocale(localeService: ILocaleService, target: UiLanguage): Promise<void> {
 	return localeService.setLocale(target === 'ar'
 		? { id: 'ar', label: 'العربية', extensionId: 'axiora.axiora-language-pack-ar' }
-		: { id: 'en', label: 'English' });
+		: { id: 'en', label: 'English' }, true);
 }
 
 class AxioraLanguageContribution extends Disposable implements IWorkbenchContribution {
