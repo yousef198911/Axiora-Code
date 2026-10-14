@@ -81,7 +81,7 @@ function backgroundDownload(plat: string, version: string): Promise<string> {
 	log.info(`Downloading the official GitHub Copilot runtime ${version} (${plat}) from GitHub's npm package in the background.`);
 	return Promise.resolve(vscode.window.withProgress({
 		location: vscode.ProgressLocation.Window,
-		title: vscode.l10n.t('Preparing GitHub Copilot / تجهيز Copilot'),
+		title: vscode.l10n.t('Preparing GitHub Copilot'),
 	}, async progress => {
 		let lastPct = -1;
 		try {
@@ -242,11 +242,11 @@ function agentWorkspaceRoot(): string | undefined {
 
 /** Modal approval dialog: allow once / always this session / deny. Esc, close or cancellation deny. */
 async function askApproval(kind: ApprovalKind, title: string, detail: string): Promise<ApprovalDecision | undefined> {
-	const once = vscode.l10n.t('Allow once / سماح مرة واحدة');
-	const always = kind === 'read' ? vscode.l10n.t('Always allow reading this session / سماح دائم بالقراءة لهذه الجلسة')
-		: kind === 'write' ? vscode.l10n.t('Always allow file changes this session / سماح دائم بتعديل الملفات لهذه الجلسة')
-			: vscode.l10n.t('Always allow commands this session / سماح دائم بالأوامر لهذه الجلسة');
-	const deny = vscode.l10n.t('Deny / رفض');
+	const once = vscode.l10n.t('Allow once');
+	const always = kind === 'read' ? vscode.l10n.t('Always allow reading this session')
+		: kind === 'write' ? vscode.l10n.t('Always allow file changes this session')
+			: vscode.l10n.t('Always allow commands this session');
+	const deny = vscode.l10n.t('Deny');
 	const choice = await vscode.window.showWarningMessage(title, { modal: true, detail }, once, always, deny);
 	const decision: ApprovalDecision = choice === once ? 'once' : choice === always ? 'session' : 'deny';
 	log.info(`Agent approval: ${decision} (${kind}: ${title.split(' / ')[0]})`);
@@ -489,8 +489,8 @@ export function activate(context: vscode.ExtensionContext): void {
 			provider.refresh();
 			log.info(`Remove runtime: ${removed ? 'removed' : 'nothing to remove'}.`);
 			void vscode.window.showInformationMessage(removed
-				? vscode.l10n.t('The downloaded GitHub Copilot runtime was removed. / تم حذف محرّك Copilot.')
-				: vscode.l10n.t('No downloaded GitHub Copilot runtime was found. / لا يوجد محرّك Copilot منزَّل.'));
+				? vscode.l10n.t('The downloaded GitHub Copilot runtime was removed.')
+				: vscode.l10n.t('No downloaded GitHub Copilot runtime was found.'));
 		}),
 		vscode.commands.registerCommand('axiora.copilot.useLegacyEngine', async () => {
 			await vscode.workspace.getConfiguration(CONFIG).update('engine', 'legacy', vscode.ConfigurationTarget.Global);

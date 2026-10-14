@@ -637,6 +637,28 @@ export const tocData: ITOCEntry<string> = {
 					settings: ['security.workspace.*']
 				}
 			]
+		},
+		{
+			id: 'language',
+			label: localize('axiora.toc.language', "Language"),
+			settings: ['axiora.language.*'],
+			children: [
+				{
+					id: 'language/display',
+					label: localize('axiora.toc.language.display', "Display Language"),
+					settings: ['axiora.language.display', 'axiora.language.mirrorLayout', 'axiora.language.statusBar']
+				},
+				{
+					id: 'language/ai',
+					label: localize('axiora.toc.language.ai', "AI Reply Language"),
+					settings: ['axiora.chat.responseLanguage']
+				},
+				{
+					id: 'language/voice',
+					label: localize('axiora.toc.language.voice', "Voice Language"),
+					settings: ['axiora.voice.language']
+				}
+			]
 		}
 	]
 };
