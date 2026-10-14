@@ -30,7 +30,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 			const diags = vscode.languages.getDiagnostics(doc.uri);
 			const sel = ed?.selection.active;
 			const d = diags.find(x => sel && x.range.contains(sel)) ?? diags[0];
-			if (!d) { vscode.window.showInformationMessage('No problems in this file.'); return; }
+			if (!d) { vscode.window.showInformationMessage(vscode.l10n.t("No problems in this file.")); return; }
 			range = d.range; message = d.message;
 		}
 		const r = around(doc, range);
@@ -40,7 +40,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 		if (!out) { return; }
 		const we = new vscode.WorkspaceEdit(); we.replace(doc.uri, r, out);
 		await vscode.workspace.applyEdit(we);
-		vscode.window.showInformationMessage('Axiora applied a fix (Ctrl+Z to undo).');
+		vscode.window.showInformationMessage(vscode.l10n.t("Axiora applied a fix (Ctrl+Z to undo)."));
 	});
 
 	register(ctx, 'axiora.ai.generateTests', async () => {

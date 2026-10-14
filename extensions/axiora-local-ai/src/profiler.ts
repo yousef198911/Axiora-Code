@@ -6,6 +6,7 @@
  *  asks @axiora how to speed up the hottest functions. Profiles are kept in .axiora/profiles/.
  *--------------------------------------------------------------------------------------------*/
 import * as vscode from 'vscode';
+import { htmlDir, htmlLang } from './i18n';
 import * as cp from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -53,15 +54,15 @@ export function activate(ctx: vscode.ExtensionContext) {
 		const file = doc.fileName; const isPy = doc.languageId === 'python';
 		const root = wsRoot()?.fsPath ?? path.dirname(file); const dir = path.join(root, '.axiora', 'profiles'); fs.mkdirSync(dir, { recursive: true });
 		const stamp = new Date().toISOString().replace(/[-:.]/g, '').slice(0, 15); const out = path.join(dir, `${path.basename(file)}-${stamp}${isPy ? '.json' : '.cpuprofile'}`);
-		const args = await vscode.window.showInputBox({ prompt: `Arguments for ${path.basename(file)} (optional)`, value: '' }); if (args === undefined) { return; }
+		const args = await vscode.window.showInputBox({ prompt: vscode.l10n.t("Arguments for {0} (optional)", path.basename(file)), value: '' }); if (args === undefined) { return; }
 		const t0 = Date.now();
-		const res = await vscode.window.withProgress({ location: vscode.ProgressLocation.Notification, title: `Profiling ${path.basename(file)}…`, cancellable: true }, (_p, tok) => new Promise<{ code: number | null; err: string }>(resolve => {
+		const res = await vscode.window.withProgress({ location: vscode.ProgressLocation.Notification, title: vscode.l10n.t("Profiling {0}…", path.basename(file)), cancellable: true }, (_p, tok) => new Promise<{ code: number | null; err: string }>(resolve => {
 			const a = args.trim() ? args.trim().split(/\s+/) : [];
 			const pr = isPy ? cp.spawn('python3', ['-c', PY, 'x', file, ...a], { cwd: path.dirname(file), env: { ...process.env, AXIORA_PROF_OUT: out } })
 				: cp.spawn('node', ['--cpu-prof', `--cpu-prof-dir=${dir}`, `--cpu-prof-name=${path.basename(out)}`, '--cpu-prof-interval=200', file, ...a], { cwd: path.dirname(file), env: { ...process.env, ELECTRON_RUN_AS_NODE: '1' } });
 			let err = ''; pr.stderr.on('data', d => err += d); tok.onCancellationRequested(() => pr.kill()); pr.on('close', code => resolve({ code, err })); pr.on('error', e => resolve({ code: -1, err: e.message }));
 		}));
-		if (!fs.existsSync(out)) { vscode.window.showErrorMessage(`Profiling failed (exit ${res.code}): ${res.err.slice(0, 300)}`); return; }
+		if (!fs.existsSync(out)) { vscode.window.showErrorMessage(vscode.l10n.t("Profiling failed (exit {0}): {1}", String(res.code), res.err.slice(0, 300))); return; }
 		const rows: Row[] = isPy ? pyRows(JSON.parse(fs.readFileSync(out, 'utf8')) as Row[]) : parseCpuProfile(JSON.parse(fs.readFileSync(out, 'utf8')));
 		show(rows, path.basename(file), Date.now() - t0, out);
 	});
@@ -74,7 +75,7 @@ function show(rows: Row[], name: string, ms: number, file: string) {
 	const p = vscode.window.createWebviewPanel('axiora.profile', `Profile: ${name}`, vscode.ViewColumn.Beside, { enableScripts: true });
 	const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
 	const top = rows.slice(0, 200); const max = Math.max(1, ...top.map(r => r.self));
-	p.webview.html = `<!DOCTYPE html><html><head><style>body{font-family:var(--vscode-font-family);color:var(--vscode-foreground);font-size:12px}table{border-collapse:collapse;width:100%}th,td{padding:3px 8px;text-align:left;border-bottom:1px solid var(--vscode-panel-border)}th{cursor:pointer;position:sticky;top:0;background:var(--vscode-editor-background)}tr.r:hover{background:var(--vscode-list-hoverBackground);cursor:pointer}.bar{height:8px;background:var(--vscode-charts-orange);display:inline-block}td.n{text-align:right;font-variant-numeric:tabular-nums}button{background:var(--vscode-button-background);color:var(--vscode-button-foreground);border:0;padding:3px 10px;cursor:pointer}</style></head><body>
+	p.webview.html = `<!DOCTYPE html><html dir="${htmlDir()}" lang="${htmlLang()}"><head><style>body{font-family:var(--vscode-font-family);color:var(--vscode-foreground);font-size:12px}table{border-collapse:collapse;width:100%}th,td{padding:3px 8px;text-align:left;border-bottom:1px solid var(--vscode-panel-border)}th{cursor:pointer;position:sticky;top:0;background:var(--vscode-editor-background)}tr.r:hover{background:var(--vscode-list-hoverBackground);cursor:pointer}.bar{height:8px;background:var(--vscode-charts-orange);display:inline-block}td.n{text-align:right;font-variant-numeric:tabular-nums}button{background:var(--vscode-button-background);color:var(--vscode-button-foreground);border:0;padding:3px 10px;cursor:pointer}</style></head><body>
 <p><b>${esc(name)}</b> · ${rows.length} functions${ms ? ` · ran ${(ms / 1000).toFixed(2)}s` : ''} · <span style="opacity:.7">${esc(file)}</span> <button id="ex">Explain hot spots</button></p>
 <table><thead><tr><th data-k="self">Self ms ▾</th><th data-k="total">Total ms</th>${rows.some(r => r.calls) ? '<th data-k="calls">Calls</th>' : ''}<th></th><th>Function</th><th>Location</th></tr></thead><tbody>${top.map((r, i) => `<tr class="r" data-i="${i}"><td class="n">${r.self.toFixed(1)}</td><td class="n">${r.total.toFixed(1)}</td>${rows.some(x => x.calls) ? `<td class="n">${r.calls ?? ''}</td>` : ''}<td><span class="bar" style="width:${Math.round(80 * r.self / max)}px"></span></td><td>${esc(r.fn)}</td><td>${esc(path.basename(r.file))}:${r.line}</td></tr>`).join('')}</tbody></table>
 <script>const vs=acquireVsCodeApi();document.querySelectorAll('tr.r').forEach(t=>t.onclick=()=>vs.postMessage({open:+t.dataset.i}));document.getElementById('ex').onclick=()=>vs.postMessage({explain:1});

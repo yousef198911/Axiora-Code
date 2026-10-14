@@ -28,12 +28,12 @@ export function activate(ctx: vscode.ExtensionContext) {
 		if (fs.existsSync(path.join(root, 'gradlew'))) { cands.push('./gradlew build --profile'); }
 		if (fs.existsSync(path.join(root, 'tsconfig.json'))) { cands.push('npx tsc --noEmit --extendedDiagnostics'); }
 		const last = ctx.workspaceState.get<string>('axiora.build.last');
-		const pick = await vscode.window.showQuickPick([...(last ? [{ label: last, description: 'last used' }] : []), ...cands.filter(c => c !== last).map(c => ({ label: c, description: '' })), { label: '$(edit) Custom command...', description: '' }], { placeHolder: 'Build command to analyze' });
+		const pick = await vscode.window.showQuickPick([...(last ? [{ label: last, description: vscode.l10n.t("last used") }] : []), ...cands.filter(c => c !== last).map(c => ({ label: c, description: '' })), { label: '$(edit) Custom command...', description: '' }], { placeHolder: vscode.l10n.t("Build command to analyze") });
 		if (!pick) { return; }
-		const cmd = pick.label.startsWith('$(edit)') ? await vscode.window.showInputBox({ prompt: 'Build command' }) : pick.label; if (!cmd) { return; }
+		const cmd = pick.label.startsWith('$(edit)') ? await vscode.window.showInputBox({ prompt: vscode.l10n.t("Build command") }) : pick.label; if (!cmd) { return; }
 		await ctx.workspaceState.update('axiora.build.last', cmd);
 		const lines: Line[] = []; const t0 = Date.now(); let code: number | null = null;
-		await vscode.window.withProgress({ location: vscode.ProgressLocation.Notification, title: `Analyzing build: ${cmd}`, cancellable: true }, (prog, tok) => new Promise<void>(res => {
+		await vscode.window.withProgress({ location: vscode.ProgressLocation.Notification, title: vscode.l10n.t("Analyzing build: {0}", cmd), cancellable: true }, (prog, tok) => new Promise<void>(res => {
 			const p = cp.spawn(process.platform === 'win32' ? 'cmd' : 'sh', process.platform === 'win32' ? ['/c', cmd] : ['-c', cmd], { cwd: root, env: { ...process.env, FORCE_COLOR: '0' } });
 			let buf = ''; const on = (d: Buffer) => { buf += d; let i; while ((i = buf.indexOf('\n')) >= 0) { lines.push({ t: Date.now() - t0, s: buf.slice(0, i).replace(/\x1b\[[0-9;]*m/g, '') }); buf = buf.slice(i + 1); prog.report({ message: lines[lines.length - 1].s.slice(0, 80) }); } };
 			p.stdout.on('data', on); p.stderr.on('data', on); tok.onCancellationRequested(() => p.kill());
@@ -49,7 +49,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 		const dir = path.join(root, '.axiora', 'builds'); fs.mkdirSync(dir, { recursive: true });
 		const f = path.join(dir, `${new Date().toISOString().replace(/[-:.]/g, '').slice(0, 15)}.md`); fs.writeFileSync(f, md + `\n## Raw log (with timestamps)\n\`\`\`\n${lines.map(l => `[${fmt(l.t).padStart(8)}] ${l.s}`).join('\n')}\n\`\`\`\n`);
 		await vscode.commands.executeCommand('markdown.showPreview', vscode.Uri.file(f));
-		if (await vscode.window.showInformationMessage(`Build ${code === 0 ? 'finished' : 'failed'} in ${fmt(total)}.`, 'Ask AI How to Speed Up') ) {
+		if (await vscode.window.showInformationMessage(vscode.l10n.t("Build {0} in {1}.", code === 0 ? 'finished' : 'failed', fmt(total)), 'Ask AI How to Speed Up') ) {
 			await vscode.commands.executeCommand('workbench.action.chat.open', { query: `@axiora Analyze this build report and tell me how to make the build faster${code ? ' and fix the failure' : ''}:\n${md.slice(0, 6000)}` });
 		}
 	});

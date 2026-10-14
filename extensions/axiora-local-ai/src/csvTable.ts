@@ -2,6 +2,7 @@
  *  CSV/TSV table preview (live, sortable) opened beside the text editor.
  *--------------------------------------------------------------------------------------------*/
 import * as vscode from 'vscode';
+import { htmlDir, htmlLang } from './i18n';
 import { register } from './util';
 
 export function parseCsv(text: string, sep: string): string[][] {
@@ -22,7 +23,7 @@ function html(doc: vscode.TextDocument): string {
 	const sep = doc.fileName.endsWith('.tsv') ? '\t' : (doc.getText().split('\n')[0].split(';').length > doc.getText().split('\n')[0].split(',').length ? ';' : ',');
 	const rows = parseCsv(doc.getText(), sep).slice(0, 5000);
 	const [head, ...body] = rows;
-	return `<!DOCTYPE html><html><head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline';"><style>
+	return `<!DOCTYPE html><html dir="${htmlDir()}" lang="${htmlLang()}"><head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline';"><style>
 body{font-family:var(--vscode-font-family);color:var(--vscode-foreground);padding:0}table{border-collapse:collapse;font-size:12px}
 th,td{border:1px solid var(--vscode-panel-border);padding:3px 8px;white-space:nowrap}th{position:sticky;top:0;background:var(--vscode-editorGroupHeader-tabsBackground);cursor:pointer}
 tr:nth-child(even) td{background:var(--vscode-list-hoverBackground)}td.n{text-align:right}</style></head><body><table id=t><thead><tr><th>#</th>${(head ?? []).map(h => `<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>

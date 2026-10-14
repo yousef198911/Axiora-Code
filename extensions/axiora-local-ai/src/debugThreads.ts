@@ -7,7 +7,7 @@ import { register } from './util';
 async function others(): Promise<{ s: vscode.DebugSession; ids: number[] } | undefined> {
 	const item = vscode.debug.activeStackItem;
 	const s = item?.session ?? vscode.debug.activeDebugSession;
-	if (!s || !item) { vscode.window.showInformationMessage('Select a thread in the Call Stack first.'); return; }
+	if (!s || !item) { vscode.window.showInformationMessage(vscode.l10n.t("Select a thread in the Call Stack first.")); return; }
 	const { threads } = await s.customRequest('threads') as { threads: { id: number }[] };
 	return { s, ids: threads.map(t => t.id).filter(id => id !== item.threadId) };
 }

@@ -36,8 +36,8 @@ export async function compact(msgs: ChatMessage[], token: vscode.CancellationTok
 }
 export function activate(ctx: vscode.ExtensionContext) {
 	register(ctx, 'axiora.prompts.edit', async () => {
-		const d = dir(); if (!d) { vscode.window.showWarningMessage('Open a folder first.'); return; }
-		const p = await vscode.window.showQuickPick([{ label: 'system.md', description: 'replaces the chat system prompt' }, ...['review', 'spec', 'tests', 'explain', 'parallel', 'security'].map(c => ({ label: `${c}.md`, description: `appended for /${c}` }))], { placeHolder: 'Prompt to edit (applies on the next request)' });
+		const d = dir(); if (!d) { vscode.window.showWarningMessage(vscode.l10n.t("Open a folder first.")); return; }
+		const p = await vscode.window.showQuickPick([{ label: 'system.md', description: vscode.l10n.t("replaces the chat system prompt") }, ...['review', 'spec', 'tests', 'explain', 'parallel', 'security'].map(c => ({ label: `${c}.md`, description: `appended for /${c}` }))], { placeHolder: vscode.l10n.t("Prompt to edit (applies on the next request)") });
 		if (!p) { return; }
 		const u = vscode.Uri.joinPath(d, p.label);
 		if (await readOpt(u) === undefined) { await vscode.workspace.fs.createDirectory(d); await vscode.workspace.fs.writeFile(u, new TextEncoder().encode(p.label === 'system.md' ? `${SYS}\n` : `<!-- extra instructions for /${p.label.replace('.md', '')} -->\n`)); }

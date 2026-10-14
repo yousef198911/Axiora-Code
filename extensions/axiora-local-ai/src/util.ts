@@ -1,12 +1,16 @@
 /*---------------------------------------------------------------------------------------------
  *  Axiora Local AI - shared helpers for feature modules.
  *--------------------------------------------------------------------------------------------*/
+import { languageRule } from './i18n';
 import * as vscode from 'vscode';
 import * as cp from 'child_process';
 import { chat, ChatMessage } from './llm';
 
 export const log = vscode.window.createOutputChannel('Axiora Features', { log: true });
-export const SYS = 'You are Axiora, a precise senior software engineer assistant inside the Axiora code editor. Be concise. Always reply in the same language as the user\'s request (English unless they write in another language).';
+const SYS_BASE = 'You are Axiora, a precise senior software engineer assistant inside the Axiora code editor. Be concise.';
+export let SYS = `${SYS_BASE} ${languageRule()}`;
+/** Rebuilds the system prompt after `axiora.chat.responseLanguage` changes. */
+export function refreshSys(): void { SYS = `${SYS_BASE} ${languageRule()}`; }
 export function wsRoot(): vscode.Uri | undefined { return vscode.workspace.workspaceFolders?.[0]?.uri; }
 export function run(cmd: string, args: string[], cwd: string): Promise<string> {
 	return new Promise((res, rej) => cp.execFile(cmd, args, { cwd, maxBuffer: 64 * 1024 * 1024 }, (e, so, se) => e ? rej(new Error(se || e.message)) : res(so)));
@@ -22,11 +26,11 @@ export function unfence(s: string): string {
 	return (m ? m[1] : s).trim();
 }
 export function withProgress<T>(title: string, fn: (t: vscode.CancellationToken) => Promise<T>): Thenable<T> {
-	return vscode.window.withProgress({ location: vscode.ProgressLocation.Notification, title: `Axiora: ${title}`, cancellable: true }, (_p, t) => fn(t));
+	return vscode.window.withProgress({ location: vscode.ProgressLocation.Notification, title: vscode.l10n.t("Axiora: {0}", title), cancellable: true }, (_p, t) => fn(t));
 }
 export function register(ctx: vscode.ExtensionContext, id: string, fn: (...a: any[]) => any) {
 	ctx.subscriptions.push(vscode.commands.registerCommand(id, async (...a) => {
-		try { return await fn(...a); } catch (e) { log.error(`${id}: ${(e as Error).message}`); vscode.window.showErrorMessage(`Axiora: ${(e as Error).message}`); }
+		try { return await fn(...a); } catch (e) { log.error(`${id}: ${(e as Error).message}`); vscode.window.showErrorMessage(vscode.l10n.t("Axiora: {0}", (e as Error).message)); }
 	}));
 }
 export type ChatCommandHandler = (req: vscode.ChatRequest, stream: vscode.ChatResponseStream, token: vscode.CancellationToken, chatCtx?: vscode.ChatContext) => Promise<void>;

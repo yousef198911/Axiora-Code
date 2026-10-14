@@ -70,18 +70,18 @@ function hl(line: string): string {
 export function activate(ctx: vscode.ExtensionContext) {
 	register(ctx, 'axiora.app.addBackend', async (u?: vscode.Uri) => {
 		const r = wsRoot(); if (!r) { return; }
-		const dir = u ?? (await vscode.window.showOpenDialog({ canSelectFolders: true, canSelectFiles: false, defaultUri: r, openLabel: 'Add backend here' }))?.[0]; if (!dir) { return; }
+		const dir = u ?? (await vscode.window.showOpenDialog({ canSelectFolders: true, canSelectFiles: false, defaultUri: r, openLabel: vscode.l10n.t("Add backend here") }))?.[0]; if (!dir) { return; }
 		const f = vscode.Uri.joinPath(dir, 'server.mjs');
-		try { await vscode.workspace.fs.stat(f); if (await vscode.window.showWarningMessage('server.mjs exists. Overwrite?', { modal: true }, 'Overwrite') !== 'Overwrite') { return; } } catch { /* new */ }
+		try { await vscode.workspace.fs.stat(f); if (await vscode.window.showWarningMessage(vscode.l10n.t("server.mjs exists. Overwrite?"), { modal: true }, 'Overwrite') !== 'Overwrite') { return; } } catch { /* new */ }
 		await vscode.workspace.fs.writeFile(f, new TextEncoder().encode(SERVER));
 		await vscode.window.showTextDocument(f);
 		const t = vscode.window.createTerminal({ name: 'Backend', cwd: dir.fsPath }); t.show(true); t.sendText('node server.mjs');
-		vscode.window.showInformationMessage('Backend added: SQLite (app.db) + auth (/api/register, /api/login, /api/me, /api/items). Running on :3000.');
+		vscode.window.showInformationMessage(vscode.l10n.t("Backend added: SQLite (app.db) + auth (/api/register, /api/login, /api/me, /api/items). Running on :3000."));
 	});
 	register(ctx, 'axiora.app.publishGit', async (u?: vscode.Uri) => {
 		const r = wsRoot(); if (!r) { return; }
-		const dir = u ?? (await vscode.window.showOpenDialog({ canSelectFolders: true, canSelectFiles: false, defaultUri: vscode.Uri.joinPath(r, '.axiora', 'prototypes'), openLabel: 'Publish this folder' }))?.[0]; if (!dir) { return; }
-		const remote = await vscode.window.showInputBox({ prompt: 'Git remote URL (GitHub / GitLab / Bitbucket / your own server)', placeHolder: 'git@gitlab.com:you/app.git' }); if (!remote) { return; }
+		const dir = u ?? (await vscode.window.showOpenDialog({ canSelectFolders: true, canSelectFiles: false, defaultUri: vscode.Uri.joinPath(r, '.axiora', 'prototypes'), openLabel: vscode.l10n.t("Publish this folder") }))?.[0]; if (!dir) { return; }
+		const remote = await vscode.window.showInputBox({ prompt: vscode.l10n.t("Git remote URL (GitHub / GitLab / Bitbucket / your own server)"), placeHolder: vscode.l10n.t("git@gitlab.com:you/app.git") }); if (!remote) { return; }
 		const branch = await vscode.window.showInputBox({ prompt: 'Branch', value: 'main' }) ?? 'main';
 		const d = dir.fsPath;
 		if (!await approve('git-push', `Publish ${d} → ${remote} (${branch}): git add/commit/push`)) { return; }
@@ -91,8 +91,8 @@ export function activate(ctx: vscode.ExtensionContext) {
 		await run('git', ['commit', '-qm', `Publish ${path.basename(d)} from Axiora`], d).catch(e => { if (/Author identity unknown|tell me who you are/i.test(String(e.message))) { throw new Error('Git needs your name/email first: git config --global user.name "…" && git config --global user.email "…"'); } if (!/nothing to commit|nothing added/i.test(String(e.message))) { throw e; } });
 		await run('git', ['remote', 'remove', 'axiora-publish'], d).catch(() => undefined);
 		await run('git', ['remote', 'add', 'axiora-publish', remote], d);
-		await vscode.window.withProgress({ location: vscode.ProgressLocation.Notification, title: `Pushing ${path.basename(d)} → ${remote}` }, () => run('git', ['push', '-u', 'axiora-publish', `HEAD:${branch}`], d));
-		vscode.window.showInformationMessage(`Published ${path.basename(d)} to ${remote} (${branch}). Re-run to sync new changes.`);
+		await vscode.window.withProgress({ location: vscode.ProgressLocation.Notification, title: vscode.l10n.t("Pushing {0} → {1}", path.basename(d), remote) }, () => run('git', ['push', '-u', 'axiora-publish', `HEAD:${branch}`], d));
+		vscode.window.showInformationMessage(vscode.l10n.t("Published {0} to {1} ({2}). Re-run to sync new changes.", path.basename(d), remote, branch));
 	});
 	register(ctx, 'axiora.app.embed', async () => {
 		const ed = vscode.window.activeTextEditor; const r = wsRoot(); if (!ed || !r) { return; }
@@ -103,7 +103,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 		const base = vscode.workspace.getConfiguration('axiora.embed').get<string>('baseUrl', '');
 		const snippet = `<iframe src="${base ? base.replace(/\/$/, '') + '/' : ''}${name}" style="width:100%;height:${Math.min(600, 40 + code.split('\n').length * 20)}px;border:0;border-radius:6px" loading="lazy" title="${esc(rel)}"></iframe>`;
 		await vscode.env.clipboard.writeText(snippet);
-		const a = await vscode.window.showInformationMessage(`Embed saved to .axiora/embeds/${name}; iframe snippet copied.${base ? '' : ' Set axiora.embed.baseUrl to where you host embeds.'}`, 'Preview');
+		const a = await vscode.window.showInformationMessage(vscode.l10n.t("Embed saved to .axiora/embeds/{0}; iframe snippet copied.{1}", name, base ? '' : ' Set axiora.embed.baseUrl to where you host embeds.'), 'Preview');
 		if (a) { await vscode.commands.executeCommand('axiora.html.preview', vscode.Uri.joinPath(dir, name)).then(undefined, () => vscode.env.openExternal(vscode.Uri.joinPath(dir, name))); }
 	});
 	register(ctx, 'axiora.app.dataApp', async (u?: vscode.Uri) => {
@@ -111,7 +111,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 		const f = u ?? (await vscode.window.showOpenDialog({ filters: { CSV: ['csv'] }, defaultUri: r }))?.[0]; if (!f) { return; }
 		const name = path.basename(f.fsPath, '.csv'); const dir = vscode.Uri.joinPath(r, '.axiora', 'apps', name); await vscode.workspace.fs.createDirectory(dir);
 		await vscode.workspace.fs.writeFile(vscode.Uri.joinPath(dir, 'index.html'), new TextEncoder().encode(dataApp(name, new TextDecoder().decode(await vscode.workspace.fs.readFile(f)))));
-		const a = await vscode.window.showInformationMessage(`Data app built: .axiora/apps/${name}/index.html`, 'Preview', 'Deploy');
+		const a = await vscode.window.showInformationMessage(vscode.l10n.t("Data app built: .axiora/apps/{0}/index.html", name), 'Preview', 'Deploy');
 		if (a === 'Preview') { await vscode.commands.executeCommand('axiora.html.preview', vscode.Uri.joinPath(dir, 'index.html')).then(undefined, () => undefined); }
 		if (a === 'Deploy') { await vscode.commands.executeCommand('axiora.deploy.upload', vscode.Uri.joinPath(dir, 'index.html')); }
 	});

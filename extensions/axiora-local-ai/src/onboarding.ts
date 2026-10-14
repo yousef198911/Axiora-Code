@@ -8,6 +8,7 @@
  *  Keys live in SecretStorage only; nothing secret is ever written to settings.json.
  *--------------------------------------------------------------------------------------------*/
 import * as vscode from 'vscode';
+import { htmlDir, htmlLang, webviewL10n } from './i18n';
 import { register } from './util';
 
 interface Provider { id: string; label: string; baseUrl: string; chat: string; completion: string; free?: boolean; models?: string[] }
@@ -15,9 +16,9 @@ const OPENROUTER_FREE = ['cohere/north-mini-code:free', 'google/gemma-4-31b-it:f
 export function detectProvider(key: string): Provider | undefined {
 	const k = key.trim();
 	if (k.startsWith('sk-or-')) { return { id: 'openrouter', label: 'OpenRouter', baseUrl: 'https://openrouter.ai/api/v1', chat: OPENROUTER_FREE[0], completion: OPENROUTER_FREE[0], free: true, models: OPENROUTER_FREE }; }
-	if (k.startsWith('gsk_')) { return { id: 'groq', label: 'Groq', baseUrl: 'https://api.groq.com/openai/v1', chat: 'llama-3.3-70b-versatile', completion: 'llama-3.1-8b-instant', free: true }; }
-	if (k.startsWith('AIza')) { return { id: 'gemini', label: 'Google Gemini', baseUrl: 'https://generativelanguage.googleapis.com/v1beta/openai', chat: 'gemini-2.5-flash', completion: 'gemini-2.5-flash-lite', free: true }; }
-	if (k.startsWith('sk-ant-')) { return { id: 'anthropic', label: 'Anthropic', baseUrl: 'https://api.anthropic.com/v1', chat: 'claude-sonnet-4-5', completion: 'claude-haiku-4-5' }; }
+	if (k.startsWith('gsk_')) { return { id: 'groq', label: vscode.l10n.t("Groq"), baseUrl: 'https://api.groq.com/openai/v1', chat: 'llama-3.3-70b-versatile', completion: 'llama-3.1-8b-instant', free: true }; }
+	if (k.startsWith('AIza')) { return { id: 'gemini', label: vscode.l10n.t("Google Gemini"), baseUrl: 'https://generativelanguage.googleapis.com/v1beta/openai', chat: 'gemini-2.5-flash', completion: 'gemini-2.5-flash-lite', free: true }; }
+	if (k.startsWith('sk-ant-')) { return { id: 'anthropic', label: vscode.l10n.t("Anthropic"), baseUrl: 'https://api.anthropic.com/v1', chat: 'claude-sonnet-4-5', completion: 'claude-haiku-4-5' }; }
 	if (k.startsWith('sk-')) { return { id: 'openai', label: 'OpenAI', baseUrl: 'https://api.openai.com/v1', chat: 'gpt-4o-mini', completion: 'gpt-4o-mini' }; }
 	return undefined;
 }
@@ -33,7 +34,7 @@ async function setReady(ready: boolean, label: string, detail = '') {
 	state = { ready, label, detail };
 	await vscode.commands.executeCommand('setContext', 'axiora.aiReady', ready);
 	await vscode.commands.executeCommand('setContext', 'axiora.aiProviderLabel', label);
-	bar.text = '$(sparkle) Set Up AI'; bar.tooltip = 'No AI model is configured yet — paste one key to enable the assistant.';
+	bar.text = vscode.l10n.t("$(sparkle) Set Up AI"); bar.tooltip = vscode.l10n.t("No AI model is configured yet — paste one key to enable the assistant.");
 	ready ? bar.hide() : bar.show();
 	changed.fire();
 }
@@ -65,9 +66,9 @@ async function pickModel(p: Provider, key: string): Promise<Provider> {
 
 /** Store + configure + test. Returns a one-line status. */
 export async function setUpWithKey(raw: string): Promise<{ ok: boolean; status: string }> {
-	const key = raw.trim(); if (!key) { return { ok: false, status: 'Paste a key first.' }; }
+	const key = raw.trim(); if (!key) { return { ok: false, status: vscode.l10n.t("Paste a key first.") }; }
 	let p = detectProvider(key);
-	if (!p) { return { ok: false, status: 'Unknown key format. Expected sk-or-… (OpenRouter), gsk_… (Groq), AIza… (Gemini), sk-ant-… (Anthropic) or sk-… (OpenAI).' }; }
+	if (!p) { return { ok: false, status: vscode.l10n.t("Unknown key format. Expected sk-or-… (OpenRouter), gsk_… (Groq), AIza… (Gemini), sk-ant-… (Anthropic) or sk-… (OpenAI).") }; }
 	p = await pickModel(p, key);
 	await ctx.secrets.store('axiora.ai.apiKey', key);
 	const c = conf();
@@ -76,11 +77,11 @@ export async function setUpWithKey(raw: string): Promise<{ ok: boolean; status: 
 	try {
 		await ping(p.baseUrl, key, p.chat);
 		await setReady(true, `${p.label} · ${p.chat}`);
-		return { ok: true, status: `✅ Assistant ready — ${p.label} · ${p.chat}${p.free ? ' (free)' : ''}` };
+		return { ok: true, status: vscode.l10n.t("✅ Assistant ready — {0} · {1}{2}", String(p.label), String(p.chat), String(p.free ? ' (free)' : '')) };
 	} catch (e) {
 		const rl = /rate-limiting|daily limit/.test((e as Error).message);
 		await setReady(rl, `${p.label} · ${p.chat}`);
-		return { ok: rl, status: `${rl ? '⚠️' : '❌'} ${p.label} detected, but ${(e as Error).message}` };
+		return { ok: rl, status: vscode.l10n.t("{0} {1} detected, but {2}", String(rl ? '⚠️' : '❌'), String(p.label), String((e as Error).message)) };
 	}
 }
 
@@ -90,14 +91,14 @@ export async function useOllama(): Promise<{ ok: boolean; status: string }> {
 		const r = await fetch(`${base}/api/tags`, { signal: AbortSignal.timeout(4000) });
 		const models = ((await r.json()) as { models?: { name: string }[] }).models?.map(m => m.name) ?? [];
 		const c = conf(); await c.update('ai.provider', 'ollama', G); await c.update('ai.baseUrl', base, G);
-		if (!models.length) { await setReady(false, 'Ollama'); return { ok: false, status: '⚠️ Ollama is running but has no models. Run: ollama pull qwen2.5-coder:1.5b' }; }
+		if (!models.length) { await setReady(false, 'Ollama'); return { ok: false, status: vscode.l10n.t("⚠️ Ollama is running but has no models. Run: ollama pull qwen2.5-coder:1.5b") }; }
 		const pick = (re: RegExp) => models.find(m => re.test(m)) ?? models[0];
 		const chatM = pick(/coder|qwen|llama|mistral|gemma/i); const compM = pick(/coder/i);
 		await c.update('ai.chatModel', chatM, G); await c.update('inlineCompletion.model', compM, G);
 		await setReady(true, `Ollama · ${chatM}`);
-		return { ok: true, status: `✅ Assistant ready — Ollama on this computer · ${chatM}` };
+		return { ok: true, status: vscode.l10n.t("✅ Assistant ready — Ollama on this computer · {0}", String(chatM)) };
 	} catch {
-		return { ok: false, status: '❌ Ollama is not running on this computer. Install it from ollama.com, start it, then try again.' };
+		return { ok: false, status: vscode.l10n.t("❌ Ollama is not running on this computer. Install it from ollama.com, start it, then try again.") };
 	}
 }
 
@@ -116,19 +117,19 @@ type Field = { id: string; label: string; placeholder: string; secret?: boolean;
 interface Service { id: string; name: string; blurb: string; secret: string; fields: Field[]; signIn?: string; test: (v: Record<string, string>) => Promise<string> }
 async function j(url: string, init: RequestInit) { const r = await fetch(url, { ...init, signal: AbortSignal.timeout(20000) }); const t = await r.text(); if (!r.ok) { throw new Error(r.status === 401 || r.status === 403 ? 'token rejected' : `${r.status} ${t.slice(0, 120)}`); } return JSON.parse(t); }
 const SERVICES: Service[] = [
-	{ id: 'jira', name: 'Jira', blurb: 'Issues in chat with /jira', secret: 'axiora.connector.jira', fields: [{ id: 'site', label: 'Site', placeholder: 'https://acme.atlassian.net', setting: 'connectors.jira.site' }, { id: 'email', label: 'Email', placeholder: 'you@company.com', setting: 'connectors.jira.email' }, { id: 'token', label: 'API token', placeholder: 'Atlassian API token', secret: true }],
+	{ id: 'jira', name: 'Jira', blurb: vscode.l10n.t("Issues in chat with /jira"), secret: 'axiora.connector.jira', fields: [{ id: 'site', label: vscode.l10n.t("Site"), placeholder: 'https://acme.atlassian.net', setting: 'connectors.jira.site' }, { id: 'email', label: vscode.l10n.t("Email"), placeholder: vscode.l10n.t("you@company.com"), setting: 'connectors.jira.email' }, { id: 'token', label: vscode.l10n.t("API token"), placeholder: vscode.l10n.t("Atlassian API token"), secret: true }],
 		test: async v => { const me = await j(`${v.site.replace(/\/$/, '')}/rest/api/3/myself`, { headers: { accept: 'application/json', authorization: 'Basic ' + Buffer.from(`${v.email}:${v.token}`).toString('base64') } }); return `Signed in as ${me.displayName}`; } },
-	{ id: 'figma', name: 'Figma', blurb: 'Designs in chat with /figma', secret: 'axiora.connector.figma', fields: [{ id: 'token', label: 'Personal access token', placeholder: 'figd_…', secret: true }],
+	{ id: 'figma', name: 'Figma', blurb: vscode.l10n.t("Designs in chat with /figma"), secret: 'axiora.connector.figma', fields: [{ id: 'token', label: vscode.l10n.t("Personal access token"), placeholder: vscode.l10n.t("figd_…"), secret: true }],
 		test: async v => { const me = await j('https://api.figma.com/v1/me', { headers: { 'X-Figma-Token': v.token } }); return `Signed in as ${me.handle}`; } },
-	{ id: 'slack', name: 'Slack', blurb: 'Workspace token for Slack-aware agent tools', secret: 'axiora.connector.slack', fields: [{ id: 'token', label: 'Bot or user token', placeholder: 'xoxb-… or xoxp-…', secret: true }],
+	{ id: 'slack', name: 'Slack', blurb: vscode.l10n.t("Workspace token for Slack-aware agent tools"), secret: 'axiora.connector.slack', fields: [{ id: 'token', label: vscode.l10n.t("Bot or user token"), placeholder: vscode.l10n.t("xoxb-… or xoxp-…"), secret: true }],
 		test: async v => { const r = await j('https://slack.com/api/auth.test', { method: 'POST', headers: { authorization: `Bearer ${v.token}` } }); if (!r.ok) { throw new Error(r.error); } return `Connected to ${r.team} as ${r.user}`; } },
-	{ id: 'linear', name: 'Linear', blurb: 'Issues in chat with /linear', secret: 'axiora.connector.linear', fields: [{ id: 'token', label: 'Personal API key', placeholder: 'lin_api_…', secret: true }],
+	{ id: 'linear', name: 'Linear', blurb: vscode.l10n.t("Issues in chat with /linear"), secret: 'axiora.connector.linear', fields: [{ id: 'token', label: vscode.l10n.t("Personal API key"), placeholder: vscode.l10n.t("lin_api_…"), secret: true }],
 		test: async v => { const r = await j('https://api.linear.app/graphql', { method: 'POST', headers: { authorization: v.token, 'content-type': 'application/json' }, body: JSON.stringify({ query: '{viewer{name email}}' }) }); if (!r.data?.viewer) { throw new Error(r.errors?.[0]?.message ?? 'no viewer'); } return `Signed in as ${r.data.viewer.name}`; } },
-	{ id: 'stripe', name: 'Stripe', blurb: 'Customers and payments with /stripe', secret: 'axiora.connector.stripe', fields: [{ id: 'token', label: 'Restricted key', placeholder: 'rk_live_… or rk_test_…', secret: true }],
+	{ id: 'stripe', name: 'Stripe', blurb: vscode.l10n.t("Customers and payments with /stripe"), secret: 'axiora.connector.stripe', fields: [{ id: 'token', label: vscode.l10n.t("Restricted key"), placeholder: vscode.l10n.t("rk_live_… or rk_test_…"), secret: true }],
 		test: async v => { const b = await j('https://api.stripe.com/v1/balance', { headers: { authorization: `Bearer ${v.token}` } }); return `Connected (${b.livemode ? 'live' : 'test'} mode)`; } },
-	{ id: 'google', name: 'Google', blurb: 'Gmail, Drive and Calendar', secret: 'axiora.google.refreshToken', fields: [], signIn: 'axiora.google.signIn',
+	{ id: 'google', name: 'Google', blurb: vscode.l10n.t("Gmail, Drive and Calendar"), secret: 'axiora.google.refreshToken', fields: [], signIn: 'axiora.google.signIn',
 		test: async () => 'Signed in' },
-	{ id: 'github', name: 'GitHub', blurb: 'PRs, issues and reviews', secret: 'axiora.github.token', fields: [{ id: 'token', label: 'Token (optional — or sign in)', placeholder: 'github_pat_…', secret: true }], signIn: 'github',
+	{ id: 'github', name: 'GitHub', blurb: vscode.l10n.t("PRs, issues and reviews"), secret: 'axiora.github.token', fields: [{ id: 'token', label: vscode.l10n.t("Token (optional — or sign in)"), placeholder: vscode.l10n.t("github_pat_…"), secret: true }], signIn: 'github',
 		test: async v => { const u = await j('https://api.github.com/user', { headers: { authorization: `Bearer ${v.token}`, 'user-agent': 'Axiora-Code' } }); return `Signed in as ${u.login}`; } },
 ];
 const svc = (id: string) => SERVICES.find(s => s.id === id)!;
@@ -141,16 +142,16 @@ async function connected(s: Service) { return !!(await ctx.secrets.get(s.secret)
 async function connect(id: string, input: Record<string, string>): Promise<{ ok: boolean; status: string }> {
 	const s = svc(id);
 	if (s.id === 'github' && !input.token) { const sess = await vscode.authentication.getSession('github', ['repo'], { createIfNone: true }); await ctx.secrets.store(s.secret, sess.accessToken); return test(id); }
-	if (s.signIn && !s.fields.length) { await vscode.commands.executeCommand(s.signIn); return { ok: await connected(s), status: await connected(s) ? '✅ Signed in' : 'Not signed in' }; }
-	for (const f of s.fields) { if (!input[f.id]?.trim() && !(f.setting && conf().get(f.setting))) { return { ok: false, status: `${f.label} is required.` }; } }
+	if (s.signIn && !s.fields.length) { await vscode.commands.executeCommand(s.signIn); return { ok: await connected(s), status: await connected(s) ? vscode.l10n.t("✅ Signed in") : vscode.l10n.t("Not signed in") }; }
+	for (const f of s.fields) { if (!input[f.id]?.trim() && !(f.setting && conf().get(f.setting))) { return { ok: false, status: vscode.l10n.t("{0} is required.", String(f.label)) }; } }
 	for (const f of s.fields) { const v = input[f.id]?.trim(); if (!v) { continue; } if (f.secret) { await ctx.secrets.store(s.secret, v); } else if (f.setting) { await conf().update(f.setting, v, G); } }
 	return test(id);
 }
 async function test(id: string): Promise<{ ok: boolean; status: string }> {
-	const s = svc(id); if (!await connected(s)) { return { ok: false, status: 'Not connected' }; }
+	const s = svc(id); if (!await connected(s)) { return { ok: false, status: vscode.l10n.t("Not connected") }; }
 	try { return { ok: true, status: `✅ ${await s.test(await values(s))}` }; } catch (e) { return { ok: false, status: `❌ ${(e as Error).message}` }; }
 }
-async function disconnect(id: string) { await ctx.secrets.delete(svc(id).secret); return { ok: false, status: 'Disconnected' }; }
+async function disconnect(id: string) { await ctx.secrets.delete(svc(id).secret); return { ok: false, status: vscode.l10n.t("Disconnected") }; }
 
 // ---------------------------------------------------------------- team file
 interface Team { services?: Record<string, Record<string, string>>; ai?: { provider?: string; baseUrl?: string; chatModel?: string; completionModel?: string; approvedModels?: string[] }; approval?: { mode?: string }; policy?: { url?: string }; required?: string[] }
@@ -159,7 +160,7 @@ const teamUri = () => vscode.workspace.workspaceFolders?.[0] && vscode.Uri.joinP
 const W = vscode.ConfigurationTarget.Workspace;
 async function applyTeam(show = false): Promise<string[]> {
 	const u = teamUri(); if (!u) { return []; }
-	try { team = JSON.parse(new TextDecoder().decode(await vscode.workspace.fs.readFile(u))); } catch { team = undefined; if (show) { vscode.window.showInformationMessage('No .axiora/team.json in this workspace. Run "Axiora: Create Team File" to start one.'); } return []; }
+	try { team = JSON.parse(new TextDecoder().decode(await vscode.workspace.fs.readFile(u))); } catch { team = undefined; if (show) { vscode.window.showInformationMessage(vscode.l10n.t("No .axiora/team.json in this workspace. Run \"Axiora: Create Team File\" to start one.")); } return []; }
 	const t = team!; const c = conf(); const done: string[] = [];
 	const set = async (k: string, v: unknown) => { if (v !== undefined && JSON.stringify(c.inspect(k)?.workspaceValue) !== JSON.stringify(v)) { await c.update(k, v, W); done.push(k); } };
 	const MAP: Record<string, Record<string, string>> = { jira: { site: 'connectors.jira.site' }, github: { repo: 'github.repo', apiUrl: 'github.apiUrl' }, google: { clientId: 'google.clientId' }, mcp: { port: 'mcpServer.port' } };
@@ -172,7 +173,7 @@ async function applyTeam(show = false): Promise<string[]> {
 	}
 	await set('approval.mode', t.approval?.mode); await set('policy.url', t.policy?.url);
 	const missing = await missingServices();
-	if (show || done.length) { vscode.window.showInformationMessage(`Team settings applied (${done.length} changed).${missing.length ? ` Your personal keys still missing: ${missing.join(', ')}.` : ''}`, ...(missing.length ? ['Connect...'] : [])).then(a => a && vscode.commands.executeCommand('axiora.services.open')); }
+	if (show || done.length) { vscode.window.showInformationMessage(vscode.l10n.t("Team settings applied ({0} changed).{1}", done.length, missing.length ? ` Your personal keys still missing: ${missing.join(', ')}.` : ''), ...(missing.length ? ['Connect...'] : [])).then(a => a && vscode.commands.executeCommand('axiora.services.open')); }
 	changed.fire(); return done;
 }
 async function missingServices() { const r: string[] = []; for (const id of team?.required ?? []) { const s = SERVICES.find(x => x.id === id); if (s && !await connected(s)) { r.push(s.name); } } return r; }
@@ -183,14 +184,14 @@ const ROW: Record<string, string> = { 'axiora.connectors.jira.token': 'jira', 'a
 async function describe(key: string, status?: { ok: boolean; status: string }): Promise<Desc> {
 	if (key === 'axiora.ai.apiKey') {
 		const has = !!await ctx.secrets.get('axiora.ai.apiKey');
-		const s = status ?? (state.ready ? { ok: true, status: `✅ Assistant ready — ${state.label}` } : { ok: false, status: has ? `Key saved — ${state.label}` : 'No AI configured yet. Paste one key below.' });
-		return { ...s, input: true, placeholder: has ? 'Paste a new key to replace the saved one' : 'sk-or-…, gsk_…, AIza…, sk-ant-… or sk-…', buttons: [{ label: 'Save & Test', action: 'save' }, ...(has ? [{ label: 'Test', action: 'test', secondary: true }, { label: 'Remove', action: 'remove', secondary: true }] : []), { label: 'Use Ollama on My Computer', action: 'ollama', secondary: true }, { label: 'Get a Free Key', action: 'free', secondary: true }] };
+		const s = status ?? (state.ready ? { ok: true, status: vscode.l10n.t("✅ Assistant ready — {0}", String(state.label)) } : { ok: false, status: has ? vscode.l10n.t("Key saved — {0}", String(state.label)) : vscode.l10n.t("No AI configured yet. Paste one key below.") });
+		return { ...s, input: true, placeholder: has ? vscode.l10n.t("Paste a new key to replace the saved one") : vscode.l10n.t("sk-or-…, gsk_…, AIza…, sk-ant-… or sk-…"), buttons: [{ label: vscode.l10n.t("Save & Test"), action: 'save' }, ...(has ? [{ label: vscode.l10n.t("Test"), action: 'test', secondary: true }, { label: vscode.l10n.t("Remove"), action: 'remove', secondary: true }] : []), { label: vscode.l10n.t("Use Ollama on My Computer"), action: 'ollama', secondary: true }, { label: vscode.l10n.t("Get a Free Key"), action: 'free', secondary: true }] };
 	}
 	const s = svc(ROW[key]); const on = await connected(s);
-	const st = status ?? { ok: on, status: on ? '✅ Connected' : (team?.required?.includes(s.id) ? '⚠️ Required by your team — not connected yet' : 'Not connected') };
-	if (s.id === 'google') { return { ...st, input: false, buttons: on ? [{ label: 'Disconnect', action: 'remove', secondary: true }] : [{ label: 'Sign In with Google', action: 'signin' }] }; }
+	const st = status ?? { ok: on, status: on ? vscode.l10n.t("✅ Connected") : (team?.required?.includes(s.id) ? '⚠️ Required by your team — not connected yet' : 'Not connected') };
+	if (s.id === 'google') { return { ...st, input: false, buttons: on ? [{ label: vscode.l10n.t("Disconnect"), action: 'remove', secondary: true }] : [{ label: vscode.l10n.t("Sign In with Google"), action: 'signin' }] }; }
 	const extra = s.fields.length > 1 ? [{ label: 'Connect...', action: 'form', secondary: true }] : [];
-	return { ...st, input: true, placeholder: on ? 'Paste a new token to replace the saved one' : s.fields.find(f => f.secret)!.placeholder, buttons: [{ label: 'Save', action: 'save' }, ...(s.id === 'github' ? [{ label: 'Sign In with GitHub', action: 'signin', secondary: true }] : []), ...extra, ...(on ? [{ label: 'Test', action: 'test', secondary: true }, { label: 'Disconnect', action: 'remove', secondary: true }] : [])] };
+	return { ...st, input: true, placeholder: on ? vscode.l10n.t("Paste a new token to replace the saved one") : s.fields.find(f => f.secret)!.placeholder, buttons: [{ label: vscode.l10n.t("Save"), action: 'save' }, ...(s.id === 'github' ? [{ label: vscode.l10n.t("Sign In with GitHub"), action: 'signin', secondary: true }] : []), ...extra, ...(on ? [{ label: vscode.l10n.t("Test"), action: 'test', secondary: true }, { label: vscode.l10n.t("Disconnect"), action: 'remove', secondary: true }] : [])] };
 }
 async function rowAction(key: string, action: string, value: string): Promise<Desc> {
 	if (key === 'axiora.ai.apiKey') {
@@ -198,8 +199,8 @@ async function rowAction(key: string, action: string, value: string): Promise<De
 		if (action === 'save') { r = await setUpWithKey(value); }
 		if (action === 'ollama') { r = await useOllama(); }
 		if (action === 'free') { await vscode.commands.executeCommand('axiora.ai.getFreeKey'); }
-		if (action === 'remove') { await ctx.secrets.delete('axiora.ai.apiKey'); await refreshState(); r = { ok: false, status: 'Key removed.' }; }
-		if (action === 'test') { const c = conf(); try { await ping(c.get('ai.baseUrl', ''), await ctx.secrets.get('axiora.ai.apiKey'), c.get('ai.chatModel', '')); await setReady(true, state.label); r = { ok: true, status: `✅ Connection OK — ${state.label}` }; } catch (e) { const m = (e as Error).message; r = { ok: false, status: `${/rate-limiting|daily limit/.test(m) ? '⚠️ The key is valid, but' : '❌'} ${m}` }; } }
+		if (action === 'remove') { await ctx.secrets.delete('axiora.ai.apiKey'); await refreshState(); r = { ok: false, status: vscode.l10n.t("Key removed.") }; }
+		if (action === 'test') { const c = conf(); try { await ping(c.get('ai.baseUrl', ''), await ctx.secrets.get('axiora.ai.apiKey'), c.get('ai.chatModel', '')); await setReady(true, state.label); r = { ok: true, status: vscode.l10n.t("✅ Connection OK — {0}", String(state.label)) }; } catch (e) { const m = (e as Error).message; r = { ok: false, status: `${/rate-limiting|daily limit/.test(m) ? '⚠️ The key is valid, but' : '❌'} ${m}` }; } }
 		return describe(key, r);
 	}
 	const id = ROW[key]; let r: { ok: boolean; status: string } | undefined;
@@ -213,7 +214,7 @@ async function rowAction(key: string, action: string, value: string): Promise<De
 }
 async function connectForm(id: string) {
 	const s = svc(id); const v: Record<string, string> = {};
-	for (const f of s.fields) { const x = await vscode.window.showInputBox({ title: `Connect ${s.name}`, prompt: f.label, placeHolder: f.placeholder, password: !!f.secret, ignoreFocusOut: true, value: f.setting ? conf().get<string>(f.setting, '') : '' }); if (x === undefined) { return { ok: false, status: 'Cancelled' }; } v[f.id] = x; }
+	for (const f of s.fields) { const x = await vscode.window.showInputBox({ title: vscode.l10n.t("Connect {0}", s.name), prompt: f.label, placeHolder: f.placeholder, password: !!f.secret, ignoreFocusOut: true, value: f.setting ? conf().get<string>(f.setting, '') : '' }); if (x === undefined) { return { ok: false, status: vscode.l10n.t("Cancelled") }; } v[f.id] = x; }
 	return connect(id, v);
 }
 
@@ -225,7 +226,7 @@ async function servicesModel() {
 }
 function openServices() {
 	if (panel) { panel.reveal(); return; }
-	panel = vscode.window.createWebviewPanel('axiora.services', 'Connected Services', vscode.ViewColumn.Active, { enableScripts: true, retainContextWhenHidden: true });
+	panel = vscode.window.createWebviewPanel('axiora.services', vscode.l10n.t("Connected Services"), vscode.ViewColumn.Active, { enableScripts: true, retainContextWhenHidden: true });
 	panel.onDidDispose(() => panel = undefined);
 	const post = async (extra?: object) => panel?.webview.postMessage({ type: 'model', model: await servicesModel(), ...extra });
 	const sub = changed.event(() => post()); panel.onDidDispose(() => sub.dispose());
@@ -240,13 +241,13 @@ function openServices() {
 			if (m.action === 'ollama') { r = await useOllama(); }
 			else if ((m.key ?? '').trim()) { r = await setUpWithKey(m.key); }
 			else if (await ctx.secrets.get('axiora.ai.apiKey') || conf().get('ai.provider') === 'ollama') { const d = await rowAction('axiora.ai.apiKey', 'test', ''); r = { ok: !!d.ok || /⚠️/.test(d.status), status: d.status }; }
-			else { r = { ok: false, status: 'Paste a key first.' }; }
+			else { r = { ok: false, status: vscode.l10n.t("Paste a key first.") }; }
 		}
 		if (m.type === 'cmd') { await vscode.commands.executeCommand(m.command); return; }
 		post({ result: { id: m.id ?? 'ai', ...r } });
 	});
 	const nonce = Math.random().toString(36).slice(2);
-	panel.webview.html = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'nonce-${nonce}';"><style>
+	panel.webview.html = `<!DOCTYPE html><html dir="${htmlDir()}" lang="${htmlLang()}"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'nonce-${nonce}';"><style>
 body{font-family:var(--vscode-font-family);font-size:13px;color:var(--vscode-foreground);padding:28px 40px;max-width:1040px;margin:0 auto}
 h1{font-size:22px;font-weight:600;margin:0 0 4px}.sub{color:var(--vscode-descriptionForeground);margin:0 0 22px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
@@ -261,19 +262,20 @@ button{background:var(--vscode-button-background);color:var(--vscode-button-fore
 button.sec{background:var(--vscode-button-secondaryBackground);color:var(--vscode-button-secondaryForeground)}button.sec:hover{background:var(--vscode-button-secondaryHoverBackground)}
 .status{font-size:12px;min-height:16px}.status.ok{color:var(--vscode-testing-iconPassed,#73c991)}.status.err{color:var(--vscode-errorForeground)}
 .banner{border-left:3px solid var(--vscode-editorWarning-foreground);padding:6px 10px;margin-bottom:16px;background:var(--vscode-textBlockQuote-background)}
-</style></head><body><h1>Connected Services</h1><p class="sub">Only an AI key is needed — everything else is optional. Keys stay in your OS keychain.</p><div id="root"></div>
+</style></head><body><h1>${vscode.l10n.t("Connected Services")}</h1><p class="sub">${vscode.l10n.t("Only an AI key is needed — everything else is optional. Keys stay in your OS keychain.")}</p><div id="root"></div>
 <script nonce="${nonce}">
+${webviewL10n(["Connected Services", "Only an AI key is needed — everything else is optional. Keys stay in your OS keychain.", "Your team uses ", " — connect your personal key", " below.", "AI Assistant", "Ready", "Not set up", "Paste one key — the provider is detected automatically (OpenRouter, Groq, Gemini, Anthropic, OpenAI).", "Paste a new key to switch provider", "Save &amp; Test", "Use Ollama on My Computer", "Get a Free Key", "Connected", "Team: needed", "Not connected", "Test", "Disconnect", "Connect", "Sign In with ", "Cancel", "Working…"])}
 const vs=acquireVsCodeApi();let M,R={};const $=s=>document.querySelector(s);const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function st(id){const r=R[id];return r?'<div class="status '+(r.ok?'ok':/^(Disconnected|Not connected|Cancelled|Working)/.test(r.status)?'':'err')+'">'+esc(r.status)+'</div>':'<div class="status"></div>'}
 function render(){const a=M.ai;let h='';
-if(M.missing.length)h+='<div class="banner">Your team uses '+esc(M.missing.join(', '))+' — connect your personal key'+(M.missing.length>1?'s':'')+' below.</div>';
-h+='<div class="card ai"><div class="row"><span class="name">AI Assistant</span><span class="pill '+(a.ready?'on':'')+'">'+(a.ready?'Ready':'Not set up')+'</span></div><div class="blurb">'+(a.ready?esc(a.label):'Paste one key — the provider is detected automatically (OpenRouter, Groq, Gemini, Anthropic, OpenAI).')+'</div>'
-+'<input id="aikey" type="password" autocomplete="off" placeholder="'+(a.ready?'Paste a new key to switch provider':'sk-or-…, gsk_…, AIza…, sk-ant-… or sk-…')+'"><div class="btns"><button data-ai="key">Save &amp; Test</button><button class="sec" data-ai="ollama">Use Ollama on My Computer</button><button class="sec" data-cmd="axiora.ai.getFreeKey">Get a Free Key</button></div>'+st('ai')+'</div><div class="grid">';
-for(const s of M.services){h+='<div class="card"><div class="row"><span class="name">'+esc(s.name)+'</span><span class="pill '+(s.connected?'on':s.required?'req':'')+'">'+(s.connected?'Connected':s.required?'Team: needed':'Not connected')+'</span></div><div class="blurb">'+esc(s.blurb)+'</div>';
-if(s.connected){h+='<div class="btns"><button class="sec" data-test="'+s.id+'">Test</button><button class="sec" data-dis="'+s.id+'">Disconnect</button></div>'}
+if(M.missing.length)h+='<div class="banner">Your team uses '+esc(M.missing.join(', '))+L(' — connect your personal key')+(M.missing.length>1?'s':'')+' below.</div>';
+h+='<div class="card ai"><div class="row"><span class="name">'+L('AI Assistant')+'</span><span class="pill '+(a.ready?'on':'')+'">'+(a.ready?L('Ready'):L('Not set up'))+'</span></div><div class="blurb">'+(a.ready?esc(a.label):L('Paste one key — the provider is detected automatically (OpenRouter, Groq, Gemini, Anthropic, OpenAI).'))+'</div>'
++'<input id="aikey" type="password" autocomplete="off" placeholder="'+(a.ready?L('Paste a new key to switch provider'):'sk-or-…, gsk_…, AIza…, sk-ant-… or sk-…')+'"><div class="btns"><button data-ai="key">'+L('Save &amp; Test')+'</button><button class="sec" data-ai="ollama">'+L('Use Ollama on My Computer')+'</button><button class="sec" data-cmd="axiora.ai.getFreeKey">'+L('Get a Free Key')+'</button></div>'+st('ai')+'</div><div class="grid">';
+for(const s of M.services){h+='<div class="card"><div class="row"><span class="name">'+esc(s.name)+'</span><span class="pill '+(s.connected?'on':s.required?'req':'')+'">'+(s.connected?L('Connected'):s.required?L('Team: needed'):L('Not connected'))+'</span></div><div class="blurb">'+esc(s.blurb)+'</div>';
+if(s.connected){h+='<div class="btns"><button class="sec" data-test="'+s.id+'">'+L('Test')+'</button><button class="sec" data-dis="'+s.id+'">'+L('Disconnect')+'</button></div>'}
 else if(s.open){for(const f of s.fields)h+='<label>'+esc(f.label)+'</label><input data-f="'+s.id+'.'+f.id+'" type="'+(f.secret?'password':'text')+'" autocomplete="off" placeholder="'+esc(f.placeholder)+'" value="'+(f.secret?'':esc(f.value))+'">';
-h+='<div class="btns">'+(s.fields.length?'<button data-save="'+s.id+'">Connect</button>':'')+(s.signIn?'<button class="'+(s.fields.length?'sec':'')+'" data-sign="'+s.id+'">Sign In with '+esc(s.name)+'</button>':'')+'<button class="sec" data-close="'+s.id+'">Cancel</button></div>'}
-else h+='<div class="btns"><button data-open="'+s.id+'">Connect</button></div>';
+h+='<div class="btns">'+(s.fields.length?'<button data-save="'+s.id+'">'+L('Connect')+'</button>':'')+(s.signIn?'<button class="'+(s.fields.length?'sec':'')+'" data-sign="'+s.id+'">'+L('Sign In with ')+'esc(s.name)+'</button>':'')+'<button class="sec" data-close="'+s.id+'">'+L('Cancel')+'</button></div>'}
+else h+='<div class="btns"><button data-open="'+s.id+'">'+L('Connect')+'</button></div>';
 h+=st(s.id)+'</div>'}
 $('#root').innerHTML=h+'</div>'}
 const open=new Set();
@@ -282,7 +284,7 @@ document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)r
 if(d.open){open.add(d.open);M.services.find(s=>s.id===d.open).open=true;render();const i=document.querySelector('[data-f^="'+d.open+'."]');i&&i.focus();return}
 if(d.close){open.delete(d.close);M.services.find(s=>s.id===d.close).open=false;render();return}
 if(d.cmd)return vs.postMessage({type:'cmd',command:d.cmd});
-const busy=id=>{R[id]={ok:true,status:'Working…'};render()};
+const busy=id=>{R[id]={ok:true,status:L('Working…')};render()};
 if(d.ai){const k=$('#aikey').value;busy('ai');vs.postMessage({type:'ai',action:d.ai,key:k})}
 if(d.save){const v={};document.querySelectorAll('[data-f^="'+d.save+'."]').forEach(i=>v[i.dataset.f.split('.')[1]]=i.value);busy(d.save);vs.postMessage({type:'connect',id:d.save,values:v})}
 if(d.sign){busy(d.sign);vs.postMessage({type:'signin',id:d.sign})}
@@ -296,18 +298,18 @@ vs.postMessage({type:'ready'});
 // ---------------------------------------------------------------- palette flow
 async function setupFlow() {
 	const p = await vscode.window.showQuickPick([
-		{ label: '$(key) Paste an API key...', description: 'OpenRouter, Groq, Gemini, Anthropic or OpenAI — detected automatically', id: 'key' },
-		{ label: '$(device-desktop) Use Ollama on my computer', description: 'Private and free; needs Ollama running', id: 'ollama' },
-		{ label: '$(link-external) Get a free key', description: 'Opens OpenRouter — free models, no card needed', id: 'free' },
-		{ label: '$(plug) Connected Services...', description: 'Jira, Figma, Slack, Linear, Stripe, Google, GitHub (optional)', id: 'svc' },
-	], { title: 'Set Up AI', placeHolder: state.ready ? `Assistant ready — ${state.label}` : 'One key is all you need' });
+		{ label: vscode.l10n.t("$(key) Paste an API key..."), description: vscode.l10n.t("OpenRouter, Groq, Gemini, Anthropic or OpenAI — detected automatically"), id: 'key' },
+		{ label: vscode.l10n.t("$(device-desktop) Use Ollama on my computer"), description: vscode.l10n.t("Private and free; needs Ollama running"), id: 'ollama' },
+		{ label: vscode.l10n.t("$(link-external) Get a free key"), description: vscode.l10n.t("Opens OpenRouter — free models, no card needed"), id: 'free' },
+		{ label: vscode.l10n.t("$(plug) Connected Services..."), description: vscode.l10n.t("Jira, Figma, Slack, Linear, Stripe, Google, GitHub (optional)"), id: 'svc' },
+	], { title: vscode.l10n.t("Set Up AI"), placeHolder: state.ready ? `Assistant ready — ${state.label}` : 'One key is all you need' });
 	if (!p) { return; }
 	if (p.id === 'free') { await vscode.commands.executeCommand('axiora.ai.getFreeKey'); return; }
 	if (p.id === 'svc') { openServices(); return; }
 	const r = p.id === 'ollama' ? await useOllama() : await (async () => {
-		const k = await vscode.window.showInputBox({ title: 'Set Up AI', prompt: 'Paste your API key — stored in the OS keychain', password: true, ignoreFocusOut: true, placeHolder: 'sk-or-…, gsk_…, AIza…, sk-ant-… or sk-…',
+		const k = await vscode.window.showInputBox({ title: vscode.l10n.t("Set Up AI"), prompt: vscode.l10n.t("Paste your API key — stored in the OS keychain"), password: true, ignoreFocusOut: true, placeHolder: vscode.l10n.t("sk-or-…, gsk_…, AIza…, sk-ant-… or sk-…"),
 			validateInput: v => !v.trim() ? undefined : detectProvider(v) ? { message: `Detected: ${detectProvider(v)!.label}`, severity: vscode.InputBoxValidationSeverity.Info } : 'Unknown key format' });
-		return k ? vscode.window.withProgress({ location: vscode.ProgressLocation.Notification, title: 'Axiora: testing your key…' }, () => setUpWithKey(k)) : undefined;
+		return k ? vscode.window.withProgress({ location: vscode.ProgressLocation.Notification, title: vscode.l10n.t("Axiora: testing your key…") }, () => setUpWithKey(k)) : undefined;
 	})();
 	if (r) { (r.ok ? vscode.window.showInformationMessage : vscode.window.showWarningMessage)(r.status, ...(r.ok ? ['Open Chat'] : ['Try Again'])).then(a => a === 'Open Chat' ? vscode.commands.executeCommand('workbench.action.chat.open') : a && setupFlow()); }
 }
@@ -323,7 +325,7 @@ export function activate(c: vscode.ExtensionContext) {
 	register(c, 'axiora.services.open', openServices);
 	register(c, 'axiora.team.apply', () => applyTeam(true));
 	register(c, 'axiora.team.create', async () => {
-		const u = teamUri(); if (!u) { vscode.window.showWarningMessage('Open a folder first.'); return; }
+		const u = teamUri(); if (!u) { vscode.window.showWarningMessage(vscode.l10n.t("Open a folder first.")); return; }
 		try { await vscode.workspace.fs.stat(u); } catch {
 			const cur = conf();
 			await vscode.workspace.fs.writeFile(u, new TextEncoder().encode(JSON.stringify({ $comment: 'Shared team settings — no secrets here. Everyone adds their own keys in Connected Services.', services: { jira: { site: cur.get('connectors.jira.site') || 'https://acme.atlassian.net' }, github: { repo: cur.get('github.repo') || 'org/repo' } }, ai: { provider: 'openai', baseUrl: 'https://openrouter.ai/api/v1', approvedModels: OPENROUTER_FREE.slice(0, 2) }, approval: { mode: cur.get('approval.mode') }, policy: { url: cur.get('policy.url') || '' }, required: ['jira', 'github'] }, null, 2) + '\n'));

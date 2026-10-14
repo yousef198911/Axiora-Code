@@ -44,13 +44,13 @@ export function activate(ctx: vscode.ExtensionContext) {
 			});
 			bufs.set(uri.path, next);
 			if (next.some((n, i) => n.start !== parsed[i]?.start)) { em.fire([{ type: vscode.FileChangeType.Changed, uri }]); }
-			vscode.window.setStatusBarMessage(`$(check) Multibuffer: wrote ${changed} excerpt(s)`, 4000);
+			vscode.window.setStatusBarMessage(vscode.l10n.t("$(check) Multibuffer: wrote {0} excerpt(s)", changed), 4000);
 		},
 	}, { isCaseSensitive: true }));
 	register(ctx, 'axiora.multibuffer.search', async () => {
 		const root = wsRoot(); if (!root) { return; }
 		const ed = vscode.window.activeTextEditor;
-		const q = await vscode.window.showInputBox({ prompt: 'Search (regex) — results open as one editable buffer', value: ed && !ed.selection.isEmpty ? ed.document.getText(ed.selection) : '' });
+		const q = await vscode.window.showInputBox({ prompt: vscode.l10n.t("Search (regex) — results open as one editable buffer"), value: ed && !ed.selection.isEmpty ? ed.document.getText(ed.selection) : '' });
 		if (!q) { return; }
 		let out = '';
 		try { out = await run('git', ['grep', '-n', '-E', '-I', '--untracked', q], root.fsPath); } catch { out = ''; }
@@ -64,12 +64,12 @@ export function activate(ctx: vscode.ExtensionContext) {
 			for (const l of ls) { const a = Math.max(0, l - ctxLines), b = Math.min(doc.lineCount - 1, l + ctxLines); if (s >= 0 && a <= e + 1) { e = Math.max(e, b); } else { flush(); s = a; e = b; } }
 			flush();
 		}
-		if (!ex.length) { vscode.window.showInformationMessage(`No matches for ${q}`); return; }
+		if (!ex.length) { vscode.window.showInformationMessage(vscode.l10n.t("No matches for {0}", q)); return; }
 		const id = `/${q.replace(/[^\w-]+/g, '_').slice(0, 40)}-${Date.now()}.multibuffer`;
 		bufs.set(id, ex);
 		const doc = await vscode.workspace.openTextDocument(vscode.Uri.from({ scheme: 'axiora-multi', path: id }));
 		await vscode.window.showTextDocument(doc);
-		vscode.window.setStatusBarMessage(`Multibuffer: ${ex.length} excerpts from ${hits.size} files — edit and save to apply`, 6000);
+		vscode.window.setStatusBarMessage(vscode.l10n.t("Multibuffer: {0} excerpts from {1} files — edit and save to apply", ex.length, hits.size), 6000);
 	});
 	// jump from an excerpt line to its source location
 	register(ctx, 'axiora.multibuffer.open', async () => {

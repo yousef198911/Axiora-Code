@@ -31,7 +31,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 	const max = () => vscode.workspace.getConfiguration('axiora.lintFix').get<number>('maxIterations', 3);
 	register(ctx, 'axiora.ai.fixAllProblems', async () => {
 		const doc = vscode.window.activeTextEditor?.document; if (!doc) { return; }
-		if (!errors(doc.uri).length) { vscode.window.showInformationMessage('No errors in this file.'); return; }
+		if (!errors(doc.uri).length) { vscode.window.showInformationMessage(vscode.l10n.t("No errors in this file.")); return; }
 		const left = await withProgress('fixing all errors…', t => fixLoop(doc, max(), t));
 		vscode.window.showInformationMessage(left ? `Axiora: ${left} error(s) remain after ${max()} passes.` : 'Axiora: all errors fixed (Ctrl+Z to undo).');
 	});

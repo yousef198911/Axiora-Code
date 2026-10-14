@@ -38,26 +38,26 @@ export function activate(ctx: vscode.ExtensionContext) {
 	const target = () => c().get<string>('targetPath', '~/dotfiles').replace(/^~/, os.homedir());
 	const install = async (silent = false) => {
 		let repo = c().get<string>('repository', '');
-		if (!repo) { if (silent) { return; } repo = await vscode.window.showInputBox({ prompt: 'Dotfiles repository (URL, owner/repo, or local path)' }) ?? ''; if (!repo) { return; } await c().update('repository', repo, vscode.ConfigurationTarget.Global); }
+		if (!repo) { if (silent) { return; } repo = await vscode.window.showInputBox({ prompt: vscode.l10n.t("Dotfiles repository (URL, owner/repo, or local path)") }) ?? ''; if (!repo) { return; } await c().update('repository', repo, vscode.ConfigurationTarget.Global); }
 		if (/^[\w-]+\/[\w.-]+$/.test(repo) && !fs.existsSync(repo)) { repo = `https://github.com/${repo}.git`; }
 		const t = target(); out.appendLine(`[${new Date().toLocaleString()}] dotfiles ${repo} → ${t}`);
-		await vscode.window.withProgress({ location: vscode.ProgressLocation.Notification, title: 'Dotfiles…' }, async p => {
+		await vscode.window.withProgress({ location: vscode.ProgressLocation.Notification, title: vscode.l10n.t("Dotfiles…") }, async p => {
 			if (fs.existsSync(path.join(t, '.git'))) { p.report({ message: 'pulling' }); out.append(await run('git', ['-C', t, 'pull', '--ff-only'], os.homedir()).catch(e => `pull failed: ${e.message}\n`)); }
 			else { p.report({ message: 'cloning' }); out.append(await run('git', ['clone', '--depth', '1', repo, t], os.homedir())); }
 			const cmd = c().get<string>('installCommand', '');
 			const script = ['install.sh', 'install', 'bootstrap.sh', 'bootstrap', 'setup.sh', 'setup', ...(process.platform === 'win32' ? ['install.ps1', 'setup.ps1'] : [])].find(s => fs.existsSync(path.join(t, s)));
 			if (cmd || script) {
-				p.report({ message: `running ${cmd || script}` });
+				p.report({ message: vscode.l10n.t("running {0}", String(cmd || script)) });
 				const r = cmd ? await run(process.platform === 'win32' ? 'cmd' : 'bash', process.platform === 'win32' ? ['/c', cmd] : ['-lc', cmd], t) : script!.endsWith('.ps1') ? await run('powershell', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', script!], t) : (fs.chmodSync(path.join(t, script!), 0o755), await run(path.join(t, script!), [], t));
-				out.append(r); vscode.window.showInformationMessage(`Dotfiles installed (${cmd || script}).`, 'Show Log').then(a => a && out.show());
+				out.append(r); vscode.window.showInformationMessage(vscode.l10n.t("Dotfiles installed ({0}).", String(cmd || script)), 'Show Log').then(a => a && out.show());
 			} else {
 				const l = linkDotfiles(t, os.homedir(), c().get<string[]>('ignore', [])); out.appendLine(`linked: ${l.join(', ')}`);
-				vscode.window.showInformationMessage(`Dotfiles linked into ${os.homedir()}: ${l.join(', ') || 'nothing to link'}.`, 'Show Log').then(a => a && out.show());
+				vscode.window.showInformationMessage(vscode.l10n.t("Dotfiles linked into {0}: {1}.", os.homedir(), l.join(', ') || 'nothing to link'), 'Show Log').then(a => a && out.show());
 			}
 		});
 	};
 	register(ctx, 'axiora.dotfiles.install', () => install(false));
 	register(ctx, 'axiora.dotfiles.unlink', async () => { const l = unlinkDotfiles(target(), os.homedir()); vscode.window.showInformationMessage(l.length ? `Removed dotfile links (backups restored): ${l.join(', ')}` : 'No dotfile links found.'); });
-	register(ctx, 'axiora.dotfiles.open', async () => { if (fs.existsSync(target())) { await vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(target()), { forceNewWindow: true }); } else { vscode.window.showInformationMessage('Dotfiles are not installed yet.'); } });
+	register(ctx, 'axiora.dotfiles.open', async () => { if (fs.existsSync(target())) { await vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(target()), { forceNewWindow: true }); } else { vscode.window.showInformationMessage(vscode.l10n.t("Dotfiles are not installed yet.")); } });
 	if (c().get('installOnStartup', false)) { setTimeout(() => void install(true).catch(e => out.appendLine(`startup install failed: ${e.message}`)), 4000); }
 }

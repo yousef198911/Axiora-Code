@@ -12,14 +12,14 @@ export function splitOn(text: string, re: RegExp): [number, number][] { const ou
 export function activate(ctx: vscode.ExtensionContext) {
 	const ranges = (ed: vscode.TextEditor) => ed.selections.some(s => !s.isEmpty) ? ed.selections.filter(s => !s.isEmpty) : [new vscode.Selection(0, 0, ed.document.lineCount, 0)];
 	const askRe = async (key: string, prompt: string) => {
-		const v = await vscode.window.showInputBox({ prompt, value: ctx.globalState.get(key, ''), placeHolder: 'regex, e.g. \\w+  or  ,\\s*' }); if (!v) { return undefined; }
+		const v = await vscode.window.showInputBox({ prompt, value: ctx.globalState.get(key, ''), placeHolder: vscode.l10n.t("regex, e.g. \\w+  or  ,\\s*") }); if (!v) { return undefined; }
 		await ctx.globalState.update(key, v); try { return new RegExp(v, 'gm'); } catch (e) { vscode.window.showErrorMessage((e as Error).message); return undefined; }
 	};
 	const apply = (ed: vscode.TextEditor, f: (text: string) => [number, number][]) => {
 		const sels: vscode.Selection[] = [];
 		for (const r of ranges(ed)) { const base = ed.document.offsetAt(r.start); for (const [a, b] of f(ed.document.getText(r))) { sels.push(new vscode.Selection(ed.document.positionAt(base + a), ed.document.positionAt(base + b))); } }
-		if (!sels.length) { vscode.window.setStatusBarMessage('No matches', 2000); return; }
-		ed.selections = sels; vscode.window.setStatusBarMessage(`${sels.length} selection${sels.length > 1 ? 's' : ''}`, 2500);
+		if (!sels.length) { vscode.window.setStatusBarMessage(vscode.l10n.t("No matches"), 2000); return; }
+		ed.selections = sels; vscode.window.setStatusBarMessage(vscode.l10n.t("{0} selection{1}", sels.length, sels.length > 1 ? 's' : ''), 2500);
 	};
 	register(ctx, 'axiora.sel.select', async () => { const ed = vscode.window.activeTextEditor; const re = ed && await askRe('axiora.sel.s', 'Select regex matches inside the selections'); if (ed && re) { apply(ed, t => regexIn(t, re)); } });
 	register(ctx, 'axiora.sel.split', async () => { const ed = vscode.window.activeTextEditor; const re = ed && await askRe('axiora.sel.S', 'Split selections on regex (separators are dropped)'); if (ed && re) { apply(ed, t => splitOn(t, re)); } });
@@ -27,7 +27,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 	const filter = async (keep: boolean) => {
 		const ed = vscode.window.activeTextEditor; const re = ed && await askRe('axiora.sel.k', `${keep ? 'Keep' : 'Remove'} selections whose text matches`); if (!ed || !re) { return; }
 		const sels = ed.selections.filter(s => { re.lastIndex = 0; return re.test(ed.document.getText(s)) === keep; });
-		if (sels.length) { ed.selections = sels; } vscode.window.setStatusBarMessage(`${sels.length} selection(s) left`, 2500);
+		if (sels.length) { ed.selections = sels; } vscode.window.setStatusBarMessage(vscode.l10n.t("{0} selection(s) left", sels.length), 2500);
 	};
 	register(ctx, 'axiora.sel.keep', () => filter(true));
 	register(ctx, 'axiora.sel.remove', () => filter(false));

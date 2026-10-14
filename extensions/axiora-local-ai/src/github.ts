@@ -38,13 +38,13 @@ export function activate(ctx: vscode.ExtensionContext) {
 		if (!r.ok) { throw new Error(`GitHub ${r.status}: ${(await r.text()).slice(0, 200)}${r.status === 404 || r.status === 401 ? ' (private repo? run "GitHub: Set Token")' : ''}`); }
 		return /json/.test(r.headers.get('content-type') ?? '') ? r.json() : r.text();
 	};
-	const need = async () => { const r = await repo(); if (!r) { vscode.window.showWarningMessage('No GitHub repository: add an origin remote or set axiora.github.repo (owner/name).', 'Set Repository').then(a => a && vscode.commands.executeCommand('workbench.action.openSettings', 'axiora.github.repo')); } return r; };
+	const need = async () => { const r = await repo(); if (!r) { vscode.window.showWarningMessage(vscode.l10n.t("No GitHub repository: add an origin remote or set axiora.github.repo (owner/name)."), 'Set Repository').then(a => a && vscode.commands.executeCommand('workbench.action.openSettings', 'axiora.github.repo')); } return r; };
 	const show = async (content: string, language = 'markdown') => vscode.window.showTextDocument(await vscode.workspace.openTextDocument({ language, content }), { preview: true });
-	register(ctx, 'axiora.github.setToken', async () => { const t = await vscode.window.showInputBox({ prompt: 'GitHub token (fine-grained, repo read; write only if you want to comment)', password: true }); if (t !== undefined) { await ctx.secrets.store('axiora.github.token', t); } });
+	register(ctx, 'axiora.github.setToken', async () => { const t = await vscode.window.showInputBox({ prompt: vscode.l10n.t("GitHub token (fine-grained, repo read; write only if you want to comment)"), password: true }); if (t !== undefined) { await ctx.secrets.store('axiora.github.token', t); } });
 	register(ctx, 'axiora.github.prs', async () => {
 		const r = await need(); if (!r) { return; }
 		const prs = await gh(`/repos/${r}/pulls?state=open&per_page=50`) as { number: number; title: string; user: { login: string }; head: { ref: string }; draft: boolean; body: string; html_url: string }[];
-		const p = await vscode.window.showQuickPick(prs.map(x => ({ label: `$(git-pull-request${x.draft ? '-draft' : ''}) #${x.number} ${x.title}`, description: `${x.user.login} · ${x.head.ref}`, x })), { placeHolder: `${r}: ${prs.length} open pull requests`, matchOnDescription: true });
+		const p = await vscode.window.showQuickPick(prs.map(x => ({ label: `$(git-pull-request${x.draft ? '-draft' : ''}) #${x.number} ${x.title}`, description: `${x.user.login} · ${x.head.ref}`, x })), { placeHolder: vscode.l10n.t("{0}: {1} open pull requests", r, prs.length), matchOnDescription: true });
 		if (!p) { return; }
 		const a = await vscode.window.showQuickPick(['Show Description', 'Show Diff', 'AI Review', 'Security Review', 'Check Out', 'Add Comment...', 'Open on GitHub'], { placeHolder: `#${p.x.number} ${p.x.title}` }); if (!a) { return; }
 		const diff = () => gh(`/repos/${r}/pulls/${p.x.number}`, { headers: { accept: 'application/vnd.github.v3.diff' } }) as Promise<string>;
@@ -52,24 +52,24 @@ export function activate(ctx: vscode.ExtensionContext) {
 		else if (a === 'Show Diff') { await show(await diff(), 'diff'); }
 		else if (a === 'AI Review') { const d = await diff(); const out = await withProgress(`Reviewing #${p.x.number}…`, t => ask(`Review this pull request. List concrete issues (bugs, security, tests, style) as: [severity] file:line — problem — suggested fix (with a code snippet). End with a verdict.\n\nTitle: ${p.x.title}\n${p.x.body ?? ''}\n\n${d.slice(0, 60000)}`, SYS, t)); await show(`# AI review of #${p.x.number}\n\n${out}`); }
 		else if (a === 'Security Review') { const d = await diff(); await show(await withProgress(`Security review of #${p.x.number}…`, t => securityReport(`#${p.x.number} ${p.x.title}`, d, t))); }
-		else if (a === 'Check Out') { const root = wsRoot()!.fsPath; await run('git', ['fetch', 'origin', `pull/${p.x.number}/head:pr-${p.x.number}`], root); await run('git', ['checkout', `pr-${p.x.number}`], root); vscode.window.showInformationMessage(`Checked out PR #${p.x.number} as pr-${p.x.number}.`); }
-		else if (a === 'Add Comment...') { const body = await vscode.window.showInputBox({ prompt: `Comment on #${p.x.number}` }); if (body && await vscode.window.showWarningMessage(`Post this comment publicly on #${p.x.number}?`, { modal: true }, 'Post') === 'Post') { await gh(`/repos/${r}/issues/${p.x.number}/comments`, { method: 'POST', body: JSON.stringify({ body }) }); } }
+		else if (a === 'Check Out') { const root = wsRoot()!.fsPath; await run('git', ['fetch', 'origin', `pull/${p.x.number}/head:pr-${p.x.number}`], root); await run('git', ['checkout', `pr-${p.x.number}`], root); vscode.window.showInformationMessage(vscode.l10n.t("Checked out PR #{0} as pr-{1}.", p.x.number, p.x.number)); }
+		else if (a === 'Add Comment...') { const body = await vscode.window.showInputBox({ prompt: vscode.l10n.t("Comment on #{0}", p.x.number) }); if (body && await vscode.window.showWarningMessage(vscode.l10n.t("Post this comment publicly on #{0}?", p.x.number), { modal: true }, 'Post') === 'Post') { await gh(`/repos/${r}/issues/${p.x.number}/comments`, { method: 'POST', body: JSON.stringify({ body }) }); } }
 		else { await vscode.env.openExternal(vscode.Uri.parse(p.x.html_url)); }
 	});
 	register(ctx, 'axiora.git.securityReview', async () => {
 		const root = wsRoot(); if (!root) { return; }
 		const d = await run('git', ['diff', 'HEAD'], root.fsPath).catch(() => '');
-		if (!d.trim()) { vscode.window.showInformationMessage('No uncommitted changes to review.'); return; }
+		if (!d.trim()) { vscode.window.showInformationMessage(vscode.l10n.t("No uncommitted changes to review.")); return; }
 		await show(await withProgress('Security review of local changes…', t => securityReport('uncommitted changes', d, t)));
 	});
 	register(ctx, 'axiora.github.issues', async () => {
 		const r = await need(); if (!r) { return; }
 		const is = (await gh(`/repos/${r}/issues?state=open&per_page=50`) as { number: number; title: string; body: string; labels: { name: string }[]; pull_request?: unknown; html_url: string; user: { login: string } }[]).filter(i => !i.pull_request);
-		const p = await vscode.window.showQuickPick(is.map(x => ({ label: `$(issues) #${x.number} ${x.title}`, description: x.labels.map(l => l.name).join(', '), x })), { placeHolder: `${r}: ${is.length} open issues`, matchOnDescription: true });
+		const p = await vscode.window.showQuickPick(is.map(x => ({ label: `$(issues) #${x.number} ${x.title}`, description: x.labels.map(l => l.name).join(', '), x })), { placeHolder: vscode.l10n.t("{0}: {1} open issues", r, is.length), matchOnDescription: true });
 		if (!p) { return; }
 		const a = await vscode.window.showQuickPick(['Show', 'Create Branch', 'Ask @axiora to Implement', 'Open on GitHub']); if (!a) { return; }
 		if (a === 'Show') { await show(`# #${p.x.number} ${p.x.title}\n\n_opened by ${p.x.user.login}_\n\n${p.x.body ?? ''}`); }
-		else if (a === 'Create Branch') { const b = `issue-${p.x.number}-${p.x.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 40).replace(/-$/, '')}`; await run('git', ['checkout', '-b', b], wsRoot()!.fsPath); vscode.window.showInformationMessage(`Created branch ${b}.`); }
+		else if (a === 'Create Branch') { const b = `issue-${p.x.number}-${p.x.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 40).replace(/-$/, '')}`; await run('git', ['checkout', '-b', b], wsRoot()!.fsPath); vscode.window.showInformationMessage(vscode.l10n.t("Created branch {0}.", b)); }
 		else if (a.startsWith('Ask')) { await vscode.commands.executeCommand('workbench.action.chat.open', { query: `@axiora /spec Implement GitHub issue #${p.x.number}: ${p.x.title}\n\n${(p.x.body ?? '').slice(0, 3000)}`, isPartialQuery: true }); }
 		else { await vscode.env.openExternal(vscode.Uri.parse(p.x.html_url)); }
 	});
@@ -85,7 +85,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 		for (const j of jobs) { rep += `## ${j.conclusion === 'failure' ? '❌' : j.conclusion === 'success' ? '✅' : '•'} ${j.name}\n${j.steps.map(s => `- ${s.conclusion === 'failure' ? '❌' : s.conclusion === 'success' ? '✅' : '•'} ${s.name}`).join('\n')}\n\n`; }
 		const failed = jobs.find(j => j.conclusion === 'failure');
 		if (failed) {
-			try { const log = await gh(`/repos/${r}/actions/jobs/${failed.id}/logs`) as string; const tail = log.split('\n').slice(-120).join('\n'); rep += `## Log tail (${failed.name})\n\`\`\`\n${tail}\n\`\`\`\n`; if (await vscode.window.showInformationMessage(`Job "${failed.name}" failed.`, 'Analyze with AI') === 'Analyze with AI') { rep += `\n## AI analysis\n${await withProgress('Analyzing CI failure…', t => ask(`This CI job failed. Root cause and exact fix:\n\n${tail}`, SYS, t))}\n`; } }
+			try { const log = await gh(`/repos/${r}/actions/jobs/${failed.id}/logs`) as string; const tail = log.split('\n').slice(-120).join('\n'); rep += `## Log tail (${failed.name})\n\`\`\`\n${tail}\n\`\`\`\n`; if (await vscode.window.showInformationMessage(vscode.l10n.t("Job \"{0}\" failed.", failed.name), 'Analyze with AI') === 'Analyze with AI') { rep += `\n## AI analysis\n${await withProgress('Analyzing CI failure…', t => ask(`This CI job failed. Root cause and exact fix:\n\n${tail}`, SYS, t))}\n`; } }
 			catch (e) { rep += `\n_(logs need a token: ${(e as Error).message})_\n`; }
 		}
 		await show(rep);

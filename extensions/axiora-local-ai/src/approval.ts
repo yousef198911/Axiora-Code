@@ -41,7 +41,7 @@ export async function approve(kind: Kind, detail: string, risk?: Risk): Promise<
 	const key = `${kind}:${detail}`;
 	if (allowed.has(key)) { return true; }
 	const icon = r === 'high' ? '⚠️ HIGH RISK' : r === 'medium' ? 'Destructive' : 'Agent action';
-	const a = await vscode.window.showWarningMessage(`Axiora approval — ${icon} (${kind})`, { modal: true, detail: `${detail.slice(0, 1500)}\n\nPolicy: axiora.approval.mode = "${mode()}".` }, 'Allow', 'Allow for this session');
+	const a = await vscode.window.showWarningMessage(vscode.l10n.t("Axiora approval — {0} ({1})", icon, kind), { modal: true, detail: `${detail.slice(0, 1500)}\n\nPolicy: axiora.approval.mode = "${mode()}".` }, 'Allow', 'Allow for this session');
 	log.info(`approval ${kind} [${r}] ${a ?? 'DENIED'}: ${detail.slice(0, 200)}`);
 	if (a === 'Allow for this session') { allowed.add(key); }
 	return !!a;
@@ -53,9 +53,9 @@ export async function requireApproval(kind: Kind, detail: string, risk?: Risk) {
 export function activate(ctx: vscode.ExtensionContext) {
 	ctx.subscriptions.push(vscode.commands.registerCommand('axiora.approval.setMode', async () => {
 		const p = await vscode.window.showQuickPick([
-			{ label: 'ask', description: 'Confirm destructive & external actions (default)' },
-			{ label: 'always', description: 'Confirm every agent action' },
-			{ label: 'never-for-safe', description: 'Confirm only high-risk actions (sends always confirmed)' }], { placeHolder: `Approval mode (current: ${mode()})` });
+			{ label: 'ask', description: vscode.l10n.t("Confirm destructive & external actions (default)") },
+			{ label: 'always', description: vscode.l10n.t("Confirm every agent action") },
+			{ label: 'never-for-safe', description: vscode.l10n.t("Confirm only high-risk actions (sends always confirmed)") }], { placeHolder: vscode.l10n.t("Approval mode (current: {0})", mode()) });
 		if (p) { await vscode.workspace.getConfiguration('axiora.approval').update('mode', p.label, vscode.ConfigurationTarget.Global); allowed.clear(); }
 	}));
 }

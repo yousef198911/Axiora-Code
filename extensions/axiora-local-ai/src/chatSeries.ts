@@ -104,7 +104,7 @@ type Item = vscode.QuickPickItem & { sid?: string; part?: Part };
 const B = { pin: { iconPath: new vscode.ThemeIcon('pin'), tooltip: 'Pin to top' }, unpin: { iconPath: new vscode.ThemeIcon('pinned'), tooltip: 'Unpin' }, rename: { iconPath: new vscode.ThemeIcon('edit'), tooltip: 'Rename' }, exp: { iconPath: new vscode.ThemeIcon('export'), tooltip: 'Export...' }, del: { iconPath: new vscode.ThemeIcon('trash'), tooltip: 'Delete' } };
 
 async function browse() {
-	const qp = vscode.window.createQuickPick<Item>(); qp.title = 'Past Conversations'; qp.placeholder = 'Search all conversations and parts'; qp.matchOnDescription = true; qp.matchOnDetail = true;
+	const qp = vscode.window.createQuickPick<Item>(); qp.title = vscode.l10n.t("Past Conversations"); qp.placeholder = vscode.l10n.t("Search all conversations and parts"); qp.matchOnDescription = true; qp.matchOnDetail = true;
 	const open = new Set<string>();
 	const build = () => {
 		const ps = parts(); const m = metas(); const q = qp.value.trim().toLowerCase();
@@ -155,10 +155,10 @@ async function partActions(p: Part) {
 		{ label: m?.pinned ? '$(pinned) Unpin' : '$(pin) Pin to Top', id: 'pin' },
 		{ label: '$(export) Export Series...', id: 'export' },
 	];
-	const a = await vscode.window.showQuickPick(acts, { title: titleOf(p), placeHolder: `${p.turns.length} messages · ${ago(p.at)}` }); if (!a) { return; }
+	const a = await vscode.window.showQuickPick(acts, { title: titleOf(p), placeHolder: vscode.l10n.t("{0} messages · {1}", p.turns.length, ago(p.at)) }); if (!a) { return; }
 	if (a.id === 'chat') { await continueInChat(p); }
 	if (a.id === 'doc') { await vscode.window.showTextDocument(await vscode.workspace.openTextDocument({ language: 'markdown', content: toMarkdown([p]) })); }
-	if (a.id === 'files') { const root = wsRoot(); const f = await vscode.window.showQuickPick(p.files.map(x => ({ label: path.basename(x), description: x, x })), { title: `Files edited in ${titleOf(p)}` }); if (f) { await vscode.window.showTextDocument(path.isAbsolute(f.x) || !root ? vscode.Uri.file(f.x) : vscode.Uri.joinPath(root, f.x)); } }
+	if (a.id === 'files') { const root = wsRoot(); const f = await vscode.window.showQuickPick(p.files.map(x => ({ label: path.basename(x), description: x, x })), { title: vscode.l10n.t("Files edited in {0}", titleOf(p)) }); if (f) { await vscode.window.showTextDocument(path.isAbsolute(f.x) || !root ? vscode.Uri.file(f.x) : vscode.Uri.joinPath(root, f.x)); } }
 	if (a.id === 'cp') { await vscode.commands.executeCommand('axiora.checkpoint._restoreTo', p.checkpoint, titleOf(p)); }
 	if (a.id === 'rename') { await renameSeries(p.seriesId); }
 	if (a.id === 'pin') { const all = metas(); all[p.seriesId].pinned = !all[p.seriesId].pinned; writeJson('_series.json', all); }
@@ -166,14 +166,14 @@ async function partActions(p: Part) {
 }
 
 export async function continueInChat(p: Part) {
-	if (!p.turns.length) { vscode.window.showInformationMessage('This part has no messages yet.'); return; }
+	if (!p.turns.length) { vscode.window.showInformationMessage(vscode.l10n.t("This part has no messages yet.")); return; }
 	const first = p.turns.find(t => t.who === 'user')?.text ?? '';
 	const k = keys(); k[hash(first)] = p.id; writeJson('_keys.json', k);
 	p.startIdx = 0; savePart(p);
 	await vscode.commands.executeCommand('axiora.chat.restore', { title: titleOf(p), turns: p.turns });
 }
 async function renameSeries(sid: string) {
-	const m = metas(); const n = await vscode.window.showInputBox({ title: 'Rename Conversation', value: m[sid]?.name, prompt: 'All parts are renamed (e.g. "Youssef" → "Youssef 1", "Youssef 2")' });
+	const m = metas(); const n = await vscode.window.showInputBox({ title: vscode.l10n.t("Rename Conversation"), value: m[sid]?.name, prompt: vscode.l10n.t("All parts are renamed (e.g. \"Youssef\" → \"Youssef 1\", \"Youssef 2\")") });
 	if (!n?.trim()) { return; } m[sid] = { ...m[sid], name: n.trim() }; writeJson('_series.json', m);
 	for (const p of seriesParts(sid)) { savePart(p); }
 	if (current?.seriesId === sid) { vscode.commands.executeCommand('axiora.chat.setTitle', titleOf(current)); }
@@ -199,16 +199,16 @@ function findBrowser(): string | undefined {
 }
 async function exportSeries(sid: string) {
 	const ps = seriesParts(sid).filter(p => p.turns.length); if (!ps.length) { return; }
-	const fmt = await vscode.window.showQuickPick([{ label: '$(markdown) Markdown', id: 'md' }, { label: '$(file-pdf) PDF', id: 'pdf' }], { title: `Export "${metas()[sid]?.name}"` }); if (!fmt) { return; }
+	const fmt = await vscode.window.showQuickPick([{ label: '$(markdown) Markdown', id: 'md' }, { label: '$(file-pdf) PDF', id: 'pdf' }], { title: vscode.l10n.t("Export \"{0}\"", metas()[sid]?.name) }); if (!fmt) { return; }
 	const md = toMarkdown(ps); const safe = (metas()[sid]?.name ?? 'conversation').replace(/[^\w\- ]+/g, '').trim() || 'conversation';
 	const root = wsRoot(); const outDir = root ? vscode.Uri.joinPath(root, '.axiora', 'exports') : vscode.Uri.file(path.join(os.homedir(), 'Documents'));
 	await vscode.workspace.fs.createDirectory(outDir);
 	if (fmt.id === 'md') { const u = vscode.Uri.joinPath(outDir, `${safe}.md`); await vscode.workspace.fs.writeFile(u, new TextEncoder().encode(md)); await vscode.window.showTextDocument(u); return; }
-	const exe = findBrowser(); if (!exe) { vscode.window.showWarningMessage('PDF export needs Chrome or Edge. Set axiora.browser.executablePath, or export as Markdown.'); return; }
+	const exe = findBrowser(); if (!exe) { vscode.window.showWarningMessage(vscode.l10n.t("PDF export needs Chrome or Edge. Set axiora.browser.executablePath, or export as Markdown.")); return; }
 	const html = path.join(os.tmpdir(), `axiora-export-${Date.now()}.html`); const pdf = vscode.Uri.joinPath(outDir, `${safe}.pdf`);
 	fs.writeFileSync(html, `<!doctype html><meta charset="utf-8"><style>body{font:14px/1.55 -apple-system,Segoe UI,Roboto,sans-serif;max-width:760px;margin:32px auto;color:#222}h1{font-size:24px}h2{font-size:18px;margin-top:28px;border-bottom:1px solid #ddd;padding-bottom:4px}pre{background:#f5f5f5;padding:10px;border-radius:4px;white-space:pre-wrap}code{font-family:Consolas,monospace;font-size:12.5px}hr{border:0;border-top:1px solid #eee;margin:24px 0}</style><p>${mdToHtml(md)}</p>`);
-	await vscode.window.withProgress({ location: vscode.ProgressLocation.Notification, title: 'Exporting PDF…' }, () => new Promise<void>((res, rej) => cp.execFile(exe, ['--headless=new', '--disable-gpu', '--no-sandbox', '--no-pdf-header-footer', `--print-to-pdf=${pdf.fsPath}`, vscode.Uri.file(html).toString()], { timeout: 60000 }, e => e && !fs.existsSync(pdf.fsPath) ? rej(e) : res())));
-	const a = await vscode.window.showInformationMessage(`Exported ${path.basename(pdf.fsPath)}`, 'Open', 'Reveal'); if (a === 'Open') { vscode.env.openExternal(pdf); } if (a === 'Reveal') { vscode.commands.executeCommand('revealFileInOS', pdf); }
+	await vscode.window.withProgress({ location: vscode.ProgressLocation.Notification, title: vscode.l10n.t("Exporting PDF…") }, () => new Promise<void>((res, rej) => cp.execFile(exe, ['--headless=new', '--disable-gpu', '--no-sandbox', '--no-pdf-header-footer', `--print-to-pdf=${pdf.fsPath}`, vscode.Uri.file(html).toString()], { timeout: 60000 }, e => e && !fs.existsSync(pdf.fsPath) ? rej(e) : res())));
+	const a = await vscode.window.showInformationMessage(vscode.l10n.t("Exported {0}", path.basename(pdf.fsPath)), 'Open', 'Reveal'); if (a === 'Open') { vscode.env.openExternal(pdf); } if (a === 'Reveal') { vscode.commands.executeCommand('revealFileInOS', pdf); }
 }
 
 export function activate(c: vscode.ExtensionContext) {

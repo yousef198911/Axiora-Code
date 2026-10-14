@@ -45,7 +45,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 	register(ctx, 'axiora.security.scanWorkspace', async () => {
 		const files = await vscode.workspace.findFiles('**/*', '{**/node_modules/**,**/.git/**,**/dist/**,**/out/**,**/*.min.js,**/*.{png,jpg,gif,db,bin,zip,pdf,woff*,lock}}', 5000);
 		let n = 0;
-		await vscode.window.withProgress({ location: vscode.ProgressLocation.Notification, title: 'Security scan', cancellable: true }, async (p, tok) => {
+		await vscode.window.withProgress({ location: vscode.ProgressLocation.Notification, title: vscode.l10n.t("Security scan"), cancellable: true }, async (p, tok) => {
 			for (const [i, u] of files.entries()) {
 				if (tok.isCancellationRequested) { break; }
 				const b = await vscode.workspace.fs.readFile(u); if (b.byteLength > 2_000_000 || b.includes(0)) { continue; }
@@ -54,7 +54,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 				if (i % 50 === 0) { p.report({ message: `${i}/${files.length}`, increment: 5000 / files.length }); }
 			}
 		});
-		vscode.window.showInformationMessage(`Security scan: ${n} finding(s) in ${files.length} files.`, 'Open Problems').then(a => a && vscode.commands.executeCommand('workbench.actions.view.problems'));
+		vscode.window.showInformationMessage(vscode.l10n.t("Security scan: {0} finding(s) in {1} files.", n, files.length), 'Open Problems').then(a => a && vscode.commands.executeCommand('workbench.actions.view.problems'));
 	});
 	register(ctx, 'axiora.security.auditDeps', async () => {
 		const root = wsRoot(); if (!root) { return; }

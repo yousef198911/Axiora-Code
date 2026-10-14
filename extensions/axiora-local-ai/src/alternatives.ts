@@ -35,25 +35,25 @@ export function activate(ctx: vscode.ExtensionContext) {
 	// ---- #144 GPU rendering presets
 	register(ctx, 'axiora.render.gpu', async () => {
 		const p = await vscode.window.showQuickPick([
-			{ label: '$(rocket) Maximum GPU', description: 'GPU rasterization, zero-copy, WebGL terminal, smooth scrolling', id: 'max' },
-			{ label: '$(dashboard) Balanced (default)', description: 'Chromium defaults, WebGL terminal when available', id: 'auto' },
-			{ label: '$(circle-slash) Software rendering', description: 'Disable hardware acceleration (driver issues, VMs, RDP)', id: 'off' }], { placeHolder: 'Rendering mode (restart required)' });
+			{ label: '$(rocket) Maximum GPU', description: vscode.l10n.t("GPU rasterization, zero-copy, WebGL terminal, smooth scrolling"), id: 'max' },
+			{ label: '$(dashboard) Balanced (default)', description: vscode.l10n.t("Chromium defaults, WebGL terminal when available"), id: 'auto' },
+			{ label: '$(circle-slash) Software rendering', description: vscode.l10n.t("Disable hardware acceleration (driver issues, VMs, RDP)"), id: 'off' }], { placeHolder: vscode.l10n.t("Rendering mode (restart required)") });
 		if (!p) { return; }
 		const g = vscode.ConfigurationTarget.Global;
 		await editArgv(p.id === 'max' ? { 'disable-hardware-acceleration': false, 'enable-gpu-rasterization': true, 'enable-zero-copy': true, 'ignore-gpu-blocklist': true } : p.id === 'off' ? { 'disable-hardware-acceleration': true, 'enable-gpu-rasterization': undefined, 'enable-zero-copy': undefined, 'ignore-gpu-blocklist': undefined } : { 'disable-hardware-acceleration': undefined, 'enable-gpu-rasterization': undefined, 'enable-zero-copy': undefined, 'ignore-gpu-blocklist': undefined });
 		await conf().update('terminal.integrated.gpuAcceleration', p.id === 'off' ? 'off' : p.id === 'max' ? 'on' : 'auto', g);
 		await conf().update('editor.smoothScrolling', p.id === 'max', g); await conf().update('workbench.list.smoothScrolling', p.id === 'max', g); await conf().update('editor.cursorSmoothCaretAnimation', p.id === 'max' ? 'on' : 'off', g);
-		if (await vscode.window.showInformationMessage(`Rendering set to "${p.label.replace(/\$\([^)]*\)\s*/, '')}". Restart to apply GPU flags.`, 'Restart Now') === 'Restart Now') { await vscode.commands.executeCommand('workbench.action.quit'); }
+		if (await vscode.window.showInformationMessage(vscode.l10n.t("Rendering set to \"{0}\". Restart to apply GPU flags.", p.label.replace(/\$\([^)]*\)\s*/, '')), 'Restart Now') === 'Restart Now') { await vscode.commands.executeCommand('workbench.action.quit'); }
 	});
-	register(ctx, 'axiora.render.gpuInfo', () => vscode.env.openExternal(vscode.Uri.parse('chrome://gpu')).then(ok => { if (!ok) { void vscode.commands.executeCommand('workbench.action.toggleDevTools'); vscode.window.showInformationMessage('In DevTools run: chrome://gpu is not available here; check "Help > Toggle Developer Tools > Rendering".'); } }));
+	register(ctx, 'axiora.render.gpuInfo', () => vscode.env.openExternal(vscode.Uri.parse('chrome://gpu')).then(ok => { if (!ok) { void vscode.commands.executeCommand('workbench.action.toggleDevTools'); vscode.window.showInformationMessage(vscode.l10n.t("In DevTools run: chrome://gpu is not available here; check \"Help > Toggle Developer Tools > Rendering\".")); } }));
 	// ---- #145 macOS native look + Touch Bar
 	register(ctx, 'axiora.window.macNative', async () => {
-		const on = await vscode.window.showQuickPick(['Native macOS look', 'Axiora custom look'], { placeHolder: 'Window style (restart required)' }); if (!on) { return; }
+		const on = await vscode.window.showQuickPick(['Native macOS look', 'Axiora custom look'], { placeHolder: vscode.l10n.t("Window style (restart required)") }); if (!on) { return; }
 		const n = on.startsWith('Native'), g = vscode.ConfigurationTarget.Global;
 		await conf().update('window.titleBarStyle', n ? 'native' : 'custom', g); await conf().update('window.nativeTabs', n && isMac, g); await conf().update('window.nativeFullScreen', true, g);
 		await conf().update('workbench.layoutControl.enabled', !n, g); await conf().update('window.commandCenter', !n, g);
 		if (n) { await conf().update('editor.fontFamily', isMac ? "'SF Mono', Menlo, monospace" : conf().get('editor.fontFamily'), g); await conf().update('keyboard.dispatch', isMac ? 'code' : 'keyCode', g); }
-		if (await vscode.window.showInformationMessage(`${on} applied${isMac ? '' : ' (native tabs and Touch Bar only take effect on macOS)'}.`, 'Restart Now') === 'Restart Now') { await vscode.commands.executeCommand('workbench.action.reloadWindow'); }
+		if (await vscode.window.showInformationMessage(vscode.l10n.t("{0} applied{1}.", on, isMac ? '' : ' (native tabs and Touch Bar only take effect on macOS)'), 'Restart Now') === 'Restart Now') { await vscode.commands.executeCommand('workbench.action.reloadWindow'); }
 	});
 	// ---- #188 sandboxed run (WebContainers alternative)
 	register(ctx, 'axiora.sandbox.run', async () => {
@@ -62,9 +62,9 @@ export function activate(ctx: vscode.ExtensionContext) {
 		const outDir = path.join(r.fsPath, '.axiora', 'sandbox-out'); fs.mkdirSync(outDir, { recursive: true });
 		vscode.window.terminals.filter(x => x.name === 'Sandbox').forEach(x => x.dispose()); const t = vscode.window.createTerminal({ name: 'Sandbox', cwd: r.fsPath }); t.show();
 		if (engine === 'node-permission') {
-			if (!/\.(m?js|cjs)$/.test(f)) { vscode.window.showWarningMessage('Node permission sandbox runs .js/.mjs/.cjs files; use engine "docker"/"podman" for other languages.'); return; }
+			if (!/\.(m?js|cjs)$/.test(f)) { vscode.window.showWarningMessage(vscode.l10n.t("Node permission sandbox runs .js/.mjs/.cjs files; use engine \"docker\"/\"podman\" for other languages.")); return; }
 			const v = +((await runOut('node', ['--version'], r.fsPath).catch(() => 'v0')).match(/v(\d+)/)?.[1] ?? 0);
-			if (v < 20) { t.dispose(); vscode.window.showErrorMessage(`The Node permission sandbox needs Node.js 20+ (found ${v ? 'v' + v : 'none'} on PATH). Install a newer Node or set axiora.sandbox.engine to "docker".`); return; }
+			if (v < 20) { t.dispose(); vscode.window.showErrorMessage(vscode.l10n.t("The Node permission sandbox needs Node.js 20+ (found {0} on PATH). Install a newer Node or set axiora.sandbox.engine to \"docker\".", v ? 'v' + v : 'none')); return; }
 			t.sendText(`node ${v >= 22 ? '--permission' : '--experimental-permission'} --allow-fs-read="${r.fsPath}" --allow-fs-write="${outDir}" "${f}"`);
 		} else {
 			const image = /\.py$/.test(f) ? 'python:3.12-slim' : 'node:22-slim'; const rel = path.relative(r.fsPath, f).split(path.sep).join('/');
@@ -88,15 +88,15 @@ export function activate(ctx: vscode.ExtensionContext) {
 		for (let i = lines.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [lines[i], lines[j]] = [lines[j], lines[i]]; }
 		const cut = Math.max(1, Math.floor(lines.length * 0.95));
 		fs.writeFileSync(path.join(out, 'train.jsonl'), lines.slice(0, cut).join('\n') + '\n'); fs.writeFileSync(path.join(out, 'valid.jsonl'), lines.slice(cut).join('\n') + '\n');
-		const a = await vscode.window.showInformationMessage(`Training data: ${fim} completion + ${cm} commit-message examples → .axiora/finetune/train.jsonl, valid.jsonl. Review it for secrets before training.`, 'Open Folder', 'Launch LoRA Job...');
+		const a = await vscode.window.showInformationMessage(vscode.l10n.t("Training data: {0} completion + {1} commit-message examples → .axiora/finetune/train.jsonl, valid.jsonl. Review it for secrets before training.", fim, cm), 'Open Folder', 'Launch LoRA Job...');
 		if (a === 'Open Folder') { await vscode.commands.executeCommand('revealInExplorer', vscode.Uri.file(path.join(out, 'train.jsonl'))); } if (a?.startsWith('Launch')) { await vscode.commands.executeCommand('axiora.finetune.launch'); }
 	});
 	register(ctx, 'axiora.finetune.launch', async () => {
 		const r = wsRoot(); if (!r) { return; } const dir = path.join(r.fsPath, '.axiora', 'finetune');
-		if (!fs.existsSync(path.join(dir, 'train.jsonl'))) { vscode.window.showWarningMessage('Run "Fine-tune: Export Training Data" first.'); return; }
+		if (!fs.existsSync(path.join(dir, 'train.jsonl'))) { vscode.window.showWarningMessage(vscode.l10n.t("Run \"Fine-tune: Export Training Data\" first.")); return; }
 		const b = await vscode.window.showQuickPick([
-			{ label: 'Unsloth (NVIDIA GPU, Windows/Linux)', id: 'unsloth' }, { label: 'MLX-LM (Apple Silicon)', id: 'mlx' }, { label: 'Axolotl (NVIDIA GPU, config file)', id: 'axolotl' }], { placeHolder: 'LoRA backend (runs locally on your GPU; nothing is uploaded)' }); if (!b) { return; }
-		const base = await vscode.window.showInputBox({ prompt: 'Base model (Hugging Face id)', value: b.id === 'mlx' ? 'mlx-community/Qwen2.5-Coder-1.5B-Instruct-4bit' : 'unsloth/Qwen2.5-Coder-1.5B-Instruct' }); if (!base) { return; }
+			{ label: 'Unsloth (NVIDIA GPU, Windows/Linux)', id: 'unsloth' }, { label: 'MLX-LM (Apple Silicon)', id: 'mlx' }, { label: 'Axolotl (NVIDIA GPU, config file)', id: 'axolotl' }], { placeHolder: vscode.l10n.t("LoRA backend (runs locally on your GPU; nothing is uploaded)") }); if (!b) { return; }
+		const base = await vscode.window.showInputBox({ prompt: vscode.l10n.t("Base model (Hugging Face id)"), value: b.id === 'mlx' ? 'mlx-community/Qwen2.5-Coder-1.5B-Instruct-4bit' : 'unsloth/Qwen2.5-Coder-1.5B-Instruct' }); if (!base) { return; }
 		const t = vscode.window.createTerminal({ name: 'Fine-tune', cwd: dir }); t.show();
 		if (b.id === 'mlx') { t.sendText(`pip install -U mlx-lm && mlx_lm.lora --model ${base} --train --data . --iters 600 --batch-size 2 --adapter-path adapters && mlx_lm.fuse --model ${base} --adapter-path adapters --save-path fused --export-gguf`); return; }
 		if (b.id === 'axolotl') { fs.writeFileSync(path.join(dir, 'axolotl.yml'), `base_model: ${base}\nadapter: lora\nlora_r: 16\nlora_alpha: 32\nlora_target_linear: true\nload_in_4bit: true\ndatasets:\n  - path: train.jsonl\n    type: chat_template\nval_set_size: 0.05\nsequence_len: 4096\nmicro_batch_size: 2\ngradient_accumulation_steps: 4\nnum_epochs: 1\nlearning_rate: 0.0002\noutput_dir: ./lora-out\n`); t.sendText('pip install -U axolotl && axolotl train axolotl.yml'); return; }
@@ -105,26 +105,26 @@ export function activate(ctx: vscode.ExtensionContext) {
 	});
 	register(ctx, 'axiora.finetune.ollama', async () => {
 		const g = await vscode.window.showOpenDialog({ filters: { GGUF: ['gguf'] }, defaultUri: wsRoot() && vscode.Uri.joinPath(wsRoot()!, '.axiora', 'finetune') }); if (!g) { return; }
-		const name = await vscode.window.showInputBox({ prompt: 'Ollama model name', value: 'axiora-tuned' }); if (!name) { return; }
+		const name = await vscode.window.showInputBox({ prompt: vscode.l10n.t("Ollama model name"), value: 'axiora-tuned' }); if (!name) { return; }
 		const mf = path.join(path.dirname(g[0].fsPath), 'Modelfile'); fs.writeFileSync(mf, `FROM ${g[0].fsPath}\nPARAMETER temperature 0.2\n`);
 		const t = vscode.window.createTerminal({ name: 'Ollama import' }); t.show(); t.sendText(`ollama create ${name} -f "${mf}"`);
-		if (await vscode.window.showInformationMessage(`After import finishes, use "${name}" as the chat/completion model?`, 'Use It') === 'Use It') { await conf().update('axiora.ai.chatModel', name, vscode.ConfigurationTarget.Global); await conf().update('axiora.inlineCompletion.model', name, vscode.ConfigurationTarget.Global); }
+		if (await vscode.window.showInformationMessage(vscode.l10n.t("After import finishes, use \"{0}\" as the chat/completion model?", name), 'Use It') === 'Use It') { await conf().update('axiora.ai.chatModel', name, vscode.ConfigurationTarget.Global); await conf().update('axiora.inlineCompletion.model', name, vscode.ConfigurationTarget.Global); }
 	});
 	// ---- #78 computer use (vision model drives mouse/keyboard; every action needs approval unless allowed for the run)
 	register(ctx, 'axiora.computerUse.run', async () => {
-		const goal = await vscode.window.showInputBox({ prompt: 'Computer-use goal (the agent sees your screen and asks before each action)', ignoreFocusOut: true }); if (!goal) { return; }
+		const goal = await vscode.window.showInputBox({ prompt: vscode.l10n.t("Computer-use goal (the agent sees your screen and asks before each action)"), ignoreFocusOut: true }); if (!goal) { return; }
 		const model = conf().get<string>('axiora.ai.visionModel', '') || undefined; let allowAll = false; const hist: string[] = [];
-		await vscode.window.withProgress({ location: vscode.ProgressLocation.Notification, title: 'Computer use', cancellable: true }, async (prog, tok) => {
+		await vscode.window.withProgress({ location: vscode.ProgressLocation.Notification, title: vscode.l10n.t("Computer use"), cancellable: true }, async (prog, tok) => {
 			for (let step = 1; step <= 20 && !tok.isCancellationRequested; step++) {
-				prog.report({ message: `step ${step}: looking at the screen…` });
+				prog.report({ message: vscode.l10n.t("step {0}: looking at the screen…", step) });
 				const png = path.join(os.tmpdir(), `axiora-screen-${Date.now()}.png`); await screenshot(png);
 				const img = fs.readFileSync(png).toString('base64'); fs.rmSync(png, { force: true });
 				const size = await screenSize();
 				const reply = await chat([{ role: 'system', content: `You control a ${process.platform} computer to reach the user's goal. Screen is ${size.w}x${size.h} px. Reply with ONE JSON object only: {"action":"click","x":..,"y":..,"button":"left|right","double":false} | {"action":"type","text":".."} | {"action":"key","keys":"ctrl+s"} | {"action":"scroll","dy":-5} | {"action":"wait","ms":1000} | {"action":"done","summary":".."}. Add "why":"short reason".` }, { role: 'user', content: `Goal: ${goal}\nPrevious actions:\n${hist.join('\n') || '(none)'}`, images: [img] }], () => undefined, tok, model);
 				let a: any; try { a = JSON.parse(/\{[\s\S]*\}/.exec(reply)?.[0] ?? ''); } catch { hist.push(`(unparseable reply)`); continue; }
-				if (a.action === 'done') { vscode.window.showInformationMessage(`Computer use finished: ${a.summary ?? ''}`); return; }
+				if (a.action === 'done') { vscode.window.showInformationMessage(vscode.l10n.t("Computer use finished: {0}", a.summary ?? '')); return; }
 				const desc = a.action === 'click' ? `${a.double ? 'double-' : ''}click (${a.x}, ${a.y})` : a.action === 'type' ? `type "${String(a.text).slice(0, 60)}"` : a.action === 'key' ? `press ${a.keys}` : a.action === 'scroll' ? `scroll ${a.dy}` : `wait ${a.ms}ms`;
-				if (!allowAll) { const ok = await vscode.window.showWarningMessage(`Step ${step}: ${desc}\n${a.why ?? ''}`, { modal: true }, 'Allow', 'Allow All (this run)'); if (!ok) { return; } allowAll = ok.startsWith('Allow All'); }
+				if (!allowAll) { const ok = await vscode.window.showWarningMessage(vscode.l10n.t("Step {0}: {1}\n{2}", step, desc, a.why ?? ''), { modal: true }, 'Allow', 'Allow All (this run)'); if (!ok) { return; } allowAll = ok.startsWith('Allow All'); }
 				await act(a); hist.push(`${step}. ${desc}`); log.info(`[computer-use] ${desc}`); await new Promise(r => setTimeout(r, 800));
 			}
 		});
@@ -134,9 +134,9 @@ export function activate(ctx: vscode.ExtensionContext) {
 		const adb = 'adb'; const c = await vscode.window.showQuickPick(['Enable Wi-Fi debugging on the USB device (adb tcpip 5555)', 'Connect to device at host:port...', 'Pair (Android 11+ wireless debugging)...', 'Stream remote device over SSH...']); if (!c) { return; }
 		const t = (cmd: string) => { const x = vscode.window.createTerminal({ name: 'Remote device' }); x.show(); x.sendText(cmd); };
 		if (c.startsWith('Enable')) { t(`${adb} tcpip 5555 && ${adb} shell ip route | awk '{print $9}'`); }
-		if (c.startsWith('Connect')) { const h = await vscode.window.showInputBox({ prompt: 'host:port', value: '192.168.1.50:5555' }); if (h) { t(`${adb} connect ${h} && scrcpy -s ${h} --video-bit-rate 4M --max-size 1280`); } }
-		if (c.startsWith('Pair')) { const h = await vscode.window.showInputBox({ prompt: 'Pairing host:port shown on the phone' }); if (h) { t(`${adb} pair ${h}`); } }
-		if (c.startsWith('Stream')) { const h = await vscode.window.showInputBox({ prompt: 'SSH host with the device attached (user@host)' }); if (h) { t(`ssh -N -L 5037:localhost:5037 ${h} & sleep 3 && ADB_SERVER_SOCKET=tcp:localhost:5037 scrcpy --video-bit-rate 2M --max-size 1024`); } }
+		if (c.startsWith('Connect')) { const h = await vscode.window.showInputBox({ prompt: vscode.l10n.t("host:port"), value: '192.168.1.50:5555' }); if (h) { t(`${adb} connect ${h} && scrcpy -s ${h} --video-bit-rate 4M --max-size 1280`); } }
+		if (c.startsWith('Pair')) { const h = await vscode.window.showInputBox({ prompt: vscode.l10n.t("Pairing host:port shown on the phone") }); if (h) { t(`${adb} pair ${h}`); } }
+		if (c.startsWith('Stream')) { const h = await vscode.window.showInputBox({ prompt: vscode.l10n.t("SSH host with the device attached (user@host)") }); if (h) { t(`ssh -N -L 5037:localhost:5037 ${h} & sleep 3 && ADB_SERVER_SOCKET=tcp:localhost:5037 scrcpy --video-bit-rate 2M --max-size 1024`); } }
 	});
 	// ---- #107 APK manifest via aapt2/apkanalyzer
 	register(ctx, 'axiora.apk.manifest', async (uri?: vscode.Uri) => {

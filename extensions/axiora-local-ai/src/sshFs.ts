@@ -56,9 +56,9 @@ export function activate(ctx: vscode.ExtensionContext) {
 	};
 	register(ctx, 'axiora.container.attach', async () => {
 		const out = (await new Promise<string>((res, rej) => cp.execFile('docker', ['ps', '--format', '{{.ID}}\t{{.Names}}\t{{.Image}}\t{{.Status}}'], (e, so) => e ? rej(new Error(/ENOENT/.test(e.message) ? 'docker not found. Install Docker to attach to containers.' : e.message)) : res(so))));
-		const p = await vscode.window.showQuickPick(out.trim().split('\n').filter(Boolean).map(l => { const [, n, img, st] = l.split('\t'); return { label: `$(vm) ${n}`, description: img, detail: st, id: n }; }), { placeHolder: 'Attach to running container' });
+		const p = await vscode.window.showQuickPick(out.trim().split('\n').filter(Boolean).map(l => { const [, n, img, st] = l.split('\t'); return { label: `$(vm) ${n}`, description: img, detail: st, id: n }; }), { placeHolder: vscode.l10n.t("Attach to running container") });
 		if (!p) { return; }
-		const dir = await vscode.window.showInputBox({ prompt: 'Folder inside the container', value: '/workspace' }); if (!dir) { return; }
+		const dir = await vscode.window.showInputBox({ prompt: vscode.l10n.t("Folder inside the container"), value: '/workspace' }); if (!dir) { return; }
 		addFolder('axiora-container', p.id, dir, `Container: ${p.id}:${dir}`);
 	});
 	register(ctx, 'axiora.container.openDevcontainer', async () => {
@@ -67,7 +67,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 		for (const f of ['.devcontainer/devcontainer.json', '.devcontainer.json']) {
 			try { cfg = JSON.parse(Buffer.from(await vscode.workspace.fs.readFile(vscode.Uri.joinPath(root.uri, f))).toString().replace(/^\s*\/\/.*$/gm, '')); break; } catch { /* next */ }
 		}
-		if (!cfg.image) { vscode.window.showWarningMessage('No devcontainer.json with an "image" found (Dockerfile-based configs: build the image first).'); return; }
+		if (!cfg.image) { vscode.window.showWarningMessage(vscode.l10n.t("No devcontainer.json with an \"image\" found (Dockerfile-based configs: build the image first).")); return; }
 		const wf = cfg.workspaceFolder ?? `/workspaces/${path.basename(root.uri.fsPath)}`;
 		const name = `axiora-dev-${path.basename(root.uri.fsPath).toLowerCase().replace(/[^a-z0-9]/g, '')}`;
 		const t = vscode.window.createTerminal({ name: 'Dev Container', iconPath: new vscode.ThemeIcon('vm') }); t.show();
@@ -76,18 +76,18 @@ export function activate(ctx: vscode.ExtensionContext) {
 		addFolder('axiora-container', name, wf, `Dev Container: ${cfg.name ?? name}`);
 	});
 	register(ctx, 'axiora.wsl.open', async () => {
-		const d = await vscode.window.showInputBox({ prompt: 'WSL distribution and folder', placeHolder: 'Ubuntu:/home/me/project' }); if (!d) { return; }
+		const d = await vscode.window.showInputBox({ prompt: vscode.l10n.t("WSL distribution and folder"), placeHolder: vscode.l10n.t("Ubuntu:/home/me/project") }); if (!d) { return; }
 		const m = /^([^:]+):?(.*)$/.exec(d)!; addFolder('axiora-wsl', m[1], m[2] || '/', `WSL: ${d}`);
 	});
 	const recent = () => ctx.globalState.get<string[]>('axiora.ssh.recent', []);
 	register(ctx, 'axiora.ssh.openFolder', async () => {
 		const hosts = recent();
-		const v = await vscode.window.showQuickPick([...hosts.map(h => ({ label: h })), { label: '$(add) New SSH target...' }], { placeHolder: 'user@host:/path' });
+		const v = await vscode.window.showQuickPick([...hosts.map(h => ({ label: h })), { label: '$(add) New SSH target...' }], { placeHolder: vscode.l10n.t("user@host:/path") });
 		if (!v) { return; }
-		const t = v.label.startsWith('$(add)') ? await vscode.window.showInputBox({ prompt: 'SSH target (uses your ssh config and keys)', placeHolder: 'user@host:/home/user/project' }) : v.label;
+		const t = v.label.startsWith('$(add)') ? await vscode.window.showInputBox({ prompt: vscode.l10n.t("SSH target (uses your ssh config and keys)"), placeHolder: vscode.l10n.t("user@host:/home/user/project") }) : v.label;
 		if (!t) { return; }
 		const m = /^([^:]+):?(.*)$/.exec(t)!; const dir = m[2] || '/';
-		await vscode.window.withProgress({ location: vscode.ProgressLocation.Notification, title: `Connecting to ${m[1]}…` }, () => ssh(m[1], 'true'));
+		await vscode.window.withProgress({ location: vscode.ProgressLocation.Notification, title: vscode.l10n.t("Connecting to {0}…", m[1]) }, () => ssh(m[1], 'true'));
 		await ctx.globalState.update('axiora.ssh.recent', [t, ...hosts.filter(h => h !== t)].slice(0, 10));
 		const uri = vscode.Uri.from({ scheme: 'axiora-ssh', authority: m[1], path: dir.startsWith('/') ? dir : `/${dir}` });
 		vscode.workspace.updateWorkspaceFolders(vscode.workspace.workspaceFolders?.length ?? 0, 0, { uri, name: `SSH: ${t}` });
@@ -95,7 +95,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 	register(ctx, 'axiora.ssh.terminal', async (u?: vscode.Uri) => {
 		const remote = (x?: vscode.Uri) => !!x && x.scheme.startsWith('axiora-') && ['axiora-ssh', 'axiora-container', 'axiora-wsl'].includes(x.scheme);
 		const f = (remote(u) ? u : vscode.workspace.workspaceFolders?.find(w => remote(w.uri))?.uri);
-		if (!f) { vscode.window.showInformationMessage('Open an SSH folder first (SSH: Open Remote Folder).'); return; }
+		if (!f) { vscode.window.showInformationMessage(vscode.l10n.t("Open an SSH folder first (SSH: Open Remote Folder).")); return; }
 		const [bin, args] = transport(f.scheme, f.authority, `cd ${q(f.path)} && exec \${SHELL:-sh} -l`, true);
 		const t = vscode.window.createTerminal({ name: `${f.scheme.slice(7)} ${f.authority}`, shellPath: bin, shellArgs: args, iconPath: new vscode.ThemeIcon('remote') });
 		t.show();

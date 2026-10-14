@@ -55,7 +55,7 @@ export async function svgToPng(svg: string, w = 800, h = 450): Promise<Buffer> {
 export async function writeChart(c: Chart, file: string): Promise<string[]> {
 	const svg = chartSvg(c); const base = file.replace(/\.(png|svg)$/i, ''); fs.mkdirSync(path.dirname(base), { recursive: true });
 	fs.writeFileSync(base + '.svg', svg); const out = [base + '.svg'];
-	try { fs.writeFileSync(base + '.png', await svgToPng(svg)); out.unshift(base + '.png'); } catch (e) { vscode.window.showWarningMessage(`PNG export failed (SVG saved): ${(e as Error).message}`); }
+	try { fs.writeFileSync(base + '.png', await svgToPng(svg)); out.unshift(base + '.png'); } catch (e) { vscode.window.showWarningMessage(vscode.l10n.t("PNG export failed (SVG saved): {0}", (e as Error).message)); }
 	return out;
 }
 function slidesFrom(s: DocSpec) {
@@ -70,7 +70,7 @@ function slidesFrom(s: DocSpec) {
 }
 export async function makeDocument(kind: 'xlsx' | 'docx' | 'pptx' | 'pdf', spec: DocSpec, file: string): Promise<string> {
 	fs.mkdirSync(path.dirname(file), { recursive: true }); const blocks = spec.blocks ?? [];
-	const chartPng = async (c: Chart) => { try { return await svgToPng(chartSvg(c)); } catch (e) { vscode.window.showWarningMessage(`Chart image skipped: ${(e as Error).message}`); return undefined; } };
+	const chartPng = async (c: Chart) => { try { return await svgToPng(chartSvg(c)); } catch (e) { vscode.window.showWarningMessage(vscode.l10n.t("Chart image skipped: {0}", (e as Error).message)); return undefined; } };
 	if (kind === 'xlsx') {
 		const ExcelJS = (await import('exceljs')).default; const wb = new ExcelJS.Workbook(); wb.creator = 'Axiora Code';
 		const sheets = spec.sheets?.length ? spec.sheets : blocks.filter(b => b.table).map((b, i) => ({ name: `Table ${i + 1}`, rows: b.table! }));

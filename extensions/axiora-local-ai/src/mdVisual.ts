@@ -51,7 +51,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 	register(ctx, 'axiora.md.visual', (uri?: vscode.Uri) => { const u = uri ?? vscode.window.activeTextEditor?.document.uri; return u && vscode.commands.executeCommand('vscode.openWith', u, 'axiora.mdVisual'); });
 }
 function page() {
-	return `<!DOCTYPE html><html><head><style>
+	return `<!DOCTYPE html><html dir="auto"><head><style>
 body{margin:0;font-family:var(--vscode-font-family);color:var(--vscode-editor-foreground);background:var(--vscode-editor-background)}
 #tb{position:sticky;top:0;display:flex;gap:2px;flex-wrap:wrap;padding:4px 8px;background:var(--vscode-editorWidget-background);border-bottom:1px solid var(--vscode-panel-border);z-index:2}
 #tb button{background:transparent;color:var(--vscode-foreground);border:1px solid transparent;border-radius:3px;padding:2px 7px;cursor:pointer;font:12px var(--vscode-font-family)}#tb button:hover{background:var(--vscode-toolbar-hoverBackground)}#tb .sp{flex:1}

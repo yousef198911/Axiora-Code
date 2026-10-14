@@ -15,7 +15,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 	let rec: Step[] | undefined; let last: Step[] = ctx.workspaceState.get('axiora.macro.last', []);
 	let subs: vscode.Disposable[] = [];
 	const status = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 1000);
-	status.text = '$(record) REC'; status.tooltip = 'Recording macro — click to stop'; status.command = 'axiora.macro.stop';
+	status.text = vscode.l10n.t("$(record) REC"); status.tooltip = vscode.l10n.t("Recording macro — click to stop"); status.command = 'axiora.macro.stop';
 	ctx.subscriptions.push(status);
 
 	const stop = () => {
@@ -23,7 +23,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 		subs.forEach(s => s.dispose()); subs = [];
 		last = rec; rec = undefined; ctx.workspaceState.update('axiora.macro.last', last);
 		status.hide(); vscode.commands.executeCommand('setContext', 'axiora.macroRecording', false);
-		vscode.window.setStatusBarMessage(`Macro recorded (${last.length} steps)`, 3000);
+		vscode.window.setStatusBarMessage(vscode.l10n.t("Macro recorded ({0} steps)", last.length), 3000);
 	};
 	register(ctx, 'axiora.macro.start', () => {
 		if (rec) { return stop(); }
@@ -42,13 +42,13 @@ export function activate(ctx: vscode.ExtensionContext) {
 		}
 	};
 	register(ctx, 'axiora.macro.play', () => play(last));
-	register(ctx, 'axiora.macro.playN', async () => { const n = await vscode.window.showInputBox({ prompt: 'Repeat macro how many times?', value: '5' }); if (n && +n > 0) { await play(last, +n); } });
+	register(ctx, 'axiora.macro.playN', async () => { const n = await vscode.window.showInputBox({ prompt: vscode.l10n.t("Repeat macro how many times?"), value: '5' }); if (n && +n > 0) { await play(last, +n); } });
 	register(ctx, 'axiora.macro.save', async () => {
-		const name = await vscode.window.showInputBox({ prompt: 'Macro name' }); if (!name) { return; }
+		const name = await vscode.window.showInputBox({ prompt: vscode.l10n.t("Macro name") }); if (!name) { return; }
 		await ctx.globalState.update('axiora.macros', { ...ctx.globalState.get<Record<string, Step[]>>('axiora.macros', {}), [name]: last });
 	});
 	register(ctx, 'axiora.macro.runSaved', async () => {
 		const all = ctx.globalState.get<Record<string, Step[]>>('axiora.macros', {});
-		const p = await vscode.window.showQuickPick(Object.keys(all), { placeHolder: 'Run saved macro' }); if (p) { await play(all[p]); }
+		const p = await vscode.window.showQuickPick(Object.keys(all), { placeHolder: vscode.l10n.t("Run saved macro") }); if (p) { await play(all[p]); }
 	});
 }

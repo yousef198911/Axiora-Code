@@ -16,7 +16,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 	register(ctx, 'axiora.ai.implementComment', async () => {
 		const ed = vscode.window.activeTextEditor; if (!ed) { return; }
 		const doc = ed.document; const r = commentBlock(doc, ed.selection.active.line);
-		if (!r) { vscode.window.showInformationMessage('Put the cursor on a comment or signature that describes the function.'); return; }
+		if (!r) { vscode.window.showInformationMessage(vscode.l10n.t("Put the cursor on a comment or signature that describes the function.")); return; }
 		const spec = doc.getText(r); const before = doc.getText(new vscode.Range(Math.max(0, r.start.line - 60), 0, r.start.line, 0)); const after = doc.getText(new vscode.Range(r.end.line + 1, 0, Math.min(doc.lineCount - 1, r.end.line + 30), 0));
 		const indent = /^\s*/.exec(doc.lineAt(r.start.line).text)![0];
 		const out = await withProgress('Implementing from comment…', t => ask(`Language: ${doc.languageId}. Implement exactly what this comment/signature describes. Output ONLY the code that goes right after it (if it is a signature, output the body and closing). Match the file's style.\n\nCODE BEFORE:\n${before}\n\nSPEC:\n${spec}\n\nCODE AFTER:\n${after}`, SYS, t));
