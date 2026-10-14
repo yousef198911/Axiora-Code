@@ -209,7 +209,7 @@ export const tocData: ITOCEntry<string> = {
 				{
 					id: 'chat/axioraMemory',
 					label: localize('axiora.toc.chat.axioraMemory', "Memory"),
-					settings: ['axiora.memory.enabled', 'axiora.chat.maxContextTokens']
+					settings: ['axiora.memory.enabled', 'axiora.chat.maxContextTokens', 'axiora.chat.seriesLimit']
 				},
 				{
 					id: 'chat/agent',

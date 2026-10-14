@@ -1517,6 +1517,11 @@
         "command": "axiora.team.create",
         "title": "Create Team File (.axiora/team.json)",
         "category": "Axiora"
+      },
+      {
+        "command": "axiora.chats.renameCurrent",
+        "title": "Rename Current Conversation...",
+        "category": "Axiora"
       }
     ],
     "menus": {
@@ -2215,6 +2220,14 @@
             "order": 2,
             "minimum": 1000,
             "maximum": 200000
+          },
+          "axiora.chat.seriesLimit": {
+            "type": "number",
+            "default": 40,
+            "minimum": 0,
+            "maximum": 1000,
+            "order": 10,
+            "markdownDescription": "Messages per conversation part (yours and Axiora's together). When a part fills up, Axiora quietly continues in the next part — e.g. **Project 1 → Project 2** — carrying a summary forward so nothing is lost. Browse all parts with **Axiora: Past Conversations**. `0` turns this off."
           }
         }
       },
