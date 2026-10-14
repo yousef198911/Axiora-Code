@@ -575,5 +575,6 @@
 	"cfg.axiora.voice.language.enumDescriptions.0": "اكتشاف اللغة تلقائياً (يتطلب نموذجاً متعدد اللغات).",
 	"cfg.axiora.voice.language.enumDescriptions.1": "العربية.",
 	"cfg.axiora.voice.language.enumDescriptions.2": "الإنجليزية.",
-	"cfg.axiora.voice.language.enumItemLabels.0": "تلقائي"
+	"cfg.axiora.voice.language.enumItemLabels.0": "تلقائي",
+	"cmd.axiora.drafts.open.title": "فتح المسودة"
 }

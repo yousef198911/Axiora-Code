@@ -8,6 +8,8 @@
 | 04 | ./shots/ar-04-workbench-rtl.png | الواجهة كاملة بالعربية بعد التحويل: القوائم والعناوين وصفحة الترحيب بالعربية، والتخطيط معكوس (شريط الأنشطة والمستكشف على اليمين، والمحادثة على اليسار)، وزر اللغة «ع» في شريط الحالة. |
 | 05 | ./shots/ar-05-settings-language-ar.png | الإعدادات بالعربية والتخطيط معكوس: قسم «اللغة» → «لغة العرض» مضبوطة على العربية، و«تخطيط من اليمين لليسار للعربية»، و«زر تبديل اللغة في شريط الحالة». الأوصاف كلها بالعربية وتوضح أن الكود والمعرّفات ومحتوى الملفات لا تُترجم أبداً. |
 | 06 | ./shots/ar-06-command-palette-ar.png | لوحة الأوامر بالعربية: أوامر Axiora مترجمة مع بقاء الاسم الإنجليزي تحته للبحث، وأمر «Axiora: تبديل لغة العرض (English / العربية)» في الأعلى؛ ولوحة المحادثة على اليسار بالعربية («إنشاء مع المعالجات»، «وصف ما يجب إنشاؤه بعد ذلك»). |
+| 07 | ./shots/ar-07-auto-switch.png | التبديل التلقائي: بعد اختيار «العربية» من لوحة الأوامر أُعيد تشغيل التطبيق تلقائياً دون أي نافذة تأكيد، وعاد بالعربية ومن اليمين لليسار مع نفس المجلد والنوافذ. |
+| 07d | ./shots/ar-07d-auto-switch-back-en.png | الاتجاه المعاكس: من العربية إلى English تلقائياً دون تأكيد، مع استعادة الملف a.js وتعديله غير المحفوظ («// unsaved edit kept» والنقطة على التبويب). |
 
 ## RTL coverage / حدود الانعكاس
 - Mirrored: activity bar, side bar (right), panels, menus, settings, quick input, dialogs, notifications, hovers, breadcrumbs, welcome page, chat text (`unicode-bidi: plaintext`, equivalent to `dir=auto`), Axiora webviews (`dir`/`lang`).
@@ -19,4 +21,4 @@
 2. Arabic TTS: read an Arabic reply aloud (Windows SAPI needs an Arabic voice installed).
 3. `axiora.chat.responseLanguage` with a real model: write in Arabic → reply in Arabic, code/comments/files in English.
 4. Runtime button translation in extension notifications (Arabic labels, correct action fires).
-5. Switch language from Settings → restart dialog → app reopens in Arabic, then back to English.
+5. Switch language on Windows: the app restarts automatically (no dialog) and reopens the same folder/editors, unsaved edits kept (tested on Linux both ways).

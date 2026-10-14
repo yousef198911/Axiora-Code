@@ -1479,6 +1479,11 @@
         "category": "%cat.Drafts%"
       },
       {
+        "command": "axiora.drafts.open",
+        "title": "%cmd.axiora.drafts.open.title%",
+        "category": "%cat.Drafts%"
+      },
+      {
         "command": "axiora.approval.setMode",
         "title": "%cmd.axiora.approval.setMode.title%",
         "category": "%cat.Axiora_AI%"

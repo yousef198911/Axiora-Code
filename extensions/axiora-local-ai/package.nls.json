@@ -575,5 +575,6 @@
 	"cfg.axiora.voice.language.enumDescriptions.0": "Detect the language automatically (multilingual model required).",
 	"cfg.axiora.voice.language.enumDescriptions.1": "Arabic.",
 	"cfg.axiora.voice.language.enumDescriptions.2": "English.",
-	"cfg.axiora.voice.language.enumItemLabels.0": "Auto"
+	"cfg.axiora.voice.language.enumItemLabels.0": "Auto",
+	"cmd.axiora.drafts.open.title": "Open Draft"
 }
