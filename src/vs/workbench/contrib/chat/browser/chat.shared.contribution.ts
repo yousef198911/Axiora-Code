@@ -3,6 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import { registerAxioraChatActions } from './actions/axioraChatActions.js';
 import './agentSessions/agentHost/codexContinuation.contribution.js';
 import { CODEX_CONTINUATION_DEFAULT_THRESHOLD } from '../../../services/agentHost/browser/codexContinuation.js';
 import { CODEX_CONTINUATION_SETTING, CODEX_CONTINUATION_THRESHOLD_SETTING } from '../../../services/agentHost/browser/codexContinuationService.js';
@@ -3405,6 +3406,7 @@ registerConfigureSpeechInstructionsActions();
 registerChatQueueActions();
 registerQuickChatActions();
 registerChatExportActions();
+registerAxioraChatActions();
 registerMoveActions();
 registerNewChatActions();
 registerChatContextActions();

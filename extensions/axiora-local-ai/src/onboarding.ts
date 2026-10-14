@@ -236,7 +236,12 @@ function openServices() {
 		if (m.type === 'signin') { r = await connect(m.id, {}).catch(e => ({ ok: false, status: `❌ ${(e as Error).message}` })); }
 		if (m.type === 'test') { r = await test(m.id); }
 		if (m.type === 'disconnect') { r = await disconnect(m.id); }
-		if (m.type === 'ai') { r = m.action === 'ollama' ? await useOllama() : await setUpWithKey(m.key ?? ''); }
+		if (m.type === 'ai') {
+			if (m.action === 'ollama') { r = await useOllama(); }
+			else if ((m.key ?? '').trim()) { r = await setUpWithKey(m.key); }
+			else if (await ctx.secrets.get('axiora.ai.apiKey') || conf().get('ai.provider') === 'ollama') { const d = await rowAction('axiora.ai.apiKey', 'test', ''); r = { ok: !!d.ok || /⚠️/.test(d.status), status: d.status }; }
+			else { r = { ok: false, status: 'Paste a key first.' }; }
+		}
 		if (m.type === 'cmd') { await vscode.commands.executeCommand(m.command); return; }
 		post({ result: { id: m.id ?? 'ai', ...r } });
 	});

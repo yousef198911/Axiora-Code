@@ -11,6 +11,8 @@ import { awake } from './keepAwake';
 import { setPrompt } from './liveContext';
 import { systemPrompt, compact } from './promptOps';
 import { activateFeatures } from './features';
+import * as series from './chatSeries';
+import { cleanCompletion } from './inlineClean';
 
 const out = vscode.window.createOutputChannel('Axiora Local AI', { log: true });
 const enc = new TextEncoder();
@@ -51,8 +53,8 @@ class LocalInlineProvider implements vscode.InlineCompletionItemProvider {
 		const suffix = doc.getText(new vscode.Range(pos, end));
 		try {
 			let text = await complete(prefix, suffix, c.get<string>('model', 'qwen2.5-coder:0.5b'), c.get<number>('maxTokens', 64), ac.signal);
-			text = text.replace(/\s+$/, '');
-			if (!text || token.isCancellationRequested) { return; }
+			text = cleanCompletion(text, prefix, suffix);
+			if (!text.trim() || token.isCancellationRequested) { return; }
 			out.debug(`inline completion (${text.length} chars) at ${doc.uri.fsPath}:${pos.line + 1}`);
 			return [new vscode.InlineCompletionItem(text, new vscode.Range(pos, pos))];
 		} catch (e) {
@@ -87,11 +89,11 @@ async function listCheckpoints(cwd: string) {
 	const s = await git(['for-each-ref', '--sort=-refname', '--format=%(refname)\t%(objectname)\t%(contents:subject)', CP_PREFIX], cwd);
 	return s.split('\n').filter(Boolean).map(l => { const [ref, sha, subject] = l.split('\t'); return { ref, sha, subject }; });
 }
-async function restoreCheckpoint() {
+async function restoreCheckpoint(sha?: string, label?: string) {
 	const r = root(); if (!r) { return; }
 	const items = await listCheckpoints(r.fsPath);
 	if (!items.length) { vscode.window.showInformationMessage('No Axiora checkpoints yet.'); return; }
-	const pick = await vscode.window.showQuickPick(items.map(i => ({ label: i.subject.replace('Axiora checkpoint: ', ''), description: i.sha.slice(0, 8), i })), { placeHolder: 'Restore workspace files to checkpoint' });
+	const pick = typeof sha === 'string' ? { label: label ?? sha.slice(0, 8), i: { sha } } : await vscode.window.showQuickPick(items.map(i => ({ label: i.subject.replace('Axiora checkpoint: ', ''), description: i.sha.slice(0, 8), i })), { placeHolder: 'Restore workspace files to checkpoint' });
 	if (!pick) { return; }
 	const ok = await vscode.window.showWarningMessage(`Restore files to "${pick.label}"? A safety checkpoint of the current state is created first.`, { modal: true }, 'Restore');
 	if (ok !== 'Restore') { return; }
@@ -208,7 +210,9 @@ export function activate(ctx: vscode.ExtensionContext) {
 		vscode.window.showInformationMessage(`Model replied: ${t.slice(0, 80)}`);
 	});
 	reg('axiora.checkpoint.create', async () => { const c = await createCheckpoint(); if (c) { vscode.window.showInformationMessage(`Checkpoint created (${c.slice(0, 8)}).`); } });
-	reg('axiora.checkpoint.restore', restoreCheckpoint);
+	reg('axiora.checkpoint.restore', () => restoreCheckpoint());
+	ctx.subscriptions.push(vscode.commands.registerCommand('axiora.checkpoint._create', (label?: string) => createCheckpoint(label).catch(() => undefined)));
+	reg('axiora.checkpoint._restoreTo', (sha: string, label?: string) => restoreCheckpoint(sha, label));
 	reg('axiora.memory.add', async () => { const n = await vscode.window.showInputBox({ prompt: 'Note for the project memory (.axiora/memory.md)' }); if (n) { await addMemory(n); } });
 	reg('axiora.memory.open', async () => { const u = memoryUri(); if (!u) { return; } if (!await readText(u)) { await addMemory('Memory created.'); } await vscode.window.showTextDocument(u); });
 	reg('axiora.spec.new', async () => {
@@ -265,8 +269,11 @@ export function activate(ctx: vscode.ExtensionContext) {
 	const participant = vscode.chat.createChatParticipant('axiora.local', (req, _ctx, stream, token) => { setPrompt(req.prompt); (globalThis as any).axioraOnPrompt?.(req.command, req.prompt); const said: string[] = [];
 		const tee: any = {}; for (let o: any = stream; o && o !== Object.prototype; o = Object.getPrototypeOf(o)) { for (const k of Object.getOwnPropertyNames(o)) { if (!(k in tee) && k !== 'constructor') { const x = (stream as any)[k]; tee[k] = typeof x === 'function' ? x.bind(stream) : x; } } }
 		tee.markdown = (v: string | vscode.MarkdownString) => { said.push(typeof v === 'string' ? v : v.value); stream.markdown(v); return tee; };
-		const save = () => vscode.commands.executeCommand('axiora.chats.save', _ctx.history, req.prompt, said.join('')).then(undefined, () => undefined);
-		return awake(handleChat(req, _ctx, tee, token)).finally(save); });
+		return awake((async () => {
+			const start = await series.begin(_ctx.history, req.prompt).catch(() => 0);
+			const scoped = start ? { ..._ctx, history: _ctx.history.slice(start) } : _ctx;
+			try { return await handleChat(req, scoped, tee, token); } finally { series.end(_ctx.history, req.prompt, said.join('')).catch(() => undefined); }
+		})()); });
 	async function handleChat(req: vscode.ChatRequest, _ctx: vscode.ChatContext, stream: vscode.ChatResponseStream, token: vscode.CancellationToken) {
 		try {
 			switch (req.command) {
