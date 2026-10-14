@@ -24,7 +24,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 	for (const [name, prompt] of Object.entries(AGENTS)) {
 		chatCommands.set(name, async (req, stream, token) => {
 			await chat([{ role: 'system', content: `${SYS}\n${prompt}` }, { role: 'user', content: (req.prompt || 'Analyze the active code.') + context() }], s => stream.markdown(s), token);
-			if (routed) { stream.markdown(`\n\n<sub>model: ${routed}</sub>`); }
+			if (routed) { stream.markdown(vscode.l10n.t("\n\n<sub>model: {0}</sub>", routed)); }
 		});
 	}
 	register(ctx, 'axiora.ai.propertyTests', async () => {

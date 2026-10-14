@@ -32,7 +32,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 	};
 	register(ctx, 'axiora.tex.build', async () => {
 		const doc = vscode.window.activeTextEditor?.document; if (!doc) { return; }
-		const pdf = await vscode.window.withProgress({ location: vscode.ProgressLocation.Window, title: 'Building PDF…' }, () => build(doc));
+		const pdf = await vscode.window.withProgress({ location: vscode.ProgressLocation.Window, title: vscode.l10n.t("Building PDF…") }, () => build(doc));
 		if (fs.existsSync(pdf)) { showPdf(pdf); }
 	});
 	register(ctx, 'axiora.tex.openPdf', async () => { const doc = vscode.window.activeTextEditor?.document; if (doc) { await vscode.env.openExternal(vscode.Uri.file(doc.uri.fsPath.replace(/\.(tex|typ)$/, '.pdf'))); } });

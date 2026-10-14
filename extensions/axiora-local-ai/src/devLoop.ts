@@ -44,7 +44,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 		const ed = vscode.window.activeTextEditor; if (!ed) { return; }
 		const all = flatten(await symbols(ed.document)).filter(s => s.range.contains(ed.selection) && !s.range.isEqual(ed.selection) && (kind === 'any' || KINDS[kind].includes(s.kind)));
 		const best = all.sort((a, b) => ed.document.offsetAt(a.range.end) - ed.document.offsetAt(a.range.start) - (ed.document.offsetAt(b.range.end) - ed.document.offsetAt(b.range.start)))[0];
-		if (!best) { vscode.window.setStatusBarMessage(`No enclosing ${kind === 'any' ? 'symbol' : kind}`, 2000); return; }
+		if (!best) { vscode.window.setStatusBarMessage(vscode.l10n.t("No enclosing {0}", kind === 'any' ? 'symbol' : kind), 2000); return; }
 		ed.selection = new vscode.Selection(best.range.start, best.range.end); ed.revealRange(best.range);
 	};
 	register(ctx, 'axiora.struct.function', () => enclosing('function'));

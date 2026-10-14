@@ -42,10 +42,10 @@ export function activate(ctx: vscode.ExtensionContext) {
 	};
 	for (const [cmd, multi] of [['artifact', false], ['artifacts', true]] as const) {
 		chatCommands.set(cmd, async (req, stream, token) => {
-			if (!wsRoot()) { stream.markdown('Open a folder first — artifacts are saved in `.axiora/artifacts/`.'); return; }
+			if (!wsRoot()) { stream.markdown(vscode.l10n.t("Open a folder first — artifacts are saved in `.axiora/artifacts/`.")); return; }
 			stream.progress(multi ? 'Producing artifacts…' : 'Producing artifact…');
 			const uris = await runArtifacts(req.prompt, multi, token);
-			stream.markdown(`**${uris.length} artifact${uris.length === 1 ? '' : 's'} saved:**\n`);
+			stream.markdown(vscode.l10n.t("**{0} artifact{1} saved:**\n", uris.length, uris.length === 1 ? '' : 's'));
 			for (const u of uris) { stream.markdown('- '); stream.anchor(u, vscode.workspace.asRelativePath(u)); stream.markdown('\n'); }
 			if (uris[0]) { stream.button({ command: 'vscode.open', title: 'Open', arguments: [uris[0]] }); }
 		});
@@ -53,8 +53,8 @@ export function activate(ctx: vscode.ExtensionContext) {
 	register(ctx, 'axiora.artifacts.browse', async () => {
 		const d = artDir(); if (!d) { return; }
 		const files = await vscode.workspace.findFiles(new vscode.RelativePattern(d, '**/*'));
-		if (!files.length) { vscode.window.showInformationMessage('No artifacts yet. Ask "@axiora /artifact <what>".'); return; }
-		const p = await vscode.window.showQuickPick(files.sort((a, b) => b.path.localeCompare(a.path)).map(u => ({ label: u.path.split('/').pop()!, description: u.path.split('/').slice(-2, -1)[0], u })), { placeHolder: 'Agent artifacts', matchOnDescription: true });
+		if (!files.length) { vscode.window.showInformationMessage(vscode.l10n.t("No artifacts yet. Ask \"@axiora /artifact <what>\".")); return; }
+		const p = await vscode.window.showQuickPick(files.sort((a, b) => b.path.localeCompare(a.path)).map(u => ({ label: u.path.split('/').pop()!, description: u.path.split('/').slice(-2, -1)[0], u })), { placeHolder: vscode.l10n.t("Agent artifacts"), matchOnDescription: true });
 		if (p) { await vscode.window.showTextDocument(p.u); }
 	});
 
@@ -62,40 +62,40 @@ export function activate(ctx: vscode.ExtensionContext) {
 	type Task = { id: number; prompt: string; started: number; cts: vscode.CancellationTokenSource; state: 'running' | 'done' | 'failed' | 'cancelled'; result?: vscode.Uri };
 	const tasks: Task[] = []; let next = 1;
 	const sb = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 50); sb.command = 'axiora.background.list'; ctx.subscriptions.push(sb);
-	const upd = () => { const n = tasks.filter(t => t.state === 'running').length; if (n) { sb.text = `$(sync~spin) ${n} agent task${n > 1 ? 's' : ''}`; sb.tooltip = 'Axiora background tasks — click to manage'; sb.show(); } else { sb.hide(); } };
+	const upd = () => { const n = tasks.filter(t => t.state === 'running').length; if (n) { sb.text = vscode.l10n.t("$(sync~spin) {0} agent task{1}", n, n > 1 ? 's' : ''); sb.tooltip = vscode.l10n.t("Axiora background tasks — click to manage"); sb.show(); } else { sb.hide(); } };
 	const startBg = (prompt: string) => {
 		const t: Task = { id: next++, prompt, started: Date.now(), cts: new vscode.CancellationTokenSource(), state: 'running' }; tasks.push(t); upd();
 		(async () => {
 			try {
 				const out = await chat([{ role: 'system', content: `${SYS}\nYou are working on a background task without supervision. Produce a complete, self-contained result.` }, { role: 'user', content: prompt + await baseCtx() }], () => undefined, t.cts.token);
 				t.result = await saveArtifact('result.md', `# Background task #${t.id}\n\n> ${prompt}\n\n${out}`, `task-${t.id}-${prompt}`); t.state = 'done'; upd();
-				const a = await vscode.window.showInformationMessage(`Background task #${t.id} finished: ${prompt.slice(0, 60)}`, 'Open Result');
+				const a = await vscode.window.showInformationMessage(vscode.l10n.t("Background task #{0} finished: {1}", t.id, prompt.slice(0, 60)), 'Open Result');
 				if (a && t.result) { await vscode.window.showTextDocument(t.result); }
-			} catch (e) { t.state = t.cts.token.isCancellationRequested ? 'cancelled' : 'failed'; if (t.state === 'failed') { vscode.window.showWarningMessage(`Background task #${t.id} failed: ${(e as Error).message}`); } }
+			} catch (e) { t.state = t.cts.token.isCancellationRequested ? 'cancelled' : 'failed'; if (t.state === 'failed') { vscode.window.showWarningMessage(vscode.l10n.t("Background task #{0} failed: {1}", t.id, (e as Error).message)); } }
 			upd();
 		})();
 		return t;
 	};
 	(globalThis as any).axioraBg = { tasks, start: (p: string) => startBg(p) };
 	chatCommands.set('background', async (req, stream) => {
-		if (!req.prompt.trim()) { stream.markdown('Usage: `/background <task>` — runs without blocking the chat.'); return; }
+		if (!req.prompt.trim()) { stream.markdown(vscode.l10n.t("Usage: `/background <task>` — runs without blocking the chat.")); return; }
 		const t = startBg(req.prompt);
-		stream.markdown(`Started **background task #${t.id}**. Keep working — you'll get a notification when it's done (status bar shows progress).`);
-		stream.button({ command: 'axiora.background.list', title: 'Manage Tasks' });
+		stream.markdown(vscode.l10n.t("Started **background task #{0}**. Keep working — you'll get a notification when it's done (status bar shows progress).", t.id));
+		stream.button({ command: 'axiora.background.list', title: vscode.l10n.t("Manage Tasks") });
 	});
-	register(ctx, 'axiora.background.start', async () => { const p = await vscode.window.showInputBox({ prompt: 'Task for a background agent' }); if (p) { startBg(p); } });
+	register(ctx, 'axiora.background.start', async () => { const p = await vscode.window.showInputBox({ prompt: vscode.l10n.t("Task for a background agent") }); if (p) { startBg(p); } });
 	register(ctx, 'axiora.background.list', async () => {
-		if (!tasks.length) { vscode.window.showInformationMessage('No background tasks. Use "@axiora /background <task>".'); return; }
+		if (!tasks.length) { vscode.window.showInformationMessage(vscode.l10n.t("No background tasks. Use \"@axiora /background <task>\".")); return; }
 		const icon = { running: '$(sync~spin)', done: '$(pass)', failed: '$(error)', cancelled: '$(circle-slash)' };
-		const p = await vscode.window.showQuickPick([...tasks].reverse().map(t => ({ label: `${icon[t.state]} #${t.id} ${t.prompt.slice(0, 70)}`, description: `${t.state} · ${Math.round((Date.now() - t.started) / 1000)}s`, t })), { placeHolder: 'Background agent tasks' });
+		const p = await vscode.window.showQuickPick([...tasks].reverse().map(t => ({ label: `${icon[t.state]} #${t.id} ${t.prompt.slice(0, 70)}`, description: `${t.state} · ${Math.round((Date.now() - t.started) / 1000)}s`, t })), { placeHolder: vscode.l10n.t("Background agent tasks") });
 		if (!p) { return; }
-		if (p.t.state === 'running') { if (await vscode.window.showWarningMessage(`Cancel task #${p.t.id}?`, 'Cancel Task') === 'Cancel Task') { p.t.cts.cancel(); } }
+		if (p.t.state === 'running') { if (await vscode.window.showWarningMessage(vscode.l10n.t("Cancel task #{0}?", p.t.id), 'Cancel Task') === 'Cancel Task') { p.t.cts.cancel(); } }
 		else if (p.t.result) { await vscode.window.showTextDocument(p.t.result); }
 	});
 
 	// --- focus mode
 	let focus = false;
-	const fsb = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 49); fsb.text = '$(eye) Focus'; fsb.tooltip = 'Agent Focus Mode — click to exit'; fsb.command = 'axiora.focus.toggle'; ctx.subscriptions.push(fsb);
+	const fsb = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 49); fsb.text = vscode.l10n.t("$(eye) Focus"); fsb.tooltip = vscode.l10n.t("Agent Focus Mode — click to exit"); fsb.command = 'axiora.focus.toggle'; ctx.subscriptions.push(fsb);
 	register(ctx, 'axiora.focus.toggle', async () => {
 		focus = !focus;
 		const x = (c: string) => vscode.commands.executeCommand(c).then(undefined, () => undefined);

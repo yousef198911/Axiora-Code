@@ -39,7 +39,8 @@ export async function speak(text: string): Promise<void> {
 		speaking = cp.spawn('say', [...(voice ? ['-v', voice] : []), ...(rate ? ['-r', String(175 + rate * 20)] : []), '-f', f]);
 	} else {
 		const b = ['spd-say', 'espeak-ng', 'espeak'].find(has); if (!b) { throw new Error('No speech engine found. Install speech-dispatcher or espeak-ng (sudo apt install espeak-ng), or set axiora.voice.tts.provider to "openai".'); }
-		speaking = b === 'spd-say' ? cp.spawn(b, ['-w', '-r', String(rate * 10), t.slice(0, 3000)]) : cp.spawn(b, [...(voice ? ['-v', voice] : []), '-s', String(170 + rate * 15), '-f', f]);
+		const arText = /[\u0600-\u06FF]/.test(t);
+		speaking = b === 'spd-say' ? cp.spawn(b, ['-w', ...(arText ? ['-l', 'ar'] : []), '-r', String(rate * 10), t.slice(0, 3000)]) : cp.spawn(b, [...(voice ? ['-v', voice] : arText ? ['-v', 'ar'] : []), '-s', String(170 + rate * 15), '-f', f]);
 	}
 	speaking.on('error', e => log.warn(`tts: ${e.message}`));
 }

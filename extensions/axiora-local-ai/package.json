@@ -1,7 +1,7 @@
 {
   "name": "axiora-local-ai",
-  "displayName": "Axiora Local AI",
-  "description": "Local-first AI for Axiora: inline completion (Ollama / OpenAI-compatible), checkpoints, agent memory, spec planning, code review and settings sync without a Copilot account.",
+  "displayName": "%displayName%",
+  "description": "%description%",
   "publisher": "vscode",
   "license": "MIT",
   "version": "1.0.0",
@@ -39,7 +39,7 @@
     "languageModelChatProviders": [
       {
         "vendor": "axiora-local",
-        "displayName": "Axiora Local (Ollama / OpenAI-compatible)"
+        "displayName": "%lmp.axiora-local%"
       }
     ],
     "chatParticipants": [
@@ -47,208 +47,208 @@
         "id": "axiora.local",
         "name": "axiora",
         "fullName": "Axiora",
-        "description": "Local AI (Ollama / your own key): review, specs, memory",
+        "description": "%chat.axiora.local.description%",
         "isSticky": true,
         "commands": [
           {
             "name": "review",
-            "description": "Review uncommitted changes (git diff) locally"
+            "description": "%chat.axiora.local.cmd.review%"
           },
           {
             "name": "spec",
-            "description": "Plan a feature: requirements.md, design.md, tasks.md"
+            "description": "%chat.axiora.local.cmd.spec%"
           },
           {
             "name": "remember",
-            "description": "Save a note to the project memory"
+            "description": "%chat.axiora.local.cmd.remember%"
           },
           {
             "name": "memory",
-            "description": "Show the project memory"
+            "description": "%chat.axiora.local.cmd.memory%"
           },
           {
             "name": "checkpoint",
-            "description": "Create a checkpoint of the workspace"
+            "description": "%chat.axiora.local.cmd.checkpoint%"
           },
           {
             "name": "regex",
-            "description": "Build a regular expression from a description"
+            "description": "%chat.axiora.local.cmd.regex%"
           },
           {
             "name": "improve",
-            "description": "Rewrite a prompt to be specific and complete"
+            "description": "%chat.axiora.local.cmd.improve%"
           },
           {
             "name": "map",
-            "description": "Show the repository map (files and symbols)"
+            "description": "%chat.axiora.local.cmd.map%"
           },
           {
             "name": "web",
-            "description": "Search the web and answer with sources"
+            "description": "%chat.axiora.local.cmd.web%"
           },
           {
             "name": "goal",
-            "description": "Break a goal into dependency-ordered tasks"
+            "description": "%chat.axiora.local.cmd.goal%"
           },
           {
             "name": "waves",
-            "description": "Show parallel execution waves for the open tasks file"
+            "description": "%chat.axiora.local.cmd.waves%"
           },
           {
             "name": "share",
-            "description": "Share this conversation (link via your server, or HTML file)"
+            "description": "%chat.axiora.local.cmd.share%"
           },
           {
             "name": "arena",
-            "description": "Compare two models side by side (blind) and vote"
+            "description": "%chat.axiora.local.cmd.arena%"
           },
           {
             "name": "tester",
-            "description": "Test engineer agent"
+            "description": "%chat.axiora.local.cmd.tester%"
           },
           {
             "name": "architect",
-            "description": "Architecture agent"
+            "description": "%chat.axiora.local.cmd.architect%"
           },
           {
             "name": "security",
-            "description": "Security reviewer agent"
+            "description": "%chat.axiora.local.cmd.security%"
           },
           {
             "name": "docs-writer",
-            "description": "Documentation agent"
+            "description": "%chat.axiora.local.cmd.docs-writer%"
           },
           {
             "name": "debugger",
-            "description": "Debugging agent"
+            "description": "%chat.axiora.local.cmd.debugger%"
           },
           {
             "name": "perf",
-            "description": "Performance agent"
+            "description": "%chat.axiora.local.cmd.perf%"
           },
           {
             "name": "docs",
-            "description": "Answer from indexed external documentation (#name to pick a source)"
+            "description": "%chat.axiora.local.cmd.docs%"
           },
           {
             "name": "recall",
-            "description": "Find past conversations (use #chat:<words> to include one)"
+            "description": "%chat.axiora.local.cmd.recall%"
           },
           {
             "name": "parallel",
-            "description": "Split into subtasks, run subagents in parallel, merge"
+            "description": "%chat.axiora.local.cmd.parallel%"
           },
           {
             "name": "subagent",
-            "description": "Run one isolated subagent (role: task) and get its summary"
+            "description": "%chat.axiora.local.cmd.subagent%"
           },
           {
             "name": "data",
-            "description": "Ask about your live data session (variables, current cell)"
+            "description": "%chat.axiora.local.cmd.data%"
           },
           {
             "name": "artifact",
-            "description": "Produce a durable artifact (doc, plan, diagram, script) in .axiora/artifacts"
+            "description": "%chat.axiora.local.cmd.artifact%"
           },
           {
             "name": "artifacts",
-            "description": "Produce several complementary artifacts at once"
+            "description": "%chat.axiora.local.cmd.artifacts%"
           },
           {
             "name": "background",
-            "description": "Run a task in the background without blocking the chat"
+            "description": "%chat.axiora.local.cmd.background%"
           },
           {
             "name": "project",
-            "description": "Long-running project: 'new <name>: <goal>' or continue '<name>'"
+            "description": "%chat.axiora.local.cmd.project%"
           },
           {
             "name": "prototype",
-            "description": "Build a runnable app prototype from a description ('refine: …' to iterate)"
+            "description": "%chat.axiora.local.cmd.prototype%"
           },
           {
             "name": "caps",
-            "description": "Show and toggle agent capability chips"
+            "description": "%chat.axiora.local.cmd.caps%"
           },
           {
             "name": "solo",
-            "description": "SOLO: autonomous write → test → fix loop for a goal"
+            "description": "%chat.axiora.local.cmd.solo%"
           },
           {
             "name": "workflow",
-            "description": "Run a saved workflow: <name>"
+            "description": "%chat.axiora.local.cmd.workflow%"
           },
           {
             "name": "cloud",
-            "description": "Run a task on your self-hosted runner (isolated workspace)"
+            "description": "%chat.axiora.local.cmd.cloud%"
           },
           {
             "name": "handoff",
-            "description": "Hand this chat + branch over to your runner"
+            "description": "%chat.axiora.local.cmd.handoff%"
           },
           {
             "name": "semantic",
-            "description": "Semantic code search over the local embeddings index"
+            "description": "%chat.axiora.local.cmd.semantic%"
           },
           {
             "name": "acp",
-            "description": "Talk to an external ACP agent: [name] <prompt>"
+            "description": "%chat.axiora.local.cmd.acp%"
           },
           {
             "name": "figma",
-            "description": "Pull a Figma file/frame (URL or key) and implement it"
+            "description": "%chat.axiora.local.cmd.figma%"
           },
           {
             "name": "jira",
-            "description": "Jira issue (KEY-123) or JQL search"
+            "description": "%chat.axiora.local.cmd.jira%"
           },
           {
             "name": "linear",
-            "description": "Linear issue (ID-123) or search"
+            "description": "%chat.axiora.local.cmd.linear%"
           },
           {
             "name": "stripe",
-            "description": "Stripe data: customers, charges, invoices, subscriptions, events"
+            "description": "%chat.axiora.local.cmd.stripe%"
           },
           {
             "name": "image",
-            "description": "Generate an image (saved to the project)"
+            "description": "%chat.axiora.local.cmd.image%"
           },
           {
             "name": "browser",
-            "description": "Let the agent drive a real browser for a task"
+            "description": "%chat.axiora.local.cmd.browser%"
           },
           {
             "name": "office",
-            "description": "Create xlsx/docx/pptx/pdf: /office pptx <topic>"
+            "description": "%chat.axiora.local.cmd.office%"
           },
           {
             "name": "chart",
-            "description": "Render a chart image from a description"
+            "description": "%chat.axiora.local.cmd.chart%"
           },
           {
             "name": "screenshot",
-            "description": "Capture window|screen|browser|<url> into chat"
+            "description": "%chat.axiora.local.cmd.screenshot%"
           },
           {
             "name": "draft",
-            "description": "Draft an email/Slack message (never auto-sent)"
+            "description": "%chat.axiora.local.cmd.draft%"
           },
           {
             "name": "gmail",
-            "description": "Gmail: search, read <id>, draft <to>|<subject>|<body>"
+            "description": "%chat.axiora.local.cmd.gmail%"
           },
           {
             "name": "drive",
-            "description": "Google Drive: recent files or search"
+            "description": "%chat.axiora.local.cmd.drive%"
           },
           {
             "name": "calendar",
-            "description": "Google Calendar: upcoming events [days]"
+            "description": "%chat.axiora.local.cmd.calendar%"
           },
           {
             "name": "slack",
-            "description": "Slack: channels | history #chan | send-draft #chan text"
+            "description": "%chat.axiora.local.cmd.slack%"
           }
         ]
       }
@@ -256,1272 +256,1272 @@
     "commands": [
       {
         "command": "axiora.ai.toggleInlineCompletion",
-        "title": "Toggle Local Inline Completion",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.ai.toggleInlineCompletion.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.ai.setApiKey",
-        "title": "Set API Key (OpenAI-compatible provider)",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.ai.setApiKey.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.ai.testConnection",
-        "title": "Test Model Connection",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.ai.testConnection.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.checkpoint.create",
-        "title": "Create Checkpoint",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.checkpoint.create.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.checkpoint.restore",
-        "title": "Restore Checkpoint...",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.checkpoint.restore.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.memory.add",
-        "title": "Add to Project Memory...",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.memory.add.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.memory.open",
-        "title": "Open Project Memory",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.memory.open.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.spec.new",
-        "title": "New Spec (Requirements, Design, Tasks)...",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.spec.new.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.review.changes",
-        "title": "Review Uncommitted Changes",
-        "category": "Axiora AI",
+        "title": "%cmd.axiora.review.changes.title%",
+        "category": "%cat.Axiora_AI%",
         "icon": "$(checklist)"
       },
       {
         "command": "axiora.sync.push",
-        "title": "Settings Sync: Upload to My Server",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.sync.push.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.sync.pull",
-        "title": "Settings Sync: Download from My Server",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.sync.pull.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.sync.setToken",
-        "title": "Settings Sync: Set Server Token",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.sync.setToken.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.ai.fixProblem",
-        "title": "Fix Problem with AI",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.ai.fixProblem.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.ai.generateTests",
-        "title": "Generate Tests",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.ai.generateTests.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.ai.addDocs",
-        "title": "Add Documentation Comments",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.ai.addDocs.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.ai.explain",
-        "title": "Explain Code",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.ai.explain.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.ai.generateCommitMessage",
-        "title": "Generate Commit Message",
-        "category": "Axiora AI",
+        "title": "%cmd.axiora.ai.generateCommitMessage.title%",
+        "category": "%cat.Axiora_AI%",
         "icon": "$(sparkle)"
       },
       {
         "command": "axiora.ai.terminalCommand",
-        "title": "Generate Terminal Command from Description...",
-        "category": "Axiora AI",
+        "title": "%cmd.axiora.ai.terminalCommand.title%",
+        "category": "%cat.Axiora_AI%",
         "icon": "$(sparkle)"
       },
       {
         "command": "axiora.ai.buildRegex",
-        "title": "Build Regex from Description...",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.ai.buildRegex.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.ai.improvePrompt",
-        "title": "Improve Prompt...",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.ai.improvePrompt.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.ai.showRepoMap",
-        "title": "Show Repository Map",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.ai.showRepoMap.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.debug.continueOthers",
-        "title": "Continue All Other Threads",
-        "category": "Debug"
+        "title": "%cmd.axiora.debug.continueOthers.title%",
+        "category": "%cat.Debug%"
       },
       {
         "command": "axiora.debug.pauseOthers",
-        "title": "Pause All Other Threads",
-        "category": "Debug"
+        "title": "%cmd.axiora.debug.pauseOthers.title%",
+        "category": "%cat.Debug%"
       },
       {
         "command": "axiora.bookmarks.toggle",
-        "title": "Toggle Bookmark",
-        "category": "Bookmarks"
+        "title": "%cmd.axiora.bookmarks.toggle.title%",
+        "category": "%cat.Bookmarks%"
       },
       {
         "command": "axiora.bookmarks.toggleNamed",
-        "title": "Add Named Bookmark...",
-        "category": "Bookmarks"
+        "title": "%cmd.axiora.bookmarks.toggleNamed.title%",
+        "category": "%cat.Bookmarks%"
       },
       {
         "command": "axiora.bookmarks.list",
-        "title": "Go to Bookmark...",
-        "category": "Bookmarks"
+        "title": "%cmd.axiora.bookmarks.list.title%",
+        "category": "%cat.Bookmarks%"
       },
       {
         "command": "axiora.bookmarks.clear",
-        "title": "Clear All Bookmarks",
-        "category": "Bookmarks"
+        "title": "%cmd.axiora.bookmarks.clear.title%",
+        "category": "%cat.Bookmarks%"
       },
       {
         "command": "axiora.csv.preview",
-        "title": "Open as Table",
-        "category": "CSV",
+        "title": "%cmd.axiora.csv.preview.title%",
+        "category": "%cat.CSV%",
         "icon": "$(table)"
       },
       {
         "command": "axiora.http.send",
-        "title": "Send Request",
-        "category": "HTTP"
+        "title": "%cmd.axiora.http.send.title%",
+        "category": "%cat.HTTP%"
       },
       {
         "command": "axiora.edit.rotateSelectionsForward",
-        "title": "Rotate Selection Contents Forward",
-        "category": "Selection"
+        "title": "%cmd.axiora.edit.rotateSelectionsForward.title%",
+        "category": "%cat.Selection%"
       },
       {
         "command": "axiora.edit.rotateSelectionsBackward",
-        "title": "Rotate Selection Contents Backward",
-        "category": "Selection"
+        "title": "%cmd.axiora.edit.rotateSelectionsBackward.title%",
+        "category": "%cat.Selection%"
       },
       {
         "command": "axiora.editor.toggleTypewriter",
-        "title": "Toggle Typewriter Mode",
-        "category": "View"
+        "title": "%cmd.axiora.editor.toggleTypewriter.title%",
+        "category": "%cat.View%"
       },
       {
         "command": "axiora.edit.pasteFromHistory",
-        "title": "Paste from Clipboard History...",
-        "category": "Edit"
+        "title": "%cmd.axiora.edit.pasteFromHistory.title%",
+        "category": "%cat.Edit%"
       },
       {
         "command": "axiora.git.stashStaged",
-        "title": "Stash Staged Changes Only...",
-        "category": "Git"
+        "title": "%cmd.axiora.git.stashStaged.title%",
+        "category": "%cat.Git%"
       },
       {
         "command": "axiora.git.blamePrevious",
-        "title": "Blame Previous Revision of This Line",
-        "category": "Git"
+        "title": "%cmd.axiora.git.blamePrevious.title%",
+        "category": "%cat.Git%"
       },
       {
         "command": "axiora.sessions.save",
-        "title": "Save Editor Session As...",
-        "category": "Sessions"
+        "title": "%cmd.axiora.sessions.save.title%",
+        "category": "%cat.Sessions%"
       },
       {
         "command": "axiora.sessions.open",
-        "title": "Open Editor Session...",
-        "category": "Sessions"
+        "title": "%cmd.axiora.sessions.open.title%",
+        "category": "%cat.Sessions%"
       },
       {
         "command": "axiora.sessions.delete",
-        "title": "Delete Editor Session...",
-        "category": "Sessions"
+        "title": "%cmd.axiora.sessions.delete.title%",
+        "category": "%cat.Sessions%"
       },
       {
         "command": "axiora.ai.showUsage",
-        "title": "Show Token Usage and Cost",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.ai.showUsage.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.macro.start",
-        "title": "Start/Stop Recording Macro",
-        "category": "Macros"
+        "title": "%cmd.axiora.macro.start.title%",
+        "category": "%cat.Macros%"
       },
       {
         "command": "axiora.macro.stop",
-        "title": "Stop Recording Macro",
-        "category": "Macros"
+        "title": "%cmd.axiora.macro.stop.title%",
+        "category": "%cat.Macros%"
       },
       {
         "command": "axiora.macro.play",
-        "title": "Play Last Macro",
-        "category": "Macros"
+        "title": "%cmd.axiora.macro.play.title%",
+        "category": "%cat.Macros%"
       },
       {
         "command": "axiora.macro.playN",
-        "title": "Play Last Macro N Times...",
-        "category": "Macros"
+        "title": "%cmd.axiora.macro.playN.title%",
+        "category": "%cat.Macros%"
       },
       {
         "command": "axiora.macro.save",
-        "title": "Save Last Macro As...",
-        "category": "Macros"
+        "title": "%cmd.axiora.macro.save.title%",
+        "category": "%cat.Macros%"
       },
       {
         "command": "axiora.macro.runSaved",
-        "title": "Run Saved Macro...",
-        "category": "Macros"
+        "title": "%cmd.axiora.macro.runSaved.title%",
+        "category": "%cat.Macros%"
       },
       {
         "command": "axiora.ai.fixAllProblems",
-        "title": "Fix All Errors in File (AI Loop)",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.ai.fixAllProblems.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.tasks.showWaves",
-        "title": "Show Task Execution Waves",
-        "category": "Axiora AI",
+        "title": "%cmd.axiora.tasks.showWaves.title%",
+        "category": "%cat.Axiora_AI%",
         "icon": "$(list-tree)"
       },
       {
         "command": "axiora.tasks.startNext",
-        "title": "Start Next Ready Task in Agent",
-        "category": "Axiora AI",
+        "title": "%cmd.axiora.tasks.startNext.title%",
+        "category": "%cat.Axiora_AI%",
         "icon": "$(play)"
       },
       {
         "command": "axiora.structural.searchReplace",
-        "title": "Structural Search and Replace...",
-        "category": "Search"
+        "title": "%cmd.axiora.structural.searchReplace.title%",
+        "category": "%cat.Search%"
       },
       {
         "command": "axiora.keymap.choose",
-        "title": "Choose Keymap (Default / Vim / Emacs)...",
-        "category": "Preferences"
+        "title": "%cmd.axiora.keymap.choose.title%",
+        "category": "%cat.Preferences%"
       },
       {
         "command": "axiora.html.preview",
-        "title": "Open Live Preview",
-        "category": "HTML",
+        "title": "%cmd.axiora.html.preview.title%",
+        "category": "%cat.HTML%",
         "icon": "$(open-preview)"
       },
       {
         "command": "axiora.db.add",
-        "title": "Add Connection...",
-        "category": "Database"
+        "title": "%cmd.axiora.db.add.title%",
+        "category": "%cat.Database%"
       },
       {
         "command": "axiora.db.select",
-        "title": "Select Connection...",
-        "category": "Database"
+        "title": "%cmd.axiora.db.select.title%",
+        "category": "%cat.Database%"
       },
       {
         "command": "axiora.db.runQuery",
-        "title": "Run Query",
-        "category": "Database",
+        "title": "%cmd.axiora.db.runQuery.title%",
+        "category": "%cat.Database%",
         "icon": "$(play)"
       },
       {
         "command": "axiora.db.browse",
-        "title": "Browse Tables...",
-        "category": "Database"
+        "title": "%cmd.axiora.db.browse.title%",
+        "category": "%cat.Database%"
       },
       {
         "command": "axiora.docker.containers",
-        "title": "Containers...",
-        "category": "Docker"
+        "title": "%cmd.axiora.docker.containers.title%",
+        "category": "%cat.Docker%"
       },
       {
         "command": "axiora.docker.images",
-        "title": "Images...",
-        "category": "Docker"
+        "title": "%cmd.axiora.docker.images.title%",
+        "category": "%cat.Docker%"
       },
       {
         "command": "axiora.docker.build",
-        "title": "Build Image...",
-        "category": "Docker"
+        "title": "%cmd.axiora.docker.build.title%",
+        "category": "%cat.Docker%"
       },
       {
         "command": "axiora.docker.composeUp",
-        "title": "Compose Up",
-        "category": "Docker"
+        "title": "%cmd.axiora.docker.composeUp.title%",
+        "category": "%cat.Docker%"
       },
       {
         "command": "axiora.docker.composeDown",
-        "title": "Compose Down",
-        "category": "Docker"
+        "title": "%cmd.axiora.docker.composeDown.title%",
+        "category": "%cat.Docker%"
       },
       {
         "command": "axiora.mcp.copyConfig",
-        "title": "Start Editor MCP Server and Copy Client Config",
-        "category": "MCP"
+        "title": "%cmd.axiora.mcp.copyConfig.title%",
+        "category": "%cat.MCP%"
       },
       {
         "command": "axiora.mcp.regenerateToken",
-        "title": "Regenerate Editor MCP Server Token",
-        "category": "MCP"
+        "title": "%cmd.axiora.mcp.regenerateToken.title%",
+        "category": "%cat.MCP%"
       },
       {
         "command": "axiora.k8s.context",
-        "title": "Switch Context...",
-        "category": "Kubernetes"
+        "title": "%cmd.axiora.k8s.context.title%",
+        "category": "%cat.Kubernetes%"
       },
       {
         "command": "axiora.k8s.namespace",
-        "title": "Switch Namespace...",
-        "category": "Kubernetes"
+        "title": "%cmd.axiora.k8s.namespace.title%",
+        "category": "%cat.Kubernetes%"
       },
       {
         "command": "axiora.k8s.pods",
-        "title": "Pods...",
-        "category": "Kubernetes"
+        "title": "%cmd.axiora.k8s.pods.title%",
+        "category": "%cat.Kubernetes%"
       },
       {
         "command": "axiora.k8s.deployments",
-        "title": "Deployments...",
-        "category": "Kubernetes"
+        "title": "%cmd.axiora.k8s.deployments.title%",
+        "category": "%cat.Kubernetes%"
       },
       {
         "command": "axiora.k8s.apply",
-        "title": "Apply Manifest",
-        "category": "Kubernetes"
+        "title": "%cmd.axiora.k8s.apply.title%",
+        "category": "%cat.Kubernetes%"
       },
       {
         "command": "axiora.k8s.delete",
-        "title": "Delete Resources in Manifest",
-        "category": "Kubernetes"
+        "title": "%cmd.axiora.k8s.delete.title%",
+        "category": "%cat.Kubernetes%"
       },
       {
         "command": "axiora.tex.build",
-        "title": "Build and Preview PDF",
-        "category": "LaTeX/Typst",
+        "title": "%cmd.axiora.tex.build.title%",
+        "category": "%cat.LaTeX_Typst%",
         "icon": "$(open-preview)"
       },
       {
         "command": "axiora.tex.openPdf",
-        "title": "Open PDF Externally",
-        "category": "LaTeX/Typst"
+        "title": "%cmd.axiora.tex.openPdf.title%",
+        "category": "%cat.LaTeX_Typst%"
       },
       {
         "command": "axiora.cells.run",
-        "title": "Run Cell",
-        "category": "Data"
+        "title": "%cmd.axiora.cells.run.title%",
+        "category": "%cat.Data%"
       },
       {
         "command": "axiora.cells.runAdvance",
-        "title": "Run Cell and Advance",
-        "category": "Data"
+        "title": "%cmd.axiora.cells.runAdvance.title%",
+        "category": "%cat.Data%"
       },
       {
         "command": "axiora.cells.runAbove",
-        "title": "Run Cells Above (inclusive)",
-        "category": "Data"
+        "title": "%cmd.axiora.cells.runAbove.title%",
+        "category": "%cat.Data%"
       },
       {
         "command": "axiora.cells.runFile",
-        "title": "Run File in Console",
-        "category": "Data"
+        "title": "%cmd.axiora.cells.runFile.title%",
+        "category": "%cat.Data%"
       },
       {
         "command": "axiora.cells.variables",
-        "title": "Show Variables",
-        "category": "Data",
+        "title": "%cmd.axiora.cells.variables.title%",
+        "category": "%cat.Data%",
         "icon": "$(variable-group)"
       },
       {
         "command": "axiora.git.interactiveRebase",
-        "title": "Interactive Rebase...",
-        "category": "Git"
+        "title": "%cmd.axiora.git.interactiveRebase.title%",
+        "category": "%cat.Git%"
       },
       {
         "command": "axiora.shelve.shelve",
-        "title": "Shelve Changes...",
-        "category": "Git",
+        "title": "%cmd.axiora.shelve.shelve.title%",
+        "category": "%cat.Git%",
         "icon": "$(archive)"
       },
       {
         "command": "axiora.shelve.unshelve",
-        "title": "Unshelve Changes...",
-        "category": "Git"
+        "title": "%cmd.axiora.shelve.unshelve.title%",
+        "category": "%cat.Git%"
       },
       {
         "command": "axiora.shelve.view",
-        "title": "View Shelf...",
-        "category": "Git"
+        "title": "%cmd.axiora.shelve.view.title%",
+        "category": "%cat.Git%"
       },
       {
         "command": "axiora.changelist.assign",
-        "title": "Move to Change List...",
-        "category": "Git"
+        "title": "%cmd.axiora.changelist.assign.title%",
+        "category": "%cat.Git%"
       },
       {
         "command": "axiora.changelist.commit",
-        "title": "Commit Change List...",
-        "category": "Git"
+        "title": "%cmd.axiora.changelist.commit.title%",
+        "category": "%cat.Git%"
       },
       {
         "command": "axiora.ssh.openFolder",
-        "title": "Open Remote Folder over SSH...",
-        "category": "SSH",
+        "title": "%cmd.axiora.ssh.openFolder.title%",
+        "category": "%cat.SSH%",
         "icon": "$(remote)"
       },
       {
         "command": "axiora.ssh.terminal",
-        "title": "Open Remote Terminal",
-        "category": "SSH"
+        "title": "%cmd.axiora.ssh.terminal.title%",
+        "category": "%cat.SSH%"
       },
       {
         "command": "axiora.container.attach",
-        "title": "Attach to Running Container...",
-        "category": "Dev Containers"
+        "title": "%cmd.axiora.container.attach.title%",
+        "category": "%cat.Dev_Containers%"
       },
       {
         "command": "axiora.container.openDevcontainer",
-        "title": "Reopen Folder in Dev Container",
-        "category": "Dev Containers"
+        "title": "%cmd.axiora.container.openDevcontainer.title%",
+        "category": "%cat.Dev_Containers%"
       },
       {
         "command": "axiora.wsl.open",
-        "title": "Open Folder in WSL...",
-        "category": "WSL"
+        "title": "%cmd.axiora.wsl.open.title%",
+        "category": "%cat.WSL%"
       },
       {
         "command": "axiora.whichKey.show",
-        "title": "Show Key Binding Hints (which-key)",
-        "category": "Help"
+        "title": "%cmd.axiora.whichKey.show.title%",
+        "category": "%cat.Help%"
       },
       {
         "command": "axiora.whichKey.ctrlK",
-        "title": "Show Ctrl+K Chord Hints",
-        "category": "Help"
+        "title": "%cmd.axiora.whichKey.ctrlK.title%",
+        "category": "%cat.Help%"
       },
       {
         "command": "axiora.scripts.run",
-        "title": "Run User Script...",
-        "category": "Scripts"
+        "title": "%cmd.axiora.scripts.run.title%",
+        "category": "%cat.Scripts%"
       },
       {
         "command": "axiora.scripts.new",
-        "title": "New User Script...",
-        "category": "Scripts"
+        "title": "%cmd.axiora.scripts.new.title%",
+        "category": "%cat.Scripts%"
       },
       {
         "command": "axiora.scripts.runCurrent",
-        "title": "Run This File as User Script",
-        "category": "Scripts",
+        "title": "%cmd.axiora.scripts.runCurrent.title%",
+        "category": "%cat.Scripts%",
         "icon": "$(play)"
       },
       {
         "command": "axiora.multibuffer.search",
-        "title": "Search into Editable Multibuffer...",
-        "category": "Search",
+        "title": "%cmd.axiora.multibuffer.search.title%",
+        "category": "%cat.Search%",
         "icon": "$(files)"
       },
       {
         "command": "axiora.multibuffer.open",
-        "title": "Open Excerpt Source",
-        "category": "Search"
+        "title": "%cmd.axiora.multibuffer.open.title%",
+        "category": "%cat.Search%"
       },
       {
         "command": "axiora.hex.open",
-        "title": "Open in Hex Editor",
-        "category": "File"
+        "title": "%cmd.axiora.hex.open.title%",
+        "category": "%cat.File%"
       },
       {
         "command": "axiora.org.cycleTodo",
-        "title": "Cycle TODO / Toggle Checkbox",
-        "category": "Org"
+        "title": "%cmd.axiora.org.cycleTodo.title%",
+        "category": "%cat.Org%"
       },
       {
         "command": "axiora.org.priority",
-        "title": "Cycle Priority",
-        "category": "Org"
+        "title": "%cmd.axiora.org.priority.title%",
+        "category": "%cat.Org%"
       },
       {
         "command": "axiora.org.promote",
-        "title": "Promote Heading",
-        "category": "Org"
+        "title": "%cmd.axiora.org.promote.title%",
+        "category": "%cat.Org%"
       },
       {
         "command": "axiora.org.demote",
-        "title": "Demote Heading",
-        "category": "Org"
+        "title": "%cmd.axiora.org.demote.title%",
+        "category": "%cat.Org%"
       },
       {
         "command": "axiora.org.timestamp",
-        "title": "Insert Timestamp",
-        "category": "Org"
+        "title": "%cmd.axiora.org.timestamp.title%",
+        "category": "%cat.Org%"
       },
       {
         "command": "axiora.org.agenda",
-        "title": "Agenda (open TODOs)",
-        "category": "Org"
+        "title": "%cmd.axiora.org.agenda.title%",
+        "category": "%cat.Org%"
       },
       {
         "command": "axiora.security.scanWorkspace",
-        "title": "Scan Workspace for Secrets and Vulnerabilities",
-        "category": "Security",
+        "title": "%cmd.axiora.security.scanWorkspace.title%",
+        "category": "%cat.Security%",
         "icon": "$(shield)"
       },
       {
         "command": "axiora.security.auditDeps",
-        "title": "Audit Dependencies",
-        "category": "Security"
+        "title": "%cmd.axiora.security.auditDeps.title%",
+        "category": "%cat.Security%"
       },
       {
         "command": "axiora.automations.edit",
-        "title": "Edit Automations",
-        "category": "Automations"
+        "title": "%cmd.axiora.automations.edit.title%",
+        "category": "%cat.Automations%"
       },
       {
         "command": "axiora.automations.run",
-        "title": "Run Automation Now...",
-        "category": "Automations"
+        "title": "%cmd.axiora.automations.run.title%",
+        "category": "%cat.Automations%"
       },
       {
         "command": "axiora.arena.leaderboard",
-        "title": "Arena Leaderboard",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.arena.leaderboard.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.ai.analyzeCrash",
-        "title": "Analyze Crash / Stack Trace",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.ai.analyzeCrash.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.deploy.upload",
-        "title": "Upload to Server",
-        "category": "Deployment"
+        "title": "%cmd.axiora.deploy.upload.title%",
+        "category": "%cat.Deployment%"
       },
       {
         "command": "axiora.deploy.all",
-        "title": "Deploy Project to Server...",
-        "category": "Deployment"
+        "title": "%cmd.axiora.deploy.all.title%",
+        "category": "%cat.Deployment%"
       },
       {
         "command": "axiora.deploy.configure",
-        "title": "Configure Deployment Targets",
-        "category": "Deployment"
+        "title": "%cmd.axiora.deploy.configure.title%",
+        "category": "%cat.Deployment%"
       },
       {
         "command": "axiora.dotfiles.install",
-        "title": "Install Dotfiles",
-        "category": "Dotfiles"
+        "title": "%cmd.axiora.dotfiles.install.title%",
+        "category": "%cat.Dotfiles%"
       },
       {
         "command": "axiora.ai.propertyTests",
-        "title": "Generate Property-Based Tests",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.ai.propertyTests.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.docs.add",
-        "title": "Add Documentation Source...",
-        "category": "Docs"
+        "title": "%cmd.axiora.docs.add.title%",
+        "category": "%cat.Docs%"
       },
       {
         "command": "axiora.docs.manage",
-        "title": "Manage Documentation Sources",
-        "category": "Docs"
+        "title": "%cmd.axiora.docs.manage.title%",
+        "category": "%cat.Docs%"
       },
       {
         "command": "axiora.chats.browse",
-        "title": "Past Conversations",
-        "category": "Axiora",
+        "title": "%cmd.axiora.chats.browse.title%",
+        "category": "%cat.Axiora%",
         "icon": "$(history)"
       },
       {
         "command": "axiora.ai.implementComment",
-        "title": "Implement Function from Comment",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.ai.implementComment.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.nextEdit.accept",
-        "title": "Accept Next Edit Suggestion",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.nextEdit.accept.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.nextEdit.dismiss",
-        "title": "Dismiss Next Edit Suggestion",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.nextEdit.dismiss.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.codemap.show",
-        "title": "Show Codemap",
-        "category": "Axiora AI",
+        "title": "%cmd.axiora.codemap.show.title%",
+        "category": "%cat.Axiora_AI%",
         "icon": "$(type-hierarchy)"
       },
       {
         "command": "axiora.cli.install",
-        "title": "Install Headless CLI Agent (axiora-agent)",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.cli.install.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.cells.session",
-        "title": "Switch Console Session...",
-        "category": "Data"
+        "title": "%cmd.axiora.cells.session.title%",
+        "category": "%cat.Data%"
       },
       {
         "command": "axiora.cells.restart",
-        "title": "Restart Console",
-        "category": "Data"
+        "title": "%cmd.axiora.cells.restart.title%",
+        "category": "%cat.Data%"
       },
       {
         "command": "axiora.github.prs",
-        "title": "Pull Requests...",
-        "category": "GitHub",
+        "title": "%cmd.axiora.github.prs.title%",
+        "category": "%cat.GitHub%",
         "icon": "$(git-pull-request)"
       },
       {
         "command": "axiora.github.issues",
-        "title": "Issues...",
-        "category": "GitHub"
+        "title": "%cmd.axiora.github.issues.title%",
+        "category": "%cat.GitHub%"
       },
       {
         "command": "axiora.github.ci",
-        "title": "CI Runs (GitHub Actions)...",
-        "category": "GitHub"
+        "title": "%cmd.axiora.github.ci.title%",
+        "category": "%cat.GitHub%"
       },
       {
         "command": "axiora.github.setToken",
-        "title": "Set Token",
-        "category": "GitHub"
+        "title": "%cmd.axiora.github.setToken.title%",
+        "category": "%cat.GitHub%"
       },
       {
         "command": "axiora.prompts.edit",
-        "title": "Edit Prompts...",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.prompts.edit.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.cells.runToTab",
-        "title": "Run Cell, Output in Tab",
-        "category": "Data"
+        "title": "%cmd.axiora.cells.runToTab.title%",
+        "category": "%cat.Data%"
       },
       {
         "command": "axiora.artifacts.browse",
-        "title": "Browse Artifacts...",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.artifacts.browse.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.background.start",
-        "title": "Start Background Task...",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.background.start.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.background.list",
-        "title": "Background Tasks...",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.background.list.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.focus.toggle",
-        "title": "Toggle Agent Focus Mode",
-        "category": "Axiora AI",
+        "title": "%cmd.axiora.focus.toggle.title%",
+        "category": "%cat.Axiora_AI%",
         "icon": "$(eye)"
       },
       {
         "command": "axiora.term.blocks",
-        "title": "Command Blocks...",
-        "category": "Terminal",
+        "title": "%cmd.axiora.term.blocks.title%",
+        "category": "%cat.Terminal%",
         "icon": "$(list-flat)"
       },
       {
         "command": "axiora.term.agent",
-        "title": "New Axiora Agent Terminal",
-        "category": "Terminal"
+        "title": "%cmd.axiora.term.agent.title%",
+        "category": "%cat.Terminal%"
       },
       {
         "command": "axiora.edit.shellFilter",
-        "title": "Transform Selection with Shell Command...",
-        "category": "Edit"
+        "title": "%cmd.axiora.edit.shellFilter.title%",
+        "category": "%cat.Edit%"
       },
       {
         "command": "axiora.git.securityReview",
-        "title": "Security Review of Changes",
-        "category": "Git",
+        "title": "%cmd.axiora.git.securityReview.title%",
+        "category": "%cat.Git%",
         "icon": "$(shield)"
       },
       {
         "command": "axiora.sel.select",
-        "title": "Select Regex in Selections...",
-        "category": "Selection"
+        "title": "%cmd.axiora.sel.select.title%",
+        "category": "%cat.Selection%"
       },
       {
         "command": "axiora.sel.split",
-        "title": "Split Selections on Regex...",
-        "category": "Selection"
+        "title": "%cmd.axiora.sel.split.title%",
+        "category": "%cat.Selection%"
       },
       {
         "command": "axiora.sel.lines",
-        "title": "Split Selections into Lines",
-        "category": "Selection"
+        "title": "%cmd.axiora.sel.lines.title%",
+        "category": "%cat.Selection%"
       },
       {
         "command": "axiora.sel.keep",
-        "title": "Keep Selections Matching...",
-        "category": "Selection"
+        "title": "%cmd.axiora.sel.keep.title%",
+        "category": "%cat.Selection%"
       },
       {
         "command": "axiora.sel.remove",
-        "title": "Remove Selections Matching...",
-        "category": "Selection"
+        "title": "%cmd.axiora.sel.remove.title%",
+        "category": "%cat.Selection%"
       },
       {
         "command": "axiora.sel.trim",
-        "title": "Trim Whitespace from Selections",
-        "category": "Selection"
+        "title": "%cmd.axiora.sel.trim.title%",
+        "category": "%cat.Selection%"
       },
       {
         "command": "axiora.sel.merge",
-        "title": "Merge Selections",
-        "category": "Selection"
+        "title": "%cmd.axiora.sel.merge.title%",
+        "category": "%cat.Selection%"
       },
       {
         "command": "axiora.profile.run",
-        "title": "Profile Current Script...",
-        "category": "Profiler",
+        "title": "%cmd.axiora.profile.run.title%",
+        "category": "%cat.Profiler%",
         "icon": "$(flame)"
       },
       {
         "command": "axiora.profile.open",
-        "title": "Open CPU Profile...",
-        "category": "Profiler"
+        "title": "%cmd.axiora.profile.open.title%",
+        "category": "%cat.Profiler%"
       },
       {
         "command": "axiora.kdoc.runAll",
-        "title": "Run All Code Blocks",
-        "category": "Markdown"
+        "title": "%cmd.axiora.kdoc.runAll.title%",
+        "category": "%cat.Markdown%"
       },
       {
         "command": "axiora.kdoc.restart",
-        "title": "Restart Document Kernel",
-        "category": "Markdown"
+        "title": "%cmd.axiora.kdoc.restart.title%",
+        "category": "%cat.Markdown%"
       },
       {
         "command": "axiora.kdoc.clear",
-        "title": "Clear Code Block Outputs",
-        "category": "Markdown"
+        "title": "%cmd.axiora.kdoc.clear.title%",
+        "category": "%cat.Markdown%"
       },
       {
         "command": "axiora.project.open",
-        "title": "Open Project...",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.project.open.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.build.analyze",
-        "title": "Analyze Build...",
-        "category": "Build",
+        "title": "%cmd.axiora.build.analyze.title%",
+        "category": "%cat.Build%",
         "icon": "$(dashboard)"
       },
       {
         "command": "axiora.ui.fromImage",
-        "title": "Generate UI from Screenshot...",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.ui.fromImage.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.ui.designer",
-        "title": "Open in Visual Designer",
-        "category": "Design",
+        "title": "%cmd.axiora.ui.designer.title%",
+        "category": "%cat.Design%",
         "icon": "$(layout)"
       },
       {
         "command": "axiora.md.visual",
-        "title": "Open Visual Editor",
-        "category": "Markdown",
+        "title": "%cmd.axiora.md.visual.title%",
+        "category": "%cat.Markdown%",
         "icon": "$(eye)"
       },
       {
         "command": "axiora.hot.run",
-        "title": "Run with Hot Reload",
-        "category": "Run",
+        "title": "%cmd.axiora.hot.run.title%",
+        "category": "%cat.Run%",
         "icon": "$(flame)"
       },
       {
         "command": "axiora.struct.function",
-        "title": "Select Enclosing Function",
-        "category": "Selection"
+        "title": "%cmd.axiora.struct.function.title%",
+        "category": "%cat.Selection%"
       },
       {
         "command": "axiora.struct.class",
-        "title": "Select Enclosing Class",
-        "category": "Selection"
+        "title": "%cmd.axiora.struct.class.title%",
+        "category": "%cat.Selection%"
       },
       {
         "command": "axiora.struct.symbol",
-        "title": "Select Enclosing Symbol",
-        "category": "Selection"
+        "title": "%cmd.axiora.struct.symbol.title%",
+        "category": "%cat.Selection%"
       },
       {
         "command": "axiora.struct.next",
-        "title": "Select Next Symbol",
-        "category": "Selection"
+        "title": "%cmd.axiora.struct.next.title%",
+        "category": "%cat.Selection%"
       },
       {
         "command": "axiora.struct.prev",
-        "title": "Select Previous Symbol",
-        "category": "Selection"
+        "title": "%cmd.axiora.struct.prev.title%",
+        "category": "%cat.Selection%"
       },
       {
         "command": "axiora.sketch.open",
-        "title": "Open Tool Sketchpad",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.sketch.open.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.sketch.run",
-        "title": "Run in Tool Sketchpad",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.sketch.run.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.policy.show",
-        "title": "Context Policy...",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.policy.show.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.caps.toggle",
-        "title": "Toggle Agent Capabilities...",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.caps.toggle.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.workflow.record",
-        "title": "Record Workflow (start/stop)",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.workflow.record.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.workflow.run",
-        "title": "Run Workflow...",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.workflow.run.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.board.open",
-        "title": "Open Agent Board (Kanban)",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.board.open.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.runner.add",
-        "title": "Add Runner Machine...",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.runner.add.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.runner.machines",
-        "title": "Runner Machines...",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.runner.machines.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.runner.send",
-        "title": "Send Task to Runner...",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.runner.send.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.runner.tasks",
-        "title": "Runner Tasks...",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.runner.tasks.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.runner.prebuild",
-        "title": "Prebuild Branch on Runner",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.runner.prebuild.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.env.apply",
-        "title": "Apply Environment Template",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.env.apply.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.rum.snippet",
-        "title": "Insert Real-User Metrics Snippet",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.rum.snippet.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.rum.show",
-        "title": "Show Real-User Metrics",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.rum.show.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.deploy.oneClick",
-        "title": "Deploy (One Click)",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.deploy.oneClick.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.deploy.watch",
-        "title": "Watch Rollout Health",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.deploy.watch.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.app.addBackend",
-        "title": "Add Backend (SQLite + Auth)...",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.app.addBackend.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.app.publishGit",
-        "title": "Publish Folder to Git Remote...",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.app.publishGit.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.app.embed",
-        "title": "Export Code Embed",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.app.embed.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.app.dataApp",
-        "title": "Publish Data App from CSV...",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.app.dataApp.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.inspect.workspace",
-        "title": "Inspect Workspace",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.inspect.workspace.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.sca.scan",
-        "title": "Scan Dependencies for Vulnerabilities (OSV)",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.sca.scan.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.refactor.safe",
-        "title": "Safe Refactor (AI, test-verified)...",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.refactor.safe.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.propertyTests.run",
-        "title": "Run Property Tests",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.propertyTests.run.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.timeTravel.record",
-        "title": "Time-Travel: Record Python Script",
-        "category": "Axiora AI",
+        "title": "%cmd.axiora.timeTravel.record.title%",
+        "category": "%cat.Axiora_AI%",
         "icon": "$(history)"
       },
       {
         "command": "axiora.instruments.open",
-        "title": "Open Instruments",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.instruments.open.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.apk.analyze",
-        "title": "Analyze APK / AAB...",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.apk.analyze.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.semantic.build",
-        "title": "Build Semantic Index",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.semantic.build.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.repl.open",
-        "title": "Open Extension REPL",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.repl.open.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.wasi.run",
-        "title": "Run WASI Plugin...",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.wasi.run.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.agents.externalCli",
-        "title": "Run External Agent CLI...",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.agents.externalCli.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.canvas.open",
-        "title": "Open Design Canvas...",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.canvas.open.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.lsp.manage",
-        "title": "Manage...",
-        "category": "Language Servers"
+        "title": "%cmd.axiora.lsp.manage.title%",
+        "category": "%cat.Language_Servers%"
       },
       {
         "command": "axiora.dotfiles.unlink",
-        "title": "Remove Links",
-        "category": "Dotfiles"
+        "title": "%cmd.axiora.dotfiles.unlink.title%",
+        "category": "%cat.Dotfiles%"
       },
       {
         "command": "axiora.dotfiles.open",
-        "title": "Open Dotfiles Folder",
-        "category": "Dotfiles"
+        "title": "%cmd.axiora.dotfiles.open.title%",
+        "category": "%cat.Dotfiles%"
       },
       {
         "command": "axiora.voice.dictate",
-        "title": "Dictate (Local Whisper)",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.voice.dictate.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.os.runScript",
-        "title": "Run Selection as OS Script...",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.os.runScript.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.nix.shell",
-        "title": "Open Nix Dev Shell",
-        "category": "Nix"
+        "title": "%cmd.axiora.nix.shell.title%",
+        "category": "%cat.Nix%"
       },
       {
         "command": "axiora.nix.loadEnv",
-        "title": "Load Nix Environment into Terminals",
-        "category": "Nix"
+        "title": "%cmd.axiora.nix.loadEnv.title%",
+        "category": "%cat.Nix%"
       },
       {
         "command": "axiora.device.emulator",
-        "title": "Start Emulator / Simulator...",
-        "category": "Devices"
+        "title": "%cmd.axiora.device.emulator.title%",
+        "category": "%cat.Devices%"
       },
       {
         "command": "axiora.device.adb",
-        "title": "Android Device...",
-        "category": "Devices"
+        "title": "%cmd.axiora.device.adb.title%",
+        "category": "%cat.Devices%"
       },
       {
         "command": "axiora.android.gradle",
-        "title": "Run Gradle Task...",
-        "category": "Android"
+        "title": "%cmd.axiora.android.gradle.title%",
+        "category": "%cat.Android%"
       },
       {
         "command": "axiora.container.debug",
-        "title": "Debug Current File in Container",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.container.debug.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.java.springDebug",
-        "title": "Run Spring Boot with Debugger",
-        "category": "Java"
+        "title": "%cmd.axiora.java.springDebug.title%",
+        "category": "%cat.Java%"
       },
       {
         "command": "axiora.r.runSelection",
-        "title": "Run Selection in R",
-        "category": "R"
+        "title": "%cmd.axiora.r.runSelection.title%",
+        "category": "%cat.R%"
       },
       {
         "command": "axiora.terraform.run",
-        "title": "Terraform...",
-        "category": "Terraform"
+        "title": "%cmd.axiora.terraform.run.title%",
+        "category": "%cat.Terraform%"
       },
       {
         "command": "axiora.cmake.build",
-        "title": "CMake...",
-        "category": "C/C++"
+        "title": "%cmd.axiora.cmake.build.title%",
+        "category": "%cat.C_C_%"
       },
       {
         "command": "axiora.qml.preview",
-        "title": "Preview QML",
-        "category": "Qt"
+        "title": "%cmd.axiora.qml.preview.title%",
+        "category": "%cat.Qt%"
       },
       {
         "command": "axiora.tex.syncView",
-        "title": "SyncTeX: Show in PDF (forward search)",
-        "category": "LaTeX",
+        "title": "%cmd.axiora.tex.syncView.title%",
+        "category": "%cat.LaTeX%",
         "icon": "$(open-preview)"
       },
       {
         "command": "axiora.connectors.manage",
-        "title": "Connectors: Manage (Figma, Jira, Linear, Stripe)...",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.connectors.manage.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.collab.start",
-        "title": "Start Session (copy invite link)",
-        "category": "Collaboration"
+        "title": "%cmd.axiora.collab.start.title%",
+        "category": "%cat.Collaboration%"
       },
       {
         "command": "axiora.collab.join",
-        "title": "Join Session...",
-        "category": "Collaboration"
+        "title": "%cmd.axiora.collab.join.title%",
+        "category": "%cat.Collaboration%"
       },
       {
         "command": "axiora.collab.leave",
-        "title": "Leave Session",
-        "category": "Collaboration"
+        "title": "%cmd.axiora.collab.leave.title%",
+        "category": "%cat.Collaboration%"
       },
       {
         "command": "axiora.collab.menu",
-        "title": "Session Options",
-        "category": "Collaboration"
+        "title": "%cmd.axiora.collab.menu.title%",
+        "category": "%cat.Collaboration%"
       },
       {
         "command": "axiora.render.gpu",
-        "title": "Rendering: GPU Acceleration...",
-        "category": "Axiora"
+        "title": "%cmd.axiora.render.gpu.title%",
+        "category": "%cat.Axiora%"
       },
       {
         "command": "axiora.window.macNative",
-        "title": "Window: macOS Native Look...",
-        "category": "Axiora"
+        "title": "%cmd.axiora.window.macNative.title%",
+        "category": "%cat.Axiora%"
       },
       {
         "command": "axiora.sandbox.run",
-        "title": "Run Current File in Sandbox",
-        "category": "Axiora",
+        "title": "%cmd.axiora.sandbox.run.title%",
+        "category": "%cat.Axiora%",
         "icon": "$(shield)"
       },
       {
         "command": "axiora.finetune.export",
-        "title": "Fine-tune: Export Training Data",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.finetune.export.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.finetune.launch",
-        "title": "Fine-tune: Launch LoRA Job...",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.finetune.launch.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.finetune.ollama",
-        "title": "Fine-tune: Import into Ollama...",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.finetune.ollama.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.computerUse.run",
-        "title": "Computer Use: Run Task...",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.computerUse.run.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.device.remote",
-        "title": "Remote / Wi-Fi Device...",
-        "category": "Devices"
+        "title": "%cmd.axiora.device.remote.title%",
+        "category": "%cat.Devices%"
       },
       {
         "command": "axiora.apk.manifest",
-        "title": "Show APK Manifest (aapt2)",
-        "category": "Android"
+        "title": "%cmd.axiora.apk.manifest.title%",
+        "category": "%cat.Android%"
       },
       {
         "command": "axiora.browser.runTask",
-        "title": "Run Task...",
-        "category": "Browser"
+        "title": "%cmd.axiora.browser.runTask.title%",
+        "category": "%cat.Browser%"
       },
       {
         "command": "axiora.browser.open",
-        "title": "Open URL in Agent Browser...",
-        "category": "Browser"
+        "title": "%cmd.axiora.browser.open.title%",
+        "category": "%cat.Browser%"
       },
       {
         "command": "axiora.browser.close",
-        "title": "Close Agent Browser",
-        "category": "Browser"
+        "title": "%cmd.axiora.browser.close.title%",
+        "category": "%cat.Browser%"
       },
       {
         "command": "axiora.google.signIn",
-        "title": "Sign In (Gmail, Drive, Calendar)...",
-        "category": "Google"
+        "title": "%cmd.axiora.google.signIn.title%",
+        "category": "%cat.Google%"
       },
       {
         "command": "axiora.google.signOut",
-        "title": "Sign Out",
-        "category": "Google"
+        "title": "%cmd.axiora.google.signOut.title%",
+        "category": "%cat.Google%"
       },
       {
         "command": "axiora.slack.setToken",
-        "title": "Set Bot Token...",
-        "category": "Slack"
+        "title": "%cmd.axiora.slack.setToken.title%",
+        "category": "%cat.Slack%"
       },
       {
         "command": "axiora.office.generate",
-        "title": "Generate Document (xlsx/docx/pptx/pdf)...",
-        "category": "Office"
+        "title": "%cmd.axiora.office.generate.title%",
+        "category": "%cat.Office%"
       },
       {
         "command": "axiora.office.fromJson",
-        "title": "Build Document from JSON Spec...",
-        "category": "Office"
+        "title": "%cmd.axiora.office.fromJson.title%",
+        "category": "%cat.Office%"
       },
       {
         "command": "axiora.chart.export",
-        "title": "Export Chart Image from JSON...",
-        "category": "Office"
+        "title": "%cmd.axiora.chart.export.title%",
+        "category": "%cat.Office%"
       },
       {
         "command": "axiora.voice.setApiKey",
-        "title": "Set Speech-to-Text API Key...",
-        "category": "Voice"
+        "title": "%cmd.axiora.voice.setApiKey.title%",
+        "category": "%cat.Voice%"
       },
       {
         "command": "axiora.voice.readAloud",
-        "title": "Read Last Reply Aloud",
-        "category": "Voice"
+        "title": "%cmd.axiora.voice.readAloud.title%",
+        "category": "%cat.Voice%"
       },
       {
         "command": "axiora.voice.stop",
-        "title": "Stop Speaking",
-        "category": "Voice"
+        "title": "%cmd.axiora.voice.stop.title%",
+        "category": "%cat.Voice%"
       },
       {
         "command": "axiora.voice.setTtsApiKey",
-        "title": "Set Text-to-Speech API Key...",
-        "category": "Voice"
+        "title": "%cmd.axiora.voice.setTtsApiKey.title%",
+        "category": "%cat.Voice%"
       },
       {
         "command": "axiora.image.generate",
-        "title": "Generate Image...",
-        "category": "Image"
+        "title": "%cmd.axiora.image.generate.title%",
+        "category": "%cat.Image%"
       },
       {
         "command": "axiora.image.setApiKey",
-        "title": "Set Image API Key...",
-        "category": "Image"
+        "title": "%cmd.axiora.image.setApiKey.title%",
+        "category": "%cat.Image%"
       },
       {
         "command": "axiora.drafts.list",
-        "title": "Show Drafts",
-        "category": "Drafts"
+        "title": "%cmd.axiora.drafts.list.title%",
+        "category": "%cat.Drafts%"
       },
       {
         "command": "axiora.drafts.new",
-        "title": "New Draft...",
-        "category": "Drafts"
+        "title": "%cmd.axiora.drafts.new.title%",
+        "category": "%cat.Drafts%"
       },
       {
         "command": "axiora.approval.setMode",
-        "title": "Set Approval Mode...",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.approval.setMode.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.screenshot.toChat",
-        "title": "Capture Screenshot to Chat...",
-        "category": "Axiora AI"
+        "title": "%cmd.axiora.screenshot.toChat.title%",
+        "category": "%cat.Axiora_AI%"
       },
       {
         "command": "axiora.ai.setup",
-        "title": "Set Up AI...",
-        "category": "Axiora"
+        "title": "%cmd.axiora.ai.setup.title%",
+        "category": "%cat.Axiora%"
       },
       {
         "command": "axiora.ai.getFreeKey",
-        "title": "Get a Free AI Key",
-        "category": "Axiora"
+        "title": "%cmd.axiora.ai.getFreeKey.title%",
+        "category": "%cat.Axiora%"
       },
       {
         "command": "axiora.ai.useOllama",
-        "title": "Use Ollama on My Computer",
-        "category": "Axiora"
+        "title": "%cmd.axiora.ai.useOllama.title%",
+        "category": "%cat.Axiora%"
       },
       {
         "command": "axiora.services.open",
-        "title": "Connected Services",
-        "category": "Axiora"
+        "title": "%cmd.axiora.services.open.title%",
+        "category": "%cat.Axiora%"
       },
       {
         "command": "axiora.team.apply",
-        "title": "Apply Team Settings (.axiora/team.json)",
-        "category": "Axiora"
+        "title": "%cmd.axiora.team.apply.title%",
+        "category": "%cat.Axiora%"
       },
       {
         "command": "axiora.team.create",
-        "title": "Create Team File (.axiora/team.json)",
-        "category": "Axiora"
+        "title": "%cmd.axiora.team.create.title%",
+        "category": "%cat.Axiora%"
       },
       {
         "command": "axiora.chats.renameCurrent",
-        "title": "Rename Current Conversation...",
-        "category": "Axiora"
+        "title": "%cmd.axiora.chats.renameCurrent.title%",
+        "category": "%cat.Axiora%"
       }
     ],
     "menus": {
@@ -1991,24 +1991,24 @@
     "configuration": [
       {
         "id": "axiora.editor.axioraCompletion",
-        "title": "Axiora: AI Completion",
+        "title": "%cfgsec.axiora.editor.axioraCompletion.title%",
         "properties": {
           "axiora.inlineCompletion.enabled": {
             "type": "boolean",
             "default": true,
-            "markdownDescription": "Show AI ghost-text suggestions while you type. Press `Tab` to accept, `Esc` to dismiss. Uses the model in `#axiora.inlineCompletion.model#` — no Copilot account needed.",
+            "markdownDescription": "%cfg.axiora.inlineCompletion.enabled.markdownDescription%",
             "order": 1
           },
           "axiora.inlineCompletion.model": {
             "type": "string",
             "default": "qwen2.5-coder:0.5b",
-            "markdownDescription": "Fill-in-the-middle model for inline suggestions, served by `#axiora.ai.provider#`.\n\nExamples: `qwen2.5-coder:1.5b` (Ollama), `codestral-latest`, `cohere/north-mini-code:free` (OpenRouter).",
+            "markdownDescription": "%cfg.axiora.inlineCompletion.model.markdownDescription%",
             "order": 2
           },
           "axiora.inlineCompletion.maxTokens": {
             "type": "number",
             "default": 64,
-            "markdownDescription": "Longest suggestion, in tokens. `32`–`64` keeps suggestions to a line or two; `256` allows whole blocks.",
+            "markdownDescription": "%cfg.axiora.inlineCompletion.maxTokens.markdownDescription%",
             "order": 3,
             "minimum": 8,
             "maximum": 2048
@@ -2016,7 +2016,7 @@
           "axiora.inlineCompletion.debounceMs": {
             "type": "number",
             "default": 300,
-            "markdownDescription": "Milliseconds to wait after the last keystroke before asking the model. Lower feels snappier; higher saves requests on paid providers.",
+            "markdownDescription": "%cfg.axiora.inlineCompletion.debounceMs.markdownDescription%",
             "order": 4,
             "minimum": 0,
             "maximum": 5000
@@ -2024,14 +2024,14 @@
           "axiora.nextEdit.enabled": {
             "type": "boolean",
             "default": true,
-            "markdownDescription": "After you rename a word, suggest the same change at its next occurrence. Press `Tab` to jump and apply.",
+            "markdownDescription": "%cfg.axiora.nextEdit.enabled.markdownDescription%",
             "order": 5
           }
         }
       },
       {
         "id": "axiora.editor.axioraKeymap",
-        "title": "Axiora: Keymap",
+        "title": "%cfgsec.axiora.editor.axioraKeymap.title%",
         "properties": {
           "axiora.keymap": {
             "type": "string",
@@ -2041,48 +2041,48 @@
               "emacs"
             ],
             "default": "default",
-            "markdownDescription": "Built-in key bindings — no extension needed. Switch any time from the Command Palette with **Axiora: Choose Keymap...**.",
+            "markdownDescription": "%cfg.axiora.keymap.markdownDescription%",
             "order": 1,
             "enumItemLabels": [
-              "Default",
-              "Vim",
-              "Emacs"
+              "%cfg.axiora.keymap.enumItemLabels.0%",
+              "%cfg.axiora.keymap.enumItemLabels.1%",
+              "%cfg.axiora.keymap.enumItemLabels.2%"
             ],
             "enumDescriptions": [
-              "Standard Axiora Code shortcuts.",
-              "Modal editing: Normal, Insert and Visual modes with motions, operators and text objects.",
-              "Emacs bindings: `Ctrl+A`/`Ctrl+E`, kill ring, mark, `Ctrl+X` prefixes."
+              "%cfg.axiora.keymap.enumDescriptions.0%",
+              "%cfg.axiora.keymap.enumDescriptions.1%",
+              "%cfg.axiora.keymap.enumDescriptions.2%"
             ]
           }
         }
       },
       {
         "id": "axiora.editor.format",
-        "title": "Axiora: EditorConfig",
+        "title": "%cfgsec.axiora.editor.format.title%",
         "properties": {
           "axiora.editorconfig.enabled": {
             "type": "boolean",
             "default": true,
-            "markdownDescription": "Apply [`.editorconfig`](https://editorconfig.org) rules — indentation, line endings, trailing whitespace and final newline — without installing an extension.",
+            "markdownDescription": "%cfg.axiora.editorconfig.enabled.markdownDescription%",
             "order": 100
           }
         }
       },
       {
         "id": "axiora.editor.axioraTypewriter",
-        "title": "Axiora: Typewriter",
+        "title": "%cfgsec.axiora.editor.axioraTypewriter.title%",
         "properties": {
           "axiora.editor.typewriterMode": {
             "type": "boolean",
             "default": false,
-            "markdownDescription": "Keep the line you are typing vertically centered, like a typewriter. Toggle with **View: Toggle Typewriter Mode**.",
+            "markdownDescription": "%cfg.axiora.editor.typewriterMode.markdownDescription%",
             "order": 1
           }
         }
       },
       {
         "id": "axiora.editor.axioraLsp",
-        "title": "Axiora: Language Servers",
+        "title": "%cfgsec.axiora.editor.axioraLsp.title%",
         "properties": {
           "axiora.lsp.autoInstall": {
             "type": "string",
@@ -2092,17 +2092,17 @@
               "never"
             ],
             "default": "ask",
-            "markdownDescription": "What to do when you open a file whose language server Axiora can manage (Python, Bash, YAML, Dockerfile, Go, Rust, C/C++, Lua, Java, Kotlin, Terraform, R…). Manage servers with **Language Servers: Manage...**.",
+            "markdownDescription": "%cfg.axiora.lsp.autoInstall.markdownDescription%",
             "order": 1,
             "enumItemLabels": [
-              "Ask",
-              "Always",
-              "Never"
+              "%cfg.axiora.lsp.autoInstall.enumItemLabels.0%",
+              "%cfg.axiora.lsp.autoInstall.enumItemLabels.1%",
+              "%cfg.axiora.lsp.autoInstall.enumItemLabels.2%"
             ],
             "enumDescriptions": [
-              "Offer to download and start the server the first time it is needed.",
-              "Download and start servers silently.",
-              "Never download servers; only use ones already on your PATH."
+              "%cfg.axiora.lsp.autoInstall.enumDescriptions.0%",
+              "%cfg.axiora.lsp.autoInstall.enumDescriptions.1%",
+              "%cfg.axiora.lsp.autoInstall.enumDescriptions.2%"
             ]
           },
           "axiora.lsp.disabled": {
@@ -2111,43 +2111,43 @@
               "type": "string"
             },
             "default": [],
-            "markdownDescription": "Server ids that are never started automatically, e.g. `[\"pyright\", \"clangd\"]`.",
+            "markdownDescription": "%cfg.axiora.lsp.disabled.markdownDescription%",
             "order": 2
           },
           "axiora.lsp.initializationOptions": {
             "type": "object",
             "default": {},
-            "markdownDescription": "Per-server `initializationOptions`, keyed by server id.\n\nExample: `{ \"gopls\": { \"staticcheck\": true } }`",
+            "markdownDescription": "%cfg.axiora.lsp.initializationOptions.markdownDescription%",
             "order": 3
           },
           "axiora.inspections.enabled": {
             "type": "boolean",
             "default": true,
-            "markdownDescription": "Built-in Axiora inspections with quick fixes for JavaScript, TypeScript and Python (unused code, risky patterns, simple bugs).",
+            "markdownDescription": "%cfg.axiora.inspections.enabled.markdownDescription%",
             "order": 4
           }
         }
       },
       {
         "id": "axiora.chat.axioraAssistant",
-        "title": "Axiora: Axiora Assistant",
+        "title": "%cfgsec.axiora.chat.axioraAssistant.title%",
         "properties": {
           "axiora.chat.defaultParticipant": {
             "type": "boolean",
             "default": true,
             "order": 0,
-            "markdownDescription": "Answer plain chat messages with Axiora — no need to type `@axiora`. Turn off to send plain messages to another installed assistant instead. Past chats: **Axiora: Past Conversations**."
+            "markdownDescription": "%cfg.axiora.chat.defaultParticipant.markdownDescription%"
           },
           "axiora.agent.tools": {
             "type": "boolean",
             "default": true,
-            "markdownDescription": "Let `@axiora` call tools on its own: web search and page reading, a real browser, office files and charts, images, screenshots and message drafts. Destructive tools always follow `#axiora.approval.mode#`.",
+            "markdownDescription": "%cfg.axiora.agent.tools.markdownDescription%",
             "order": 1
           },
           "axiora.web.readPages": {
             "type": "number",
             "default": 3,
-            "markdownDescription": "How many of the top results `/web` opens and reads in full before answering. `0` uses snippets only.",
+            "markdownDescription": "%cfg.axiora.web.readPages.markdownDescription%",
             "order": 2,
             "minimum": 0,
             "maximum": 10
@@ -2155,33 +2155,54 @@
           "axiora.agents.concurrency": {
             "type": "number",
             "default": 3,
-            "markdownDescription": "How many subagents `/parallel` runs at the same time. Raise it for fast local models; lower it for rate-limited providers.",
+            "markdownDescription": "%cfg.axiora.agents.concurrency.markdownDescription%",
             "order": 3,
             "minimum": 1,
             "maximum": 16
+          },
+          "axiora.chat.responseLanguage": {
+            "type": "string",
+            "enum": [
+              "auto",
+              "ar",
+              "en"
+            ],
+            "default": "auto",
+            "enumDescriptions": [
+              "%cfg.axiora.chat.responseLanguage.enumDescriptions.0%",
+              "%cfg.axiora.chat.responseLanguage.enumDescriptions.1%",
+              "%cfg.axiora.chat.responseLanguage.enumDescriptions.2%"
+            ],
+            "enumItemLabels": [
+              "%cfg.axiora.chat.responseLanguage.enumItemLabels.0%",
+              "العربية",
+              "English"
+            ],
+            "markdownDescription": "%cfg.axiora.chat.responseLanguage.markdownDescription%",
+            "order": 2
           }
         }
       },
       {
         "id": "axiora.chat.context",
-        "title": "Axiora: Axiora Context",
+        "title": "%cfgsec.axiora.chat.context.title%",
         "properties": {
           "axiora.context.repoMap": {
             "type": "boolean",
             "default": true,
-            "markdownDescription": "Include a compact map of the repository (files and top-level symbols) in `@axiora` prompts. Files matching `.axioraignore` are skipped.",
+            "markdownDescription": "%cfg.axiora.context.repoMap.markdownDescription%",
             "order": 1
           },
           "axiora.context.fastContext": {
             "type": "boolean",
             "default": true,
-            "markdownDescription": "Find the code most relevant to each prompt by keyword search and add it to the context.",
+            "markdownDescription": "%cfg.axiora.context.fastContext.markdownDescription%",
             "order": 2
           },
           "axiora.context.liveActions": {
             "type": "boolean",
             "default": true,
-            "markdownDescription": "Include what you are doing right now — active file, recent edits, terminal commands and errors — so answers match your current task.",
+            "markdownDescription": "%cfg.axiora.context.liveActions.markdownDescription%",
             "order": 3
           },
           "axiora.context.extraRepos": {
@@ -2190,13 +2211,13 @@
               "type": "string"
             },
             "default": [],
-            "markdownDescription": "Other repository folders whose file lists are included, e.g. `[\"~/code/shared-lib\"]`.",
+            "markdownDescription": "%cfg.axiora.context.extraRepos.markdownDescription%",
             "order": 4
           },
           "axiora.docs.maxPages": {
             "type": "number",
             "default": 40,
-            "markdownDescription": "Maximum pages crawled for each documentation source added with **Docs: Add Documentation...**.",
+            "markdownDescription": "%cfg.axiora.docs.maxPages.markdownDescription%",
             "order": 5,
             "minimum": 1,
             "maximum": 500
@@ -2205,18 +2226,18 @@
       },
       {
         "id": "axiora.chat.axioraMemory",
-        "title": "Axiora: Memory",
+        "title": "%cfgsec.axiora.chat.axioraMemory.title%",
         "properties": {
           "axiora.memory.enabled": {
             "type": "boolean",
             "default": true,
-            "markdownDescription": "Include `.axiora/memory.md` in every `@axiora` prompt. Add notes with `/remember` or **Axiora AI: Add to Memory...**.",
+            "markdownDescription": "%cfg.axiora.memory.enabled.markdownDescription%",
             "order": 1
           },
           "axiora.chat.maxContextTokens": {
             "type": "number",
             "default": 6000,
-            "markdownDescription": "When a conversation grows past this many (estimated) tokens, older turns are summarized automatically so the chat keeps going.",
+            "markdownDescription": "%cfg.axiora.chat.maxContextTokens.markdownDescription%",
             "order": 2,
             "minimum": 1000,
             "maximum": 200000
@@ -2227,36 +2248,36 @@
             "minimum": 0,
             "maximum": 1000,
             "order": 10,
-            "markdownDescription": "Messages per conversation part (yours and Axiora's together). When a part fills up, Axiora quietly continues in the next part — e.g. **Project 1 → Project 2** — carrying a summary forward so nothing is lost. Browse all parts with **Axiora: Past Conversations**. `0` turns this off."
+            "markdownDescription": "%cfg.axiora.chat.seriesLimit.markdownDescription%"
           }
         }
       },
       {
         "id": "axiora.features.axioraCheckpoints",
-        "title": "Axiora: Checkpoints",
+        "title": "%cfgsec.axiora.features.axioraCheckpoints.title%",
         "properties": {
           "axiora.checkpoints.autoOnSave": {
             "type": "boolean",
             "default": false,
-            "markdownDescription": "Create a checkpoint automatically when you save (at most every 5 minutes). Restore with **Axiora AI: Restore Checkpoint...**.",
+            "markdownDescription": "%cfg.axiora.checkpoints.autoOnSave.markdownDescription%",
             "order": 1
           }
         }
       },
       {
         "id": "axiora.features.axioraLintFix",
-        "title": "Axiora: AI Lint Fix",
+        "title": "%cfgsec.axiora.features.axioraLintFix.title%",
         "properties": {
           "axiora.lintFix.onSave": {
             "type": "boolean",
             "default": false,
-            "markdownDescription": "After saving, let the AI fix the errors left in the file, re-checking until it is clean or `#axiora.lintFix.maxIterations#` is reached.",
+            "markdownDescription": "%cfg.axiora.lintFix.onSave.markdownDescription%",
             "order": 1
           },
           "axiora.lintFix.maxIterations": {
             "type": "number",
             "default": 3,
-            "markdownDescription": "Fix-and-recheck passes before giving up.",
+            "markdownDescription": "%cfg.axiora.lintFix.maxIterations.markdownDescription%",
             "order": 2,
             "minimum": 1,
             "maximum": 20
@@ -2265,18 +2286,18 @@
       },
       {
         "id": "axiora.features.axioraSolo",
-        "title": "Axiora: Solo Agent",
+        "title": "%cfgsec.axiora.features.axioraSolo.title%",
         "properties": {
           "axiora.solo.testCommand": {
             "type": "string",
             "default": "",
-            "markdownDescription": "Command `/solo` runs to verify its work, e.g. `npm test`, `pytest -q` or `cargo test`. Empty uses `npm test` when `package.json` has a test script.",
+            "markdownDescription": "%cfg.axiora.solo.testCommand.markdownDescription%",
             "order": 1
           },
           "axiora.solo.maxIterations": {
             "type": "number",
             "default": 5,
-            "markdownDescription": "How many write-test-fix rounds `/solo` may run before stopping.",
+            "markdownDescription": "%cfg.axiora.solo.maxIterations.markdownDescription%",
             "order": 2,
             "minimum": 1,
             "maximum": 50
@@ -2285,7 +2306,7 @@
       },
       {
         "id": "axiora.features.axioraLatex",
-        "title": "Axiora: LaTeX",
+        "title": "%cfgsec.axiora.features.axioraLatex.title%",
         "properties": {
           "axiora.latex.engine": {
             "type": "string",
@@ -2297,33 +2318,33 @@
               "tectonic"
             ],
             "default": "latexmk",
-            "markdownDescription": "Tool used by **LaTeX: Build PDF**.",
+            "markdownDescription": "%cfg.axiora.latex.engine.markdownDescription%",
             "order": 1,
             "enumItemLabels": [
-              "latexmk",
-              "pdfLaTeX",
-              "XeLaTeX",
-              "LuaLaTeX",
-              "Tectonic"
+              "%cfg.axiora.latex.engine.enumItemLabels.0%",
+              "%cfg.axiora.latex.engine.enumItemLabels.1%",
+              "%cfg.axiora.latex.engine.enumItemLabels.2%",
+              "%cfg.axiora.latex.engine.enumItemLabels.3%",
+              "%cfg.axiora.latex.engine.enumItemLabels.4%"
             ],
             "enumDescriptions": [
-              "Runs the right passes automatically (recommended).",
-              "Classic pdfLaTeX, single pass.",
-              "Unicode and system fonts.",
-              "Unicode, system fonts and Lua scripting.",
-              "Self-contained engine that downloads packages on demand."
+              "%cfg.axiora.latex.engine.enumDescriptions.0%",
+              "%cfg.axiora.latex.engine.enumDescriptions.1%",
+              "%cfg.axiora.latex.engine.enumDescriptions.2%",
+              "%cfg.axiora.latex.engine.enumDescriptions.3%",
+              "%cfg.axiora.latex.engine.enumDescriptions.4%"
             ]
           },
           "axiora.latex.buildOnSave": {
             "type": "boolean",
             "default": true,
-            "markdownDescription": "Rebuild the PDF whenever you save while its preview is open.",
+            "markdownDescription": "%cfg.axiora.latex.buildOnSave.markdownDescription%",
             "order": 2
           },
           "axiora.latex.viewerDpi": {
             "type": "number",
             "default": 110,
-            "markdownDescription": "Render resolution (DPI) of the SyncTeX PDF preview. Higher is sharper but slower.",
+            "markdownDescription": "%cfg.axiora.latex.viewerDpi.markdownDescription%",
             "order": 3,
             "minimum": 50,
             "maximum": 300
@@ -2332,7 +2353,7 @@
       },
       {
         "id": "axiora.features.axioraContainers",
-        "title": "Axiora: Containers",
+        "title": "%cfgsec.axiora.features.axioraContainers.title%",
         "properties": {
           "axiora.container.engine": {
             "type": "string",
@@ -2341,28 +2362,28 @@
               "podman"
             ],
             "default": "docker",
-            "markdownDescription": "Container engine for container debugging and runner isolation.",
+            "markdownDescription": "%cfg.axiora.container.engine.markdownDescription%",
             "order": 1,
             "enumItemLabels": [
-              "Docker",
-              "Podman"
+              "%cfg.axiora.container.engine.enumItemLabels.0%",
+              "%cfg.axiora.container.engine.enumItemLabels.1%"
             ],
             "enumDescriptions": [
-              "Docker Engine or Docker Desktop.",
-              "Daemonless, rootless Podman."
+              "%cfg.axiora.container.engine.enumDescriptions.0%",
+              "%cfg.axiora.container.engine.enumDescriptions.1%"
             ]
           },
           "axiora.wasi.replace": {
             "type": "boolean",
             "default": true,
-            "markdownDescription": "When a WASI plugin runs on the document or selection, replace it with the output. Turn off to open the output in a new tab instead.",
+            "markdownDescription": "%cfg.axiora.wasi.replace.markdownDescription%",
             "order": 2
           }
         }
       },
       {
         "id": "axiora.security.axioraApproval",
-        "title": "Axiora: Agent Approval",
+        "title": "%cfgsec.axiora.security.axioraApproval.title%",
         "properties": {
           "axiora.approval.mode": {
             "type": "string",
@@ -2373,35 +2394,35 @@
             ],
             "default": "ask",
             "enumDescriptions": [
-              "Confirm deletes, pushes, destructive commands, deploys and sends (recommended).",
-              "Confirm every agent action, including file writes and safe commands.",
-              "Confirm only high-risk actions such as force-push, recursive delete, deploys and sends."
+              "%cfg.axiora.approval.mode.enumDescriptions.0%",
+              "%cfg.axiora.approval.mode.enumDescriptions.1%",
+              "%cfg.axiora.approval.mode.enumDescriptions.2%"
             ],
-            "markdownDescription": "When to ask before the agent does something destructive or visible to others — deleting files, `git push`, risky shell commands, deploys, and sending messages (sends always ask). Change quickly with **Axiora AI: Set Approval Mode...**.",
+            "markdownDescription": "%cfg.axiora.approval.mode.markdownDescription%",
             "order": 1,
             "enumItemLabels": [
-              "Ask for Risky Actions",
-              "Ask for Everything",
-              "Ask Only for High Risk"
+              "%cfg.axiora.approval.mode.enumItemLabels.0%",
+              "%cfg.axiora.approval.mode.enumItemLabels.1%",
+              "%cfg.axiora.approval.mode.enumItemLabels.2%"
             ]
           }
         }
       },
       {
         "id": "axiora.security.axioraSecrets",
-        "title": "Axiora: Secret Scanning",
+        "title": "%cfgsec.axiora.security.axioraSecrets.title%",
         "properties": {
           "axiora.security.scanOnSave": {
             "type": "boolean",
             "default": true,
-            "markdownDescription": "Scan files for leaked secrets and insecure code when you open or save them. Findings appear in the **Problems** panel.",
+            "markdownDescription": "%cfg.axiora.security.scanOnSave.markdownDescription%",
             "order": 1
           }
         }
       },
       {
         "id": "axiora.security.axioraSandbox",
-        "title": "Axiora: Sandbox",
+        "title": "%cfgsec.axiora.security.axioraSandbox.title%",
         "properties": {
           "axiora.sandbox.engine": {
             "type": "string",
@@ -2411,77 +2432,77 @@
               "podman"
             ],
             "default": "node-permission",
-            "markdownDescription": "Isolation used by **Run Current File in Sandbox**.",
+            "markdownDescription": "%cfg.axiora.sandbox.engine.markdownDescription%",
             "order": 1,
             "enumItemLabels": [
-              "Node Permission Model",
-              "Docker",
-              "Podman"
+              "%cfg.axiora.sandbox.engine.enumItemLabels.0%",
+              "%cfg.axiora.sandbox.engine.enumItemLabels.1%",
+              "%cfg.axiora.sandbox.engine.enumItemLabels.2%"
             ],
             "enumDescriptions": [
-              "JavaScript only: no child processes or workers, file reads limited to the workspace, writes to `.axiora/sandbox-out`.",
-              "Any language in a container with no network and a read-only workspace.",
-              "Same as Docker, using Podman."
+              "%cfg.axiora.sandbox.engine.enumDescriptions.0%",
+              "%cfg.axiora.sandbox.engine.enumDescriptions.1%",
+              "%cfg.axiora.sandbox.engine.enumDescriptions.2%"
             ]
           }
         }
       },
       {
         "id": "axiora.security.axioraPolicy",
-        "title": "Axiora: Policy",
+        "title": "%cfgsec.axiora.security.axioraPolicy.title%",
         "properties": {
           "axiora.policy.url": {
             "type": "string",
             "default": "",
-            "markdownDescription": "Optional JSON policy (`{\"exclude\": [...], \"redact\": [...]}`) served from your own server. Merged with `.axiora/policy.json` to keep files and secrets out of AI requests.",
+            "markdownDescription": "%cfg.axiora.policy.url.markdownDescription%",
             "order": 1
           }
         }
       },
       {
         "id": "axiora.application.settingsSync",
-        "title": "Axiora: Axiora Sync",
+        "title": "%cfgsec.axiora.application.settingsSync.title%",
         "properties": {
           "axiora.sync.endpoint": {
             "type": "string",
             "default": "",
-            "markdownDescription": "Your own settings-sync server, e.g. `https://sync.example.com/api/sync`. Leave empty to turn sync off. Set the token with **Axiora Sync: Set Token...**.",
+            "markdownDescription": "%cfg.axiora.sync.endpoint.markdownDescription%",
             "order": 1
           },
           "axiora.sync.auto": {
             "type": "boolean",
             "default": false,
-            "markdownDescription": "Upload automatically whenever `settings.json` or `keybindings.json` changes.",
+            "markdownDescription": "%cfg.axiora.sync.auto.markdownDescription%",
             "order": 2
           }
         }
       },
       {
         "id": "axiora.application.axioraDotfiles",
-        "title": "Axiora: Dotfiles",
+        "title": "%cfgsec.axiora.application.axioraDotfiles.title%",
         "properties": {
           "axiora.dotfiles.repository": {
             "type": "string",
             "default": "",
-            "markdownDescription": "Your dotfiles: a Git URL, `owner/repo` on GitHub, or a local folder.",
+            "markdownDescription": "%cfg.axiora.dotfiles.repository.markdownDescription%",
             "order": 1
           },
           "axiora.dotfiles.targetPath": {
             "type": "string",
             "default": "~/dotfiles",
-            "markdownDescription": "Folder the repository is cloned into.",
+            "markdownDescription": "%cfg.axiora.dotfiles.targetPath.markdownDescription%",
             "order": 2
           },
           "axiora.dotfiles.installCommand": {
             "type": "string",
             "default": "",
-            "markdownDescription": "Command run after cloning. Empty runs `install.sh`, `bootstrap.sh` or `setup.sh` (`install.ps1` on Windows), otherwise links the dotfiles into your home folder.",
+            "markdownDescription": "%cfg.axiora.dotfiles.installCommand.markdownDescription%",
             "order": 3
           },
           "axiora.dotfiles.installOnStartup": {
             "type": "boolean",
             "default": false,
-            "markdownDescription": "Pull and apply your dotfiles every time the editor starts.",
+            "markdownDescription": "%cfg.axiora.dotfiles.installOnStartup.markdownDescription%",
             "order": 4
           },
           "axiora.dotfiles.ignore": {
@@ -2490,38 +2511,38 @@
               "type": "string"
             },
             "default": [],
-            "markdownDescription": "Files that are never linked into your home folder, e.g. `[\".gitconfig\"]`.",
+            "markdownDescription": "%cfg.axiora.dotfiles.ignore.markdownDescription%",
             "order": 5
           }
         }
       },
       {
         "id": "axiora.application.axioraPower",
-        "title": "Axiora: Power",
+        "title": "%cfgsec.axiora.application.axioraPower.title%",
         "properties": {
           "axiora.agent.keepAwake": {
             "type": "boolean",
             "default": true,
-            "markdownDescription": "Prevent the computer from sleeping while `@axiora`, `/solo` or background tasks are running.",
+            "markdownDescription": "%cfg.axiora.agent.keepAwake.markdownDescription%",
             "order": 1
           }
         }
       },
       {
         "id": "axiora.aiModels.key",
-        "title": "Axiora: AI Key",
+        "title": "%cfgsec.axiora.aiModels.key.title%",
         "properties": {
           "axiora.ai.apiKey": {
             "type": "string",
             "default": "",
             "order": 0,
-            "markdownDescription": "**One key is all you need.** Paste a key and Axiora detects the provider, picks a good model for chat and inline suggestions, and tests it.\n\n`sk-or-…` OpenRouter · `gsk_…` Groq · `AIza…` Gemini · `sk-ant-…` Anthropic · `sk-…` OpenAI\n\nThe key is kept in the OS keychain — never in `settings.json`. Image, voice and speech use this key unless you set their own. Also in **Axiora: Set Up AI** and [Connected Services](command:axiora.services.open)."
+            "markdownDescription": "%cfg.axiora.ai.apiKey.markdownDescription%"
           }
         }
       },
       {
         "id": "axiora.aiModels.provider",
-        "title": "Axiora: Provider",
+        "title": "%cfgsec.axiora.aiModels.provider.title%",
         "properties": {
           "axiora.ai.provider": {
             "type": "string",
@@ -2530,57 +2551,57 @@
               "openai"
             ],
             "default": "ollama",
-            "markdownDescription": "Where models run. Set the API key with **Axiora AI: Set API Key...** (stored in the OS keychain) and check it with **Axiora AI: Test Model Connection**.",
+            "markdownDescription": "%cfg.axiora.ai.provider.markdownDescription%",
             "order": 1,
             "enumItemLabels": [
-              "Ollama (local)",
-              "OpenAI-compatible"
+              "%cfg.axiora.ai.provider.enumItemLabels.0%",
+              "%cfg.axiora.ai.provider.enumItemLabels.1%"
             ],
             "enumDescriptions": [
-              "Models on your machine through Ollama — private and free.",
-              "Any OpenAI-compatible server: OpenRouter, OpenAI, Groq, LM Studio, llama.cpp, vLLM…"
+              "%cfg.axiora.ai.provider.enumDescriptions.0%",
+              "%cfg.axiora.ai.provider.enumDescriptions.1%"
             ]
           },
           "axiora.ai.baseUrl": {
             "type": "string",
             "default": "http://127.0.0.1:11434",
-            "markdownDescription": "Server address.\n\n- Ollama: `http://127.0.0.1:11434`\n- OpenRouter: `https://openrouter.ai/api/v1`\n- OpenAI: `https://api.openai.com/v1`\n- LM Studio: `http://127.0.0.1:1234/v1`",
+            "markdownDescription": "%cfg.axiora.ai.baseUrl.markdownDescription%",
             "order": 2
           },
           "axiora.ai.chatModel": {
             "type": "string",
             "default": "qwen2.5-coder:0.5b",
-            "markdownDescription": "Model for `@axiora` chat, `/review`, `/spec` and the agents. Inline suggestions use `#axiora.inlineCompletion.model#`.",
+            "markdownDescription": "%cfg.axiora.ai.chatModel.markdownDescription%",
             "order": 3
           }
         }
       },
       {
         "id": "axiora.aiModels.router",
-        "title": "Axiora: Model Router",
+        "title": "%cfgsec.axiora.aiModels.router.title%",
         "properties": {
           "axiora.ai.router.enabled": {
             "type": "boolean",
             "default": false,
-            "markdownDescription": "Pick a model per request: short, simple prompts go to `#axiora.ai.router.smallModel#`, long or complex ones to `#axiora.ai.router.largeModel#`.",
+            "markdownDescription": "%cfg.axiora.ai.router.enabled.markdownDescription%",
             "order": 1
           },
           "axiora.ai.router.smallModel": {
             "type": "string",
             "default": "",
-            "markdownDescription": "Fast, cheap model for short questions, e.g. `qwen2.5-coder:1.5b`.",
+            "markdownDescription": "%cfg.axiora.ai.router.smallModel.markdownDescription%",
             "order": 2
           },
           "axiora.ai.router.largeModel": {
             "type": "string",
             "default": "",
-            "markdownDescription": "Strong model for refactors, debugging, design and long code.",
+            "markdownDescription": "%cfg.axiora.ai.router.largeModel.markdownDescription%",
             "order": 3
           },
           "axiora.ai.router.threshold": {
             "type": "number",
             "default": 4000,
-            "markdownDescription": "Prompt size in characters above which the large model is used.",
+            "markdownDescription": "%cfg.axiora.ai.router.threshold.markdownDescription%",
             "order": 4,
             "minimum": 100
           }
@@ -2588,19 +2609,19 @@
       },
       {
         "id": "axiora.aiModels.cost",
-        "title": "Axiora: Cost",
+        "title": "%cfgsec.axiora.aiModels.cost.title%",
         "properties": {
           "axiora.ai.costPer1kInputTokens": {
             "type": "number",
             "default": 0,
-            "markdownDescription": "Used by **Axiora AI: Show Usage** to estimate spend. Use `0` for local models.",
+            "markdownDescription": "%cfg.axiora.ai.costPer1kInputTokens.markdownDescription%",
             "order": 1,
             "minimum": 0
           },
           "axiora.ai.costPer1kOutputTokens": {
             "type": "number",
             "default": 0,
-            "markdownDescription": "Price per 1,000 generated tokens.",
+            "markdownDescription": "%cfg.axiora.ai.costPer1kOutputTokens.markdownDescription%",
             "order": 2,
             "minimum": 0
           }
@@ -2608,30 +2629,30 @@
       },
       {
         "id": "axiora.aiModels.vision",
-        "title": "Axiora: Vision and Embeddings",
+        "title": "%cfgsec.axiora.aiModels.vision.title%",
         "properties": {
           "axiora.ai.visionModel": {
             "type": "string",
             "default": "",
-            "markdownDescription": "Model that accepts images, used for screenshot-to-UI and computer use, e.g. `qwen2.5vl` or `llava`. Empty uses the chat model.",
+            "markdownDescription": "%cfg.axiora.ai.visionModel.markdownDescription%",
             "order": 1
           },
           "axiora.ai.embeddingModel": {
             "type": "string",
             "default": "nomic-embed-text",
-            "markdownDescription": "Embedding model for the semantic code index, e.g. `nomic-embed-text`. Falls back to local hashed vectors when unavailable.",
+            "markdownDescription": "%cfg.axiora.ai.embeddingModel.markdownDescription%",
             "order": 2
           }
         }
       },
       {
         "id": "axiora.aiModels.image",
-        "title": "Axiora: Image Generation",
+        "title": "%cfgsec.axiora.aiModels.image.title%",
         "properties": {
           "axiora.image.model": {
             "type": "string",
             "default": "google/gemini-2.5-flash-image",
-            "markdownDescription": "Model used by `/image`. OpenRouter: an image-output model such as `google/gemini-2.5-flash-image`. OpenAI: `gpt-image-1`. Set a separate key with **Image: Set Image API Key...**.",
+            "markdownDescription": "%cfg.axiora.image.model.markdownDescription%",
             "order": 1
           },
           "axiora.image.api": {
@@ -2642,36 +2663,36 @@
               "images"
             ],
             "default": "auto",
-            "markdownDescription": "How images are requested.",
+            "markdownDescription": "%cfg.axiora.image.api.markdownDescription%",
             "order": 2,
             "enumItemLabels": [
-              "Automatic",
-              "Chat (modalities)",
-              "Images endpoint"
+              "%cfg.axiora.image.api.enumItemLabels.0%",
+              "%cfg.axiora.image.api.enumItemLabels.1%",
+              "%cfg.axiora.image.api.enumItemLabels.2%"
             ],
             "enumDescriptions": [
-              "OpenRouter uses chat with image output; everything else uses `/images/generations`.",
-              "Chat completions with `modalities: [\"image\", \"text\"]`.",
-              "The OpenAI-style `/images/generations` endpoint."
+              "%cfg.axiora.image.api.enumDescriptions.0%",
+              "%cfg.axiora.image.api.enumDescriptions.1%",
+              "%cfg.axiora.image.api.enumDescriptions.2%"
             ]
           },
           "axiora.image.baseUrl": {
             "type": "string",
             "default": "",
-            "markdownDescription": "Image server address. Empty uses `#axiora.ai.baseUrl#`.",
+            "markdownDescription": "%cfg.axiora.image.baseUrl.markdownDescription%",
             "order": 3
           },
           "axiora.image.folder": {
             "type": "string",
             "default": ".axiora/images",
-            "markdownDescription": "Folder, relative to the workspace, where generated images are saved.",
+            "markdownDescription": "%cfg.axiora.image.folder.markdownDescription%",
             "order": 4
           }
         }
       },
       {
         "id": "axiora.aiModels.arena",
-        "title": "Axiora: Arena",
+        "title": "%cfgsec.axiora.aiModels.arena.title%",
         "properties": {
           "axiora.arena.models": {
             "type": "array",
@@ -2679,14 +2700,14 @@
               "type": "string"
             },
             "default": [],
-            "markdownDescription": "Models compared side by side in `/arena`, e.g. `[\"qwen2.5-coder:7b\", \"llama3.1:8b\"]`. Empty uses every available model.",
+            "markdownDescription": "%cfg.axiora.arena.models.markdownDescription%",
             "order": 1
           }
         }
       },
       {
         "id": "axiora.voice.stt",
-        "title": "Axiora: Speech to Text",
+        "title": "%cfgsec.axiora.voice.stt.title%",
         "properties": {
           "axiora.voice.provider": {
             "type": "string",
@@ -2695,40 +2716,61 @@
               "openai"
             ],
             "default": "local",
-            "markdownDescription": "Where dictation is transcribed. Start dictation with **Voice: Dictate**.",
+            "markdownDescription": "%cfg.axiora.voice.provider.markdownDescription%",
             "order": 1,
             "enumItemLabels": [
-              "Local Whisper",
-              "OpenAI-compatible"
+              "%cfg.axiora.voice.provider.enumItemLabels.0%",
+              "%cfg.axiora.voice.provider.enumItemLabels.1%"
             ],
             "enumDescriptions": [
-              "A whisper.cpp server on your machine (`#axiora.voice.endpoint#`) — private and offline.",
-              "Groq, OpenAI or any `/audio/transcriptions` endpoint (`#axiora.voice.baseUrl#`). Set the key with **Voice: Set Speech-to-Text API Key...**."
+              "%cfg.axiora.voice.provider.enumDescriptions.0%",
+              "%cfg.axiora.voice.provider.enumDescriptions.1%"
             ]
           },
           "axiora.voice.endpoint": {
             "type": "string",
             "default": "http://127.0.0.1:8080/inference",
-            "markdownDescription": "whisper.cpp server URL, e.g. `http://127.0.0.1:8080/inference`.\n\nStart one with `whisper-server -m ggml-base.en.bin --port 8080`.",
+            "markdownDescription": "%cfg.axiora.voice.endpoint.markdownDescription%",
             "order": 2
           },
           "axiora.voice.baseUrl": {
             "type": "string",
             "default": "https://api.groq.com/openai/v1",
-            "markdownDescription": "OpenAI-compatible base URL, e.g. `https://api.groq.com/openai/v1` or `https://api.openai.com/v1`.",
+            "markdownDescription": "%cfg.axiora.voice.baseUrl.markdownDescription%",
             "order": 3
           },
           "axiora.voice.model": {
             "type": "string",
             "default": "",
-            "markdownDescription": "Transcription model. Empty uses `whisper-1` locally and `whisper-large-v3-turbo` online.",
+            "markdownDescription": "%cfg.axiora.voice.model.markdownDescription%",
             "order": 4
+          },
+          "axiora.voice.language": {
+            "type": "string",
+            "enum": [
+              "auto",
+              "ar",
+              "en"
+            ],
+            "default": "auto",
+            "enumDescriptions": [
+              "%cfg.axiora.voice.language.enumDescriptions.0%",
+              "%cfg.axiora.voice.language.enumDescriptions.1%",
+              "%cfg.axiora.voice.language.enumDescriptions.2%"
+            ],
+            "enumItemLabels": [
+              "%cfg.axiora.voice.language.enumItemLabels.0%",
+              "العربية",
+              "English"
+            ],
+            "markdownDescription": "%cfg.axiora.voice.language.markdownDescription%",
+            "order": 0
           }
         }
       },
       {
         "id": "axiora.voice.tts",
-        "title": "Axiora: Text to Speech",
+        "title": "%cfgsec.axiora.voice.tts.title%",
         "properties": {
           "axiora.voice.tts.provider": {
             "type": "string",
@@ -2737,27 +2779,27 @@
               "openai"
             ],
             "default": "os",
-            "markdownDescription": "Voice used by the **Read aloud** button under chat replies.",
+            "markdownDescription": "%cfg.axiora.voice.tts.provider.markdownDescription%",
             "order": 1,
             "enumItemLabels": [
-              "System Voice",
-              "OpenAI-compatible"
+              "%cfg.axiora.voice.tts.provider.enumItemLabels.0%",
+              "%cfg.axiora.voice.tts.provider.enumItemLabels.1%"
             ],
             "enumDescriptions": [
-              "Windows speech, macOS `say`, or Linux `spd-say`/`espeak-ng` — offline and free.",
-              "An `/audio/speech` endpoint such as OpenAI. Set the key with **Voice: Set Text-to-Speech API Key...**."
+              "%cfg.axiora.voice.tts.provider.enumDescriptions.0%",
+              "%cfg.axiora.voice.tts.provider.enumDescriptions.1%"
             ]
           },
           "axiora.voice.tts.autoSpeak": {
             "type": "boolean",
             "default": false,
-            "markdownDescription": "Read every `@axiora` reply aloud as soon as it finishes. Stop with **Voice: Stop Speaking**.",
+            "markdownDescription": "%cfg.axiora.voice.tts.autoSpeak.markdownDescription%",
             "order": 2
           },
           "axiora.voice.tts.rate": {
             "type": "number",
             "default": 0,
-            "markdownDescription": "Speaking speed from `-10` (slowest) to `10` (fastest). `0` is normal.",
+            "markdownDescription": "%cfg.axiora.voice.tts.rate.markdownDescription%",
             "order": 3,
             "minimum": -10,
             "maximum": 10
@@ -2765,157 +2807,157 @@
           "axiora.voice.tts.osVoice": {
             "type": "string",
             "default": "",
-            "markdownDescription": "Name of an installed system voice, e.g. `Microsoft Zira Desktop` (Windows) or `Samantha` (macOS). Empty uses the default.",
+            "markdownDescription": "%cfg.axiora.voice.tts.osVoice.markdownDescription%",
             "order": 4
           },
           "axiora.voice.tts.model": {
             "type": "string",
             "default": "gpt-4o-mini-tts",
-            "markdownDescription": "Model for the OpenAI-compatible provider, e.g. `gpt-4o-mini-tts` or `tts-1`.",
+            "markdownDescription": "%cfg.axiora.voice.tts.model.markdownDescription%",
             "order": 5
           },
           "axiora.voice.tts.voice": {
             "type": "string",
             "default": "alloy",
-            "markdownDescription": "Voice for the OpenAI-compatible provider, e.g. `alloy`, `nova` or `verse`.",
+            "markdownDescription": "%cfg.axiora.voice.tts.voice.markdownDescription%",
             "order": 6
           },
           "axiora.voice.tts.baseUrl": {
             "type": "string",
             "default": "",
-            "markdownDescription": "Text-to-speech server. Empty uses `#axiora.ai.baseUrl#`.",
+            "markdownDescription": "%cfg.axiora.voice.tts.baseUrl.markdownDescription%",
             "order": 7
           }
         }
       },
       {
         "id": "axiora.integrations.jira",
-        "title": "Axiora: Jira",
+        "title": "%cfgsec.axiora.integrations.jira.title%",
         "properties": {
           "axiora.connectors.jira.token": {
             "type": "string",
             "default": "",
-            "markdownDescription": "Paste an [Atlassian API token](https://id.atlassian.com/manage-profile/security/api-tokens). Needs `#axiora.connectors.jira.site#` and `#axiora.connectors.jira.email#` too — or connect everything at once in [Connected Services](command:axiora.services.open).",
+            "markdownDescription": "%cfg.axiora.connectors.jira.token.markdownDescription%",
             "order": 0
           },
           "axiora.connectors.jira.site": {
             "type": "string",
             "default": "",
-            "markdownDescription": "Your Jira Cloud site, e.g. `https://acme.atlassian.net`. Add the API token with **Connectors: Manage...**.",
+            "markdownDescription": "%cfg.axiora.connectors.jira.site.markdownDescription%",
             "order": 1
           },
           "axiora.connectors.jira.email": {
             "type": "string",
             "default": "",
-            "markdownDescription": "Atlassian account email that owns the API token.",
+            "markdownDescription": "%cfg.axiora.connectors.jira.email.markdownDescription%",
             "order": 2
           }
         }
       },
       {
         "id": "axiora.integrations.google",
-        "title": "Axiora: Google",
+        "title": "%cfgsec.axiora.integrations.google.title%",
         "properties": {
           "axiora.google.account": {
             "type": "string",
             "default": "",
-            "markdownDescription": "Sign in with your Google account for Gmail, Drive and Calendar. Uses your own OAuth client from `#axiora.google.clientId#`.",
+            "markdownDescription": "%cfg.axiora.google.account.markdownDescription%",
             "order": 0
           },
           "axiora.google.clientId": {
             "type": "string",
             "default": "",
-            "markdownDescription": "Your own Google OAuth client (type **Desktop app**) for Gmail, Drive and Calendar. Create it in the [Google Cloud Console](https://console.cloud.google.com/apis/credentials), then run **Google: Sign In...** — the client secret is kept in the OS keychain.",
+            "markdownDescription": "%cfg.axiora.google.clientId.markdownDescription%",
             "order": 1
           }
         }
       },
       {
         "id": "axiora.integrations.figma",
-        "title": "Axiora: Figma",
+        "title": "%cfgsec.axiora.integrations.figma.title%",
         "properties": {
           "axiora.connectors.figma.token": {
             "type": "string",
             "default": "",
-            "markdownDescription": "Paste a [Figma personal access token](https://www.figma.com/developers/api#access-tokens) (read-only *File content* scope is enough). Use `/figma <file-url>` in chat.",
+            "markdownDescription": "%cfg.axiora.connectors.figma.token.markdownDescription%",
             "order": 0
           }
         }
       },
       {
         "id": "axiora.integrations.slack",
-        "title": "Axiora: Slack",
+        "title": "%cfgsec.axiora.integrations.slack.title%",
         "properties": {
           "axiora.connectors.slack.token": {
             "type": "string",
             "default": "",
-            "markdownDescription": "Paste a [Slack bot or user token](https://api.slack.com/apps) (`xoxb-…` or `xoxp-…`). Stored for Slack-aware agent tools.",
+            "markdownDescription": "%cfg.axiora.connectors.slack.token.markdownDescription%",
             "order": 0
           }
         }
       },
       {
         "id": "axiora.integrations.linear",
-        "title": "Axiora: Linear",
+        "title": "%cfgsec.axiora.integrations.linear.title%",
         "properties": {
           "axiora.connectors.linear.token": {
             "type": "string",
             "default": "",
-            "markdownDescription": "Paste a [Linear personal API key](https://linear.app/settings/account/security) (`lin_api_…`). Use `/linear` in chat.",
+            "markdownDescription": "%cfg.axiora.connectors.linear.token.markdownDescription%",
             "order": 0
           }
         }
       },
       {
         "id": "axiora.integrations.stripe",
-        "title": "Axiora: Stripe",
+        "title": "%cfgsec.axiora.integrations.stripe.title%",
         "properties": {
           "axiora.connectors.stripe.token": {
             "type": "string",
             "default": "",
-            "markdownDescription": "Paste a [Stripe restricted key](https://dashboard.stripe.com/apikeys) (`rk_…`, read-only recommended). Use `/stripe` in chat.",
+            "markdownDescription": "%cfg.axiora.connectors.stripe.token.markdownDescription%",
             "order": 0
           }
         }
       },
       {
         "id": "axiora.integrations.github",
-        "title": "Axiora: GitHub",
+        "title": "%cfgsec.axiora.integrations.github.title%",
         "properties": {
           "axiora.github.token": {
             "type": "string",
             "default": "",
-            "markdownDescription": "Sign in with GitHub, or paste a [fine-grained token](https://github.com/settings/personal-access-tokens). Public repos work without one.",
+            "markdownDescription": "%cfg.axiora.github.token.markdownDescription%",
             "order": 0
           },
           "axiora.github.repo": {
             "type": "string",
             "default": "",
-            "markdownDescription": "Repository as `owner/name`. Empty uses the `origin` remote of the open folder.",
+            "markdownDescription": "%cfg.axiora.github.repo.markdownDescription%",
             "order": 1
           },
           "axiora.github.apiUrl": {
             "type": "string",
             "default": "https://api.github.com",
-            "markdownDescription": "GitHub API address. GitHub Enterprise: `https://your-host/api/v3`.",
+            "markdownDescription": "%cfg.axiora.github.apiUrl.markdownDescription%",
             "order": 2
           }
         }
       },
       {
         "id": "axiora.integrations.mcp",
-        "title": "Axiora: MCP Server",
+        "title": "%cfgsec.axiora.integrations.mcp.title%",
         "properties": {
           "axiora.mcpServer.enabled": {
             "type": "boolean",
             "default": false,
-            "markdownDescription": "Expose this editor as an MCP server on `127.0.0.1`, so external agents can read open editors, the selection, files and diagnostics. Copy the client config with **MCP: Copy Server Config**.",
+            "markdownDescription": "%cfg.axiora.mcpServer.enabled.markdownDescription%",
             "order": 1
           },
           "axiora.mcpServer.port": {
             "type": "number",
             "default": 3917,
-            "markdownDescription": "Local port for the MCP server.",
+            "markdownDescription": "%cfg.axiora.mcpServer.port.markdownDescription%",
             "order": 2,
             "minimum": 1024,
             "maximum": 65535
@@ -2923,31 +2965,31 @@
           "axiora.mcpServer.allowWrites": {
             "type": "boolean",
             "default": false,
-            "markdownDescription": "Let MCP clients change files through the editor. Off keeps the server read-only.",
+            "markdownDescription": "%cfg.axiora.mcpServer.allowWrites.markdownDescription%",
             "order": 3
           }
         }
       },
       {
         "id": "axiora.integrations.browser",
-        "title": "Axiora: Agent Browser",
+        "title": "%cfgsec.axiora.integrations.browser.title%",
         "properties": {
           "axiora.browser.executablePath": {
             "type": "string",
             "default": "",
-            "markdownDescription": "Chrome, Edge or Chromium used by the agent browser. Empty detects an installed one automatically.",
+            "markdownDescription": "%cfg.axiora.browser.executablePath.markdownDescription%",
             "order": 1
           },
           "axiora.browser.headless": {
             "type": "boolean",
             "default": false,
-            "markdownDescription": "Run the agent browser without showing its window.",
+            "markdownDescription": "%cfg.axiora.browser.headless.markdownDescription%",
             "order": 2
           },
           "axiora.browser.maxSteps": {
             "type": "number",
             "default": 15,
-            "markdownDescription": "Most actions **Browser: Run Task...** may take before stopping.",
+            "markdownDescription": "%cfg.axiora.browser.maxSteps.markdownDescription%",
             "order": 3,
             "minimum": 1,
             "maximum": 100
@@ -2956,7 +2998,7 @@
       },
       {
         "id": "axiora.integrations.remote",
-        "title": "Axiora: Remote and Sharing",
+        "title": "%cfgsec.axiora.integrations.remote.title%",
         "properties": {
           "axiora.runner.machines": {
             "type": "array",
@@ -2972,25 +3014,25 @@
                 }
               }
             },
-            "markdownDescription": "Self-hosted runners (`bin/axiora-runner.mjs`) that take agent tasks, e.g. `[{\"name\": \"build-box\", \"url\": \"http://10.0.0.5:7788\"}]`. Tokens are kept in the OS keychain.",
+            "markdownDescription": "%cfg.axiora.runner.machines.markdownDescription%",
             "order": 1
           },
           "axiora.collab.relayUrl": {
             "type": "string",
             "default": "http://127.0.0.1:7790",
-            "markdownDescription": "Your self-hosted relay for live collaboration (`node bin/axiora-relay.mjs`). Messages are end-to-end encrypted; the relay sees only ciphertext.",
+            "markdownDescription": "%cfg.axiora.collab.relayUrl.markdownDescription%",
             "order": 2
           },
           "axiora.share.endpoint": {
             "type": "string",
             "default": "",
-            "markdownDescription": "Server that publishes shared chats: receives `POST {title, markdown, html}` and returns `{url}`.",
+            "markdownDescription": "%cfg.axiora.share.endpoint.markdownDescription%",
             "order": 3
           },
           "axiora.embed.baseUrl": {
             "type": "string",
             "default": "",
-            "markdownDescription": "Public address where you host `.axiora/embeds`; used in copied iframe snippets.",
+            "markdownDescription": "%cfg.axiora.embed.baseUrl.markdownDescription%",
             "order": 4
           },
           "axiora.acp.agents": {
@@ -3013,7 +3055,7 @@
                 }
               }
             },
-            "markdownDescription": "External agents spoken to over the Agent Client Protocol, e.g. `[{\"name\": \"gemini\", \"command\": \"gemini\", \"args\": [\"--experimental-acp\"]}]`.",
+            "markdownDescription": "%cfg.axiora.acp.agents.markdownDescription%",
             "order": 5
           }
         }
@@ -3022,11 +3064,11 @@
     "submenus": [
       {
         "id": "axiora.ai.editorMenu",
-        "label": "Axiora AI"
+        "label": "%submenu.axiora.ai.editorMenu%"
       },
       {
         "id": "axiora.selection",
-        "label": "Selections"
+        "label": "%submenu.axiora.selection%"
       }
     ],
     "keybindings": [
@@ -3544,7 +3586,7 @@
     "customEditors": [
       {
         "viewType": "axiora.hexEditor",
-        "displayName": "Hex Editor",
+        "displayName": "%editor.axiora.hexEditor%",
         "selector": [
           {
             "filenamePattern": "*.{bin,exe,dll,so,dylib,o,class,dat,img,iso,wasm}"
@@ -3554,7 +3596,7 @@
       },
       {
         "viewType": "axiora.mdVisual",
-        "displayName": "Markdown Visual Editor",
+        "displayName": "%editor.axiora.mdVisual%",
         "selector": [
           {
             "filenamePattern": "*.md"
@@ -3590,7 +3632,7 @@
     "languageModelTools": [
       {
         "name": "axiora_web_search",
-        "displayName": "Axiora web search",
+        "displayName": "%tool.axiora_web_search.displayName%",
         "toolReferenceName": "axiora_web_search",
         "canBeReferencedInPrompt": true,
         "modelDescription": "Search the web. Returns titles, URLs, snippets.",
@@ -3600,7 +3642,7 @@
       },
       {
         "name": "axiora_web_fetch",
-        "displayName": "Axiora web fetch",
+        "displayName": "%tool.axiora_web_fetch.displayName%",
         "toolReferenceName": "axiora_web_fetch",
         "canBeReferencedInPrompt": true,
         "modelDescription": "Open a URL and return its readable text (article/main content) and links.",
@@ -3610,7 +3652,7 @@
       },
       {
         "name": "axiora_browser",
-        "displayName": "Axiora browser",
+        "displayName": "%tool.axiora_browser.displayName%",
         "toolReferenceName": "axiora_browser",
         "canBeReferencedInPrompt": true,
         "modelDescription": "Drive a real browser. action: goto(url) | click(n|selector|text) | fill(n|selector|text, value) | press(key) | select | check | back | text | snapshot | screenshot | assert(text) | close. Returns numbered interactive elements.",
@@ -3620,7 +3662,7 @@
       },
       {
         "name": "axiora_browser_task",
-        "displayName": "Axiora browser task",
+        "displayName": "%tool.axiora_browser_task.displayName%",
         "toolReferenceName": "axiora_browser_task",
         "canBeReferencedInPrompt": true,
         "modelDescription": "Give a multi-step goal to the browser agent (it navigates, clicks, fills forms) and get the result + final screenshot.",
@@ -3630,7 +3672,7 @@
       },
       {
         "name": "axiora_make_document",
-        "displayName": "Axiora make document",
+        "displayName": "%tool.axiora_make_document.displayName%",
         "toolReferenceName": "axiora_make_document",
         "canBeReferencedInPrompt": true,
         "modelDescription": "Create an office file. kind: xlsx|docx|pptx|pdf. spec: {title, blocks:[{heading}|{text}|{bullets:[]}|{table:[[...]]}|{chart:{type,title,labels,series:[{name,values}]}}|{image}], sheets:[{name,rows}], slides:[{title,bullets,chart,image,notes}]}",
@@ -3640,7 +3682,7 @@
       },
       {
         "name": "axiora_make_chart",
-        "displayName": "Axiora make chart",
+        "displayName": "%tool.axiora_make_chart.displayName%",
         "toolReferenceName": "axiora_make_chart",
         "canBeReferencedInPrompt": true,
         "modelDescription": "Render a chart to PNG + SVG. chart: {type:bar|line|pie, title, labels:[], series:[{name, values:[]}]}",
@@ -3650,7 +3692,7 @@
       },
       {
         "name": "axiora_generate_image",
-        "displayName": "Axiora generate image",
+        "displayName": "%tool.axiora_generate_image.displayName%",
         "toolReferenceName": "axiora_generate_image",
         "canBeReferencedInPrompt": true,
         "modelDescription": "Generate an image from a text prompt; saved in the project.",
@@ -3660,7 +3702,7 @@
       },
       {
         "name": "axiora_screenshot",
-        "displayName": "Axiora screenshot",
+        "displayName": "%tool.axiora_screenshot.displayName%",
         "toolReferenceName": "axiora_screenshot",
         "canBeReferencedInPrompt": true,
         "modelDescription": "Capture the editor window (or whole screen) and show it in chat.",
@@ -3670,7 +3712,7 @@
       },
       {
         "name": "axiora_draft_message",
-        "displayName": "Axiora draft message",
+        "displayName": "%tool.axiora_draft_message.displayName%",
         "toolReferenceName": "axiora_draft_message",
         "canBeReferencedInPrompt": true,
         "modelDescription": "Prepare an email (gmail) or Slack message as a DRAFT card. It is never sent automatically; the user reviews and clicks Send.",
@@ -3680,7 +3722,7 @@
       },
       {
         "name": "axiora_run_shell",
-        "displayName": "Axiora run shell",
+        "displayName": "%tool.axiora_run_shell.displayName%",
         "toolReferenceName": "axiora_run_shell",
         "canBeReferencedInPrompt": true,
         "modelDescription": "Run a shell command in the workspace (destructive commands need user approval).",
@@ -3690,7 +3732,7 @@
       },
       {
         "name": "axiora_delete_file",
-        "displayName": "Axiora delete file",
+        "displayName": "%tool.axiora_delete_file.displayName%",
         "toolReferenceName": "axiora_delete_file",
         "canBeReferencedInPrompt": true,
         "modelDescription": "Delete a file in the workspace (requires user approval).",
@@ -3707,5 +3749,6 @@
     "playwright-core": "^1.64.0",
     "pptxgenjs": "^4.0.1",
     "vscode-languageclient": "^10.1.2"
-  }
+  },
+  "l10n": "./l10n"
 }

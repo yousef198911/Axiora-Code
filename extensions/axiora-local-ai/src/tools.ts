@@ -43,7 +43,7 @@ const TOOL_PROMPT = () => `\n\n## Tools\nYou can call tools. To call one, output
 function renderOut(stream: vscode.ChatResponseStream, o: Out) {
 	if (o.image && /\.(png|jpe?g|webp|gif)$/i.test(o.image)) { stream.markdown(inlineImage(o.image, path.basename(o.image))); }
 	if (o.file) { stream.reference(vscode.Uri.file(o.file)); }
-	if (o.draft) { stream.button({ command: 'axiora.drafts.open', arguments: [o.draft], title: '$(edit) Review draft' }); }
+	if (o.draft) { stream.button({ command: 'axiora.drafts.open', arguments: [o.draft], title: vscode.l10n.t("$(edit) Review draft") }); }
 }
 /** Chat loop with model-initiated tool calls. Streams normal text, executes <tool> blocks. Returns the visible reply. */
 export async function toolLoop(msgs: ChatMessage[], stream: vscode.ChatResponseStream, token: vscode.CancellationToken): Promise<string> {
@@ -66,18 +66,18 @@ export async function toolLoop(msgs: ChatMessage[], stream: vscode.ChatResponseS
 		let call: { name: string; args: any };
 		try { call = JSON.parse((m[1] ?? m[2]).replace(/^```\w*|```$/g, '')); } catch { msgs.push({ role: 'assistant', content: full }, { role: 'user', content: '<tool_result>Invalid JSON in tool call.</tool_result>' }); continue; }
 		const t = byName.get(call.name);
-		stream.progress(`Tool: ${call.name}…`);
+		stream.progress(vscode.l10n.t("Tool: {0}…", call.name));
 		let res: Out;
 		try { if (!t) { throw new Error(`unknown tool ${call.name}`); } res = await t.run(call.args ?? {}, token); stream.markdown(`\n\n> 🔧 \`${call.name}\` ${summ(call.args)}\n\n`); renderOut(stream, res); }
-		catch (e) { res = { text: `ERROR: ${(e as Error).message}` }; stream.markdown(`\n\n> 🔧 \`${call.name}\` failed: ${(e as Error).message}\n\n`); }
+		catch (e) { res = { text: `ERROR: ${(e as Error).message}` }; stream.markdown(vscode.l10n.t("\n\n> 🔧 `{0}` failed: {1}\n\n", call.name, (e as Error).message)); }
 		msgs.push({ role: 'assistant', content: full }, { role: 'user', content: `<tool_result name="${call.name}">\n${res.text.slice(0, 12000)}\n</tool_result>` });
 	}
 	return visible;
 }
 async function exec(name: string, args: any, stream: vscode.ChatResponseStream, token: vscode.CancellationToken): Promise<Out> {
-	const t = byName.get(name); stream.progress(`Tool: ${name}…`);
+	const t = byName.get(name); stream.progress(vscode.l10n.t("Tool: {0}…", name));
 	try { if (!t) { throw new Error(`unknown tool ${name}`); } const r = await t.run(args ?? {}, token); stream.markdown(`\n\n> 🔧 \`${name}\` ${summ(args)}\n\n`); renderOut(stream, r); return r; }
-	catch (e) { stream.markdown(`\n\n> 🔧 \`${name}\` failed: ${(e as Error).message}\n\n`); return { text: `ERROR: ${(e as Error).message}` }; }
+	catch (e) { stream.markdown(vscode.l10n.t("\n\n> 🔧 `{0}` failed: {1}\n\n", name, (e as Error).message)); return { text: `ERROR: ${(e as Error).message}` }; }
 }
 /** OpenAI-style native function calling (OpenRouter, OpenAI, Groq, LM Studio, vLLM…). */
 async function nativeLoop(msgs: ChatMessage[], stream: vscode.ChatResponseStream, token: vscode.CancellationToken): Promise<string> {
@@ -118,17 +118,17 @@ export function activate(ctx: vscode.ExtensionContext) {
 		} catch (e) { log.warn(`registerTool ${t.name}: ${(e as Error).message}`); }
 	}
 	const tool = (name: string) => byName.get(name)!;
-	chatCommands.set('image', async (req, stream) => { if (!req.prompt.trim()) { stream.markdown('Usage: `/image <description>`'); return; } stream.progress('Generating image…'); const o = await tool('generate_image').run({ prompt: req.prompt }); stream.markdown(`${o.text}\n\n`); renderOut(stream, o); });
+	chatCommands.set('image', async (req, stream) => { if (!req.prompt.trim()) { stream.markdown(vscode.l10n.t("Usage: `/image <description>`")); return; } stream.progress(vscode.l10n.t("Generating image…")); const o = await tool('generate_image').run({ prompt: req.prompt }); stream.markdown(`${o.text}\n\n`); renderOut(stream, o); });
 	chatCommands.set('browser', async (req, stream, token) => {
-		if (!req.prompt.trim()) { stream.markdown('Usage: `/browser <task>` e.g. `/browser open example.com and tell me the heading`'); return; }
-		stream.markdown(`**Browser agent** — ${req.prompt}\n\n`);
-		const r = await runTask(req.prompt, s => stream.markdown(`- ${s}\n`), token); stream.markdown(`\n**Result:** ${r.result}\n\n`); if (r.shot) { renderOut(stream, { text: '', image: r.shot, file: r.shot }); }
+		if (!req.prompt.trim()) { stream.markdown(vscode.l10n.t("Usage: `/browser <task>` e.g. `/browser open example.com and tell me the heading`")); return; }
+		stream.markdown(vscode.l10n.t("**Browser agent** — {0}\n\n", req.prompt));
+		const r = await runTask(req.prompt, s => stream.markdown(`- ${s}\n`), token); stream.markdown(vscode.l10n.t("\n**Result:** {0}\n\n", r.result)); if (r.shot) { renderOut(stream, { text: '', image: r.shot, file: r.shot }); }
 	});
 	chatCommands.set('office', async (req, stream, token) => {
-		const m = /^(xlsx|docx|pptx|pdf)\b\s*([\s\S]*)$/i.exec(req.prompt.trim()); if (!m) { stream.markdown('Usage: `/office <xlsx|docx|pptx|pdf> <what to create>`'); return; }
-		stream.progress('Writing document spec…'); const spec = await specFor(m[1].toLowerCase(), m[2], token);
-		stream.progress('Building file…'); const o = await tool('make_document').run({ kind: m[1].toLowerCase(), spec }); stream.markdown(`${o.text}\n\n`); renderOut(stream, o);
-		stream.button({ command: 'revealFileInOS', arguments: [vscode.Uri.file(o.file!)], title: '$(folder-opened) Reveal' });
+		const m = /^(xlsx|docx|pptx|pdf)\b\s*([\s\S]*)$/i.exec(req.prompt.trim()); if (!m) { stream.markdown(vscode.l10n.t("Usage: `/office <xlsx|docx|pptx|pdf> <what to create>`")); return; }
+		stream.progress(vscode.l10n.t("Writing document spec…")); const spec = await specFor(m[1].toLowerCase(), m[2], token);
+		stream.progress(vscode.l10n.t("Building file…")); const o = await tool('make_document').run({ kind: m[1].toLowerCase(), spec }); stream.markdown(`${o.text}\n\n`); renderOut(stream, o);
+		stream.button({ command: 'revealFileInOS', arguments: [vscode.Uri.file(o.file!)], title: vscode.l10n.t("$(folder-opened) Reveal") });
 	});
 	chatCommands.set('chart', async (req, stream, token) => {
 		const r = await chat([{ role: 'system', content: 'Return ONLY JSON: {"type":"bar|line|pie","title":"..","labels":[..],"series":[{"name":"..","values":[numbers]}]}' }, { role: 'user', content: req.prompt }], () => undefined, token);
@@ -142,37 +142,37 @@ export function activate(ctx: vscode.ExtensionContext) {
 		stream.markdown(`${o.text.split('\n')[0]}\n\n`); renderOut(stream, { ...o, file: o.image });
 	});
 	chatCommands.set('draft', async (req, stream) => {
-		const m = /^(gmail|email|slack)\s+(\S+)\s*([\s\S]*)$/i.exec(req.prompt.trim()); if (!m) { stream.markdown('Usage: `/draft gmail someone@x.com Subject | body` or `/draft slack #channel text`'); return; }
+		const m = /^(gmail|email|slack)\s+(\S+)\s*([\s\S]*)$/i.exec(req.prompt.trim()); if (!m) { stream.markdown(vscode.l10n.t("Usage: `/draft gmail someone@x.com Subject | body` or `/draft slack #channel text`")); return; }
 		const ch = m[1].toLowerCase() === 'slack' ? 'slack' : 'gmail'; const [subject, ...b] = ch === 'gmail' && m[3].includes('|') ? m[3].split('|') : ['', m[3]];
 		const d = await createDraft({ channel: ch, to: m[2], subject: subject.trim(), body: b.join('|').trim() });
-		stream.markdown(`Draft created — **not sent**. Review it, then click **Send** on the card.\n\n`); stream.button({ command: 'axiora.drafts.open', arguments: [d.id], title: '$(edit) Review draft' });
+		stream.markdown(vscode.l10n.t("Draft created — **not sent**. Review it, then click **Send** on the card.\n\n")); stream.button({ command: 'axiora.drafts.open', arguments: [d.id], title: vscode.l10n.t("$(edit) Review draft") });
 	});
 	// palette
 	register(ctx, 'axiora.browser.runTask', async () => {
-		const t = await vscode.window.showInputBox({ prompt: 'Browser task (e.g. "open github.com/trending and list the top 3 repos")', ignoreFocusOut: true }); if (!t) { return; }
+		const t = await vscode.window.showInputBox({ prompt: vscode.l10n.t("Browser task (e.g. \"open github.com/trending and list the top 3 repos\")"), ignoreFocusOut: true }); if (!t) { return; }
 		await vscode.commands.executeCommand('workbench.action.chat.open', { query: `@axiora /browser ${t}` });
 	});
-	register(ctx, 'axiora.browser.open', async () => { const u = await vscode.window.showInputBox({ prompt: 'URL to open in the agent browser' }); if (u) { await act({ action: 'goto', url: u }); } });
+	register(ctx, 'axiora.browser.open', async () => { const u = await vscode.window.showInputBox({ prompt: vscode.l10n.t("URL to open in the agent browser") }); if (u) { await act({ action: 'goto', url: u }); } });
 	register(ctx, 'axiora.browser.close', () => closeBrowser());
 	register(ctx, 'axiora.office.generate', async () => {
-		const k = await vscode.window.showQuickPick(['xlsx', 'docx', 'pptx', 'pdf'], { placeHolder: 'File type' }); if (!k) { return; }
-		const d = await vscode.window.showInputBox({ prompt: `Describe the ${k} to create`, ignoreFocusOut: true }); if (!d) { return; }
+		const k = await vscode.window.showQuickPick(['xlsx', 'docx', 'pptx', 'pdf'], { placeHolder: vscode.l10n.t("File type") }); if (!k) { return; }
+		const d = await vscode.window.showInputBox({ prompt: vscode.l10n.t("Describe the {0} to create", k), ignoreFocusOut: true }); if (!d) { return; }
 		await vscode.commands.executeCommand('workbench.action.chat.open', { query: `@axiora /office ${k} ${d}` });
 	});
 	register(ctx, 'axiora.office.fromJson', async () => {
 		const ed = vscode.window.activeTextEditor; if (!ed) { return; } const spec = JSON.parse(ed.document.getText(ed.selection.isEmpty ? undefined : ed.selection));
-		const k = await vscode.window.showQuickPick(['xlsx', 'docx', 'pptx', 'pdf'], { placeHolder: 'Generate from this JSON spec as…' }); if (!k) { return; }
-		const f = ed.document.fileName.replace(/\.[^.\\/]+$/, '') + '.' + k; await makeDocument(k as any, spec, f); vscode.window.showInformationMessage(`Created ${path.basename(f)}`, 'Reveal').then(a => a && vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(f)));
+		const k = await vscode.window.showQuickPick(['xlsx', 'docx', 'pptx', 'pdf'], { placeHolder: vscode.l10n.t("Generate from this JSON spec as…") }); if (!k) { return; }
+		const f = ed.document.fileName.replace(/\.[^.\\/]+$/, '') + '.' + k; await makeDocument(k as any, spec, f); vscode.window.showInformationMessage(vscode.l10n.t("Created {0}", path.basename(f)), 'Reveal').then(a => a && vscode.commands.executeCommand('revealFileInOS', vscode.Uri.file(f)));
 	});
 	register(ctx, 'axiora.chart.export', async () => {
 		const ed = vscode.window.activeTextEditor; if (!ed) { return; } const c = JSON.parse(ed.document.getText(ed.selection.isEmpty ? undefined : ed.selection)) as Chart;
-		const out = await writeChart(c, ed.document.fileName.replace(/\.[^.\\/]+$/, '') + '-chart'); vscode.window.showInformationMessage(`Chart saved: ${out.map(f => path.basename(f)).join(', ')}`);
+		const out = await writeChart(c, ed.document.fileName.replace(/\.[^.\\/]+$/, '') + '-chart'); vscode.window.showInformationMessage(vscode.l10n.t("Chart saved: {0}", out.map(f => path.basename(f)).join(', ')));
 	});
-	register(ctx, 'axiora.image.generate', async () => { const p = await vscode.window.showInputBox({ prompt: 'Describe the image' }); if (p) { await vscode.commands.executeCommand('workbench.action.chat.open', { query: `@axiora /image ${p}` }); } });
-	register(ctx, 'axiora.image.setApiKey', async () => { const k = await vscode.window.showInputBox({ prompt: 'API key for image generation (blank = use the main AI key)', password: true }); if (k !== undefined) { k ? await ctx.secrets.store('axiora.image.apiKey', k) : await ctx.secrets.delete('axiora.image.apiKey'); } });
-	register(ctx, 'axiora.screenshot.toChat', async () => { const p = await vscode.window.showQuickPick([{ label: 'window', description: 'Editor window' }, { label: 'screen', description: 'Whole screen' }, { label: 'browser', description: 'Agent browser page' }], { placeHolder: 'Capture and post to chat' }); if (p) { await vscode.commands.executeCommand('workbench.action.chat.open', { query: `@axiora /screenshot ${p.label}` }); } });
-	register(ctx, 'axiora.voice.readAloud', async (text?: string) => { const t = typeof text === 'string' ? text : lastReply || vscode.window.activeTextEditor?.document.getText(vscode.window.activeTextEditor.selection); if (!t) { vscode.window.showInformationMessage('Nothing to read yet.'); return; } await speak(t); });
+	register(ctx, 'axiora.image.generate', async () => { const p = await vscode.window.showInputBox({ prompt: vscode.l10n.t("Describe the image") }); if (p) { await vscode.commands.executeCommand('workbench.action.chat.open', { query: `@axiora /image ${p}` }); } });
+	register(ctx, 'axiora.image.setApiKey', async () => { const k = await vscode.window.showInputBox({ prompt: vscode.l10n.t("API key for image generation (blank = use the main AI key)"), password: true }); if (k !== undefined) { k ? await ctx.secrets.store('axiora.image.apiKey', k) : await ctx.secrets.delete('axiora.image.apiKey'); } });
+	register(ctx, 'axiora.screenshot.toChat', async () => { const p = await vscode.window.showQuickPick([{ label: 'window', description: vscode.l10n.t("Editor window") }, { label: 'screen', description: vscode.l10n.t("Whole screen") }, { label: 'browser', description: vscode.l10n.t("Agent browser page") }], { placeHolder: vscode.l10n.t("Capture and post to chat") }); if (p) { await vscode.commands.executeCommand('workbench.action.chat.open', { query: `@axiora /screenshot ${p.label}` }); } });
+	register(ctx, 'axiora.voice.readAloud', async (text?: string) => { const t = typeof text === 'string' ? text : lastReply || vscode.window.activeTextEditor?.document.getText(vscode.window.activeTextEditor.selection); if (!t) { vscode.window.showInformationMessage(vscode.l10n.t("Nothing to read yet.")); return; } await speak(t); });
 	register(ctx, 'axiora.voice.stop', () => stopSpeaking());
-	register(ctx, 'axiora.voice.setTtsApiKey', async () => { const k = await vscode.window.showInputBox({ prompt: 'API key for the TTS endpoint (blank = main AI key)', password: true }); if (k !== undefined) { k ? await ctx.secrets.store('axiora.voice.ttsApiKey', k) : await ctx.secrets.delete('axiora.voice.ttsApiKey'); } });
+	register(ctx, 'axiora.voice.setTtsApiKey', async () => { const k = await vscode.window.showInputBox({ prompt: vscode.l10n.t("API key for the TTS endpoint (blank = main AI key)"), password: true }); if (k !== undefined) { k ? await ctx.secrets.store('axiora.voice.ttsApiKey', k) : await ctx.secrets.delete('axiora.voice.ttsApiKey'); } });
 	register(ctx, 'axiora.approval.test', async () => { const ok = await approve('shell', 'rm -rf ./build'); vscode.window.showInformationMessage(ok ? 'Approved' : 'Denied'); });
 }

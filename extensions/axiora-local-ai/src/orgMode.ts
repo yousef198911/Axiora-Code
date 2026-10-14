@@ -50,7 +50,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 		const items: (vscode.QuickPickItem & { u: vscode.Uri; l: number })[] = [];
 		for (const u of files) { const doc = await vscode.workspace.openTextDocument(u); for (let i = 0; i < doc.lineCount; i++) { const m = /^\*+\s+(TODO|NEXT|WAITING)\s+(.*)$/.exec(doc.lineAt(i).text); if (m) { const dl = /(?:DEADLINE|SCHEDULED):\s*<([^>]+)>/.exec(doc.lineAt(Math.min(i + 1, doc.lineCount - 1)).text); items.push({ label: `$(circle-large-outline) ${m[2]}`, description: `${m[1]}${dl ? ' · ' + dl[1] : ''}`, detail: vscode.workspace.asRelativePath(u), u, l: i }); } } }
 		items.sort((a, b) => (a.description ?? '').localeCompare(b.description ?? ''));
-		const p = await vscode.window.showQuickPick(items, { placeHolder: `Agenda: ${items.length} open items` });
+		const p = await vscode.window.showQuickPick(items, { placeHolder: vscode.l10n.t("Agenda: {0} open items", items.length) });
 		if (p) { const ed = await vscode.window.showTextDocument(p.u); const pos = new vscode.Position(p.l, 0); ed.selection = new vscode.Selection(pos, pos); ed.revealRange(new vscode.Range(pos, pos)); }
 	});
 	// [[link]] navigation

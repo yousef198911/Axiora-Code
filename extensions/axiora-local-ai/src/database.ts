@@ -3,6 +3,7 @@
  *  CLIs), browse tables, run SQL from the editor (selection or whole file), results as a table.
  *--------------------------------------------------------------------------------------------*/
 import * as vscode from 'vscode';
+import { htmlDir, htmlLang } from './i18n';
 import * as cp from 'child_process';
 import { register } from './util';
 
@@ -28,7 +29,7 @@ async function query(c: Conn, sql: string): Promise<Result> {
 const esc = (v: unknown) => String(v ?? 'NULL').replace(/&/g, '&amp;').replace(/</g, '&lt;');
 function show(title: string, r: Result) {
 	const p = vscode.window.createWebviewPanel('axiora.dbResult', title, { viewColumn: vscode.ViewColumn.Beside, preserveFocus: true }, {});
-	p.webview.html = `<!DOCTYPE html><html><head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline';"><style>body{font-family:var(--vscode-font-family);color:var(--vscode-foreground);font-size:12px}table{border-collapse:collapse}th,td{border:1px solid var(--vscode-panel-border);padding:3px 8px;white-space:nowrap}th{position:sticky;top:0;background:var(--vscode-editorGroupHeader-tabsBackground)}</style></head><body>
+	p.webview.html = `<!DOCTYPE html><html dir="${htmlDir()}" lang="${htmlLang()}"><head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline';"><style>body{font-family:var(--vscode-font-family);color:var(--vscode-foreground);font-size:12px}table{border-collapse:collapse}th,td{border:1px solid var(--vscode-panel-border);padding:3px 8px;white-space:nowrap}th{position:sticky;top:0;background:var(--vscode-editorGroupHeader-tabsBackground)}</style></head><body>
 <p>${r.info ?? `${r.rows.length} row(s)`}</p><table><tr>${r.columns.map(c => `<th>${esc(c)}</th>`).join('')}</tr>${r.rows.slice(0, 5000).map(row => `<tr>${row.map(v => `<td>${esc(v)}</td>`).join('')}</tr>`).join('')}</table></body></html>`;
 }
 export function activate(ctx: vscode.ExtensionContext) {
@@ -40,22 +41,22 @@ export function activate(ctx: vscode.ExtensionContext) {
 	ctx.subscriptions.push(vscode.window.onDidChangeActiveTextEditor(refresh)); refresh();
 
 	register(ctx, 'axiora.db.add', async () => {
-		const kind = (await vscode.window.showQuickPick(['sqlite', 'postgres', 'mysql'], { placeHolder: 'Database type' })) as Conn['kind'] | undefined; if (!kind) { return; }
+		const kind = (await vscode.window.showQuickPick(['sqlite', 'postgres', 'mysql'], { placeHolder: vscode.l10n.t("Database type") })) as Conn['kind'] | undefined; if (!kind) { return; }
 		let target: string | undefined;
 		if (kind === 'sqlite') {
 			const found = await vscode.workspace.findFiles('**/*.{db,sqlite,sqlite3}', '**/node_modules/**', 50);
-			const pick = await vscode.window.showQuickPick([...found.map(u => ({ label: `$(database) ${vscode.workspace.asRelativePath(u)}`, u })), { label: '$(folder-opened) Browse...', u: undefined }], { placeHolder: 'SQLite database file' });
+			const pick = await vscode.window.showQuickPick([...found.map(u => ({ label: `$(database) ${vscode.workspace.asRelativePath(u)}`, u })), { label: '$(folder-opened) Browse...', u: undefined }], { placeHolder: vscode.l10n.t("SQLite database file") });
 			if (!pick) { return; }
-			if (pick.u) { target = pick.u.fsPath; } else { const f = await vscode.window.showOpenDialog({ canSelectMany: false, filters: { SQLite: ['db', 'sqlite', 'sqlite3'], All: ['*'] }, openLabel: 'Use database' }); target = f?.[0].fsPath; }
+			if (pick.u) { target = pick.u.fsPath; } else { const f = await vscode.window.showOpenDialog({ canSelectMany: false, filters: { SQLite: ['db', 'sqlite', 'sqlite3'], All: ['*'] }, openLabel: vscode.l10n.t("Use database") }); target = f?.[0].fsPath; }
 		}
 		else { target = await vscode.window.showInputBox({ prompt: kind === 'postgres' ? 'Connection string (postgres://user:pass@host:5432/db) — requires psql' : 'mysql CLI args (-h host -u user -pPASS db) — requires mysql client' }); }
 		if (!target) { return; }
-		const name = await vscode.window.showInputBox({ prompt: 'Connection name', value: kind === 'sqlite' ? target.split(/[\\/]/).pop() : kind }); if (!name) { return; }
+		const name = await vscode.window.showInputBox({ prompt: vscode.l10n.t("Connection name"), value: kind === 'sqlite' ? target.split(/[\\/]/).pop() : kind }); if (!name) { return; }
 		await ctx.globalState.update('axiora.db.connections', [...conns().filter(c => c.name !== name), { name, kind, target }]);
 		await ctx.workspaceState.update('axiora.db.active', name); refresh();
 	});
 	register(ctx, 'axiora.db.select', async () => {
-		const p = await vscode.window.showQuickPick([...conns().map(c => ({ label: `$(database) ${c.name}`, description: c.kind, c })), { label: '$(add) Add Connection...', c: undefined }], { placeHolder: 'Database connection' });
+		const p = await vscode.window.showQuickPick([...conns().map(c => ({ label: `$(database) ${c.name}`, description: c.kind, c })), { label: '$(add) Add Connection...', c: undefined }], { placeHolder: vscode.l10n.t("Database connection") });
 		if (!p) { return; } if (!p.c) { await vscode.commands.executeCommand('axiora.db.add'); return; }
 		await ctx.workspaceState.update('axiora.db.active', p.c.name); refresh();
 	});
@@ -69,7 +70,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 		const c = active(); if (!c) { await vscode.commands.executeCommand('axiora.db.add'); return; }
 		const listSql = c.kind === 'sqlite' ? `SELECT name FROM sqlite_master WHERE type IN ('table','view') ORDER BY name` : c.kind === 'postgres' ? `SELECT table_schema||'.'||table_name AS name FROM information_schema.tables WHERE table_schema NOT IN ('pg_catalog','information_schema') ORDER BY 1` : 'SHOW TABLES';
 		const r = await query(c, listSql);
-		const t = await vscode.window.showQuickPick(r.rows.map(x => String(x[0])), { placeHolder: `Tables in ${c.name}` }); if (!t) { return; }
+		const t = await vscode.window.showQuickPick(r.rows.map(x => String(x[0])), { placeHolder: vscode.l10n.t("Tables in {0}", c.name) }); if (!t) { return; }
 		show(`${c.name}: ${t}`, await query(c, `SELECT * FROM ${t} LIMIT 500`));
 	});
 }

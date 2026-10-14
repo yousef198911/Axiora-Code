@@ -23,15 +23,15 @@ export function markDone(md: string, task: string, note: string) {
 export function activate(ctx: vscode.ExtensionContext) {
 	const sb = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 48); sb.command = 'axiora.project.open'; ctx.subscriptions.push(sb);
 	const active = () => ctx.workspaceState.get<string>('axiora.project.active');
-	const refresh = async () => { const a = active(); const md = a && dir() && await read(uriOf(a)); if (!md) { sb.hide(); return; } const t = tasksOf(md); sb.text = `$(project) ${a} ${t.filter(x => x.done).length}/${t.length}`; sb.tooltip = 'Axiora project — click to open or switch'; sb.show(); };
+	const refresh = async () => { const a = active(); const md = a && dir() && await read(uriOf(a)); if (!md) { sb.hide(); return; } const t = tasksOf(md); sb.text = `$(project) ${a} ${t.filter(x => x.done).length}/${t.length}`; sb.tooltip = vscode.l10n.t("Axiora project — click to open or switch"); sb.show(); };
 	void refresh();
 	const list = async () => { const d = dir(); if (!d) { return []; } try { return (await vscode.workspace.fs.readDirectory(d)).filter(([n]) => n.endsWith('.md')).map(([n]) => n.slice(0, -3)); } catch { return []; } };
 	chatCommands.set('project', async (req, stream, token) => {
-		if (!dir()) { stream.markdown('Open a folder first.'); return; }
+		if (!dir()) { stream.markdown(vscode.l10n.t("Open a folder first.")); return; }
 		const q = req.prompt.trim();
 		const nm = /^new\s+([\w-]+)\s*:\s*([\s\S]+)$/.exec(q);
 		if (nm) {
-			const [, name, goal] = nm; stream.progress('Planning the project…');
+			const [, name, goal] = nm; stream.progress(vscode.l10n.t("Planning the project…"));
 			let ctxs = ''; for (const p of contextProviders.slice(0, 2)) { ctxs += await p().catch(() => ''); }
 			const plan = await chat([{ role: 'system', content: `${SYS}\nBreak the goal into 4-10 concrete, ordered tasks, each completable in one session. Output ONLY lines "- [ ] task".` }, { role: 'user', content: goal + ctxs }], () => undefined, token);
 			let tasks = plan.split('\n').map(l => l.trim()).filter(l => /^- \[ \] /.test(l));
@@ -39,24 +39,24 @@ export function activate(ctx: vscode.ExtensionContext) {
 			await vscode.workspace.fs.createDirectory(dir()!);
 			await write(uriOf(name), `# Project: ${name}\n\n## Goal\n${goal.trim()}\n\n## Tasks\n${tasks.join('\n')}\n\n## Notes\n\n## Log\n`);
 			await ctx.workspaceState.update('axiora.project.active', name); await refresh();
-			stream.markdown(`Created project **${name}** with ${tasks.length} tasks. Continue any time with \`/project ${name}\`.\n\n${tasks.join('\n')}`); stream.anchor(uriOf(name), `${name}.md`); return;
+			stream.markdown(vscode.l10n.t("Created project **{0}** with {1} tasks. Continue any time with `/project {2}`.\n\n{3}", name, tasks.length, name, tasks.join('\n'))); stream.anchor(uriOf(name), `${name}.md`); return;
 		}
 		const name = q.split(/\s+/)[0] || active();
 		if (!name) { const ps = await list(); stream.markdown(ps.length ? `Projects: ${ps.map(p => `\`${p}\``).join(', ')}. Continue with \`/project <name>\`.` : 'No projects yet. Start one: `/project new <name>: <goal>`'); return; }
-		const md = await read(uriOf(name)); if (!md) { stream.markdown(`No project \`${name}\`. Start it with \`/project new ${name}: <goal>\`.`); return; }
+		const md = await read(uriOf(name)); if (!md) { stream.markdown(vscode.l10n.t("No project `{0}`. Start it with `/project new {1}: <goal>`.", name, name)); return; }
 		await ctx.workspaceState.update('axiora.project.active', name); await refresh();
 		const next = tasksOf(md).find(t => !t.done);
-		if (!next) { stream.markdown(`🎉 All tasks in **${name}** are done.`); return; }
+		if (!next) { stream.markdown(vscode.l10n.t("🎉 All tasks in **{0}** are done.", name)); return; }
 		const extra = q.split(/\s+/).slice(1).join(' ');
-		stream.markdown(`**${name}** — next task: _${next.text}_\n\n`);
+		stream.markdown(vscode.l10n.t("**{0}** — next task: _{1}_\n\n", name, next.text));
 		let ctxs = ''; for (const p of contextProviders.slice(0, 3)) { ctxs += await p().catch(() => ''); }
 		const r = await chat([{ role: 'system', content: `${SYS}\nYou are continuing a long-running project across sessions. The project file (goal, tasks, notes, log) is your memory. Do the next task now: concrete steps and code.` }, { role: 'user', content: `Project file:\n${md}\n\nDo this task: ${next.text}${extra ? `\nUser note: ${extra}` : ''}${ctxs}` }], s => stream.markdown(s), token);
-		stream.button({ command: 'axiora.project.done', title: '✓ Mark Done', arguments: [name, next.text, r.split('\n').find(l => l.trim())?.slice(0, 160) ?? ''] });
+		stream.button({ command: 'axiora.project.done', title: vscode.l10n.t("✓ Mark Done"), arguments: [name, next.text, r.split('\n').find(l => l.trim())?.slice(0, 160) ?? ''] });
 	});
 	register(ctx, 'axiora.project.done', async (name: string, task: string, note: string) => { const md = await read(uriOf(name)); if (md) { await write(uriOf(name), markDone(md, task, note)); await refresh(); vscode.window.setStatusBarMessage(`✓ ${task}`, 3000); } });
 	register(ctx, 'axiora.project.open', async () => {
-		const ps = await list(); if (!ps.length) { vscode.window.showInformationMessage('No projects. Ask "@axiora /project new <name>: <goal>".'); return; }
-		const p = await vscode.window.showQuickPick(ps.map(n => ({ label: n, description: n === active() ? 'active' : '' })), { placeHolder: 'Open or switch project' });
+		const ps = await list(); if (!ps.length) { vscode.window.showInformationMessage(vscode.l10n.t("No projects. Ask \"@axiora /project new <name>: <goal>\".")); return; }
+		const p = await vscode.window.showQuickPick(ps.map(n => ({ label: n, description: n === active() ? 'active' : '' })), { placeHolder: vscode.l10n.t("Open or switch project") });
 		if (p) { await ctx.workspaceState.update('axiora.project.active', p.label); await refresh(); await vscode.window.showTextDocument(uriOf(p.label)); }
 	});
 	ctx.subscriptions.push(vscode.workspace.onDidSaveTextDocument(d => { if (d.uri.path.includes('/.axiora/projects/')) { void refresh(); } }));

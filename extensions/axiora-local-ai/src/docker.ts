@@ -35,7 +35,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 	});
 	register(ctx, 'axiora.docker.build', async (uri?: vscode.Uri) => {
 		const f = uri ?? vscode.window.activeTextEditor?.document.uri; if (!f) { return; }
-		const tag = await vscode.window.showInputBox({ prompt: 'Image tag', value: `${(wsRoot()?.path.split('/').pop() ?? 'app').toLowerCase()}:latest` }); if (!tag) { return; }
+		const tag = await vscode.window.showInputBox({ prompt: vscode.l10n.t("Image tag"), value: `${(wsRoot()?.path.split('/').pop() ?? 'app').toLowerCase()}:latest` }); if (!tag) { return; }
 		term('docker build', `docker build -f "${f.fsPath}" -t ${tag} "${vscode.Uri.joinPath(f, '..').fsPath}"`);
 	});
 	register(ctx, 'axiora.docker.composeUp', (uri?: vscode.Uri) => { const f = uri ?? vscode.window.activeTextEditor?.document.uri; if (f) { term('compose', `docker compose -f "${f.fsPath}" up -d`); } });

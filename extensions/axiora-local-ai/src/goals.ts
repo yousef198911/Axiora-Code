@@ -32,16 +32,16 @@ function render(ws: Task[][]): string {
 function slug(s: string) { return s.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, '-').replace(/^-|-$/g, '').slice(0, 50) || 'goal'; }
 export function activate(ctx: vscode.ExtensionContext) {
 	chatCommands.set('goal', async (req, stream, token) => {
-		const r = wsRoot(); if (!r) { stream.markdown('Open a folder first.'); return; }
-		stream.progress('Breaking the goal into tasks…');
+		const r = wsRoot(); if (!r) { stream.markdown(vscode.l10n.t("Open a folder first.")); return; }
+		stream.progress(vscode.l10n.t("Breaking the goal into tasks…"));
 		const md = await ask(`Goal: ${req.prompt}\nWrite a Markdown checklist of 4-12 small implementation tasks. Format EXACTLY: "- [ ] T1. title (deps: )" and list dependencies by task id, e.g. "- [ ] T3. write tests (deps: T1, T2)". Output only the checklist.`, undefined, token);
 		const tasks = parseTasks(md);
 		const uri = vscode.Uri.joinPath(r, '.axiora', 'goals', `${slug(req.prompt)}.md`);
 		await vscode.workspace.fs.createDirectory(vscode.Uri.joinPath(uri, '..'));
 		await vscode.workspace.fs.writeFile(uri, new TextEncoder().encode(`# Goal: ${req.prompt}\n\n${md.trim()}\n`));
-		stream.markdown(`Saved **${tasks.length} tasks** to \`${vscode.workspace.asRelativePath(uri)}\`.\n\n${render(waves(tasks))}`);
+		stream.markdown(vscode.l10n.t("Saved **{0} tasks** to `{1}`.\n\n{2}", tasks.length, vscode.workspace.asRelativePath(uri), render(waves(tasks))));
 		stream.reference(uri);
-		stream.button({ command: 'axiora.tasks.showWaves', title: 'Show execution waves', arguments: [uri] });
+		stream.button({ command: 'axiora.tasks.showWaves', title: vscode.l10n.t("Show execution waves"), arguments: [uri] });
 	});
 	chatCommands.set('waves', async (_req, stream) => {
 		const d = vscode.window.activeTextEditor?.document;
@@ -51,13 +51,13 @@ export function activate(ctx: vscode.ExtensionContext) {
 		const doc = uri ? await vscode.workspace.openTextDocument(uri) : vscode.window.activeTextEditor?.document; if (!doc) { return; }
 		const ws = waves(parseTasks(doc.getText()));
 		const items = ws.flatMap((w, i) => [{ label: `Wave ${i + 1}`, kind: vscode.QuickPickItemKind.Separator } as vscode.QuickPickItem & { t?: Task }, ...w.map(t => ({ label: `$(circle-large-outline) ${t.id} ${t.title}`, description: t.deps.length ? `after ${t.deps.join(', ')}` : 'no dependencies', t }))]);
-		const p = await vscode.window.showQuickPick(items, { placeHolder: 'Execution waves — pick a task to jump to it' });
+		const p = await vscode.window.showQuickPick(items, { placeHolder: vscode.l10n.t("Execution waves — pick a task to jump to it") });
 		if (p?.t) { const ed = await vscode.window.showTextDocument(doc); const pos = new vscode.Position(p.t.line, 0); ed.selection = new vscode.Selection(pos, pos); ed.revealRange(new vscode.Range(pos, pos)); }
 	});
 	register(ctx, 'axiora.tasks.startNext', async () => {
 		const ed = vscode.window.activeTextEditor; if (!ed) { return; }
 		const next = waves(parseTasks(ed.document.getText()))[0]?.[0];
-		if (!next) { vscode.window.showInformationMessage('All tasks are done.'); return; }
+		if (!next) { vscode.window.showInformationMessage(vscode.l10n.t("All tasks are done.")); return; }
 		await vscode.commands.executeCommand('workbench.action.chat.open', { query: `Implement task ${next.id}: ${next.title}. When finished, mark it [x] in ${vscode.workspace.asRelativePath(ed.document.uri)}.`, mode: 'agent' });
 	});
 }

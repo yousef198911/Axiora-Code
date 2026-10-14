@@ -1,0 +1,89 @@
+/*---------------------------------------------------------------------------------------------
+ *  Axiora: right-to-left workbench when the display language is Arabic.
+ *  The root container gets `axiora-rtl` + dir=rtl; flex rows (title bar, menus, status bar,
+ *  tabs, action bars, list rows, settings, dialogs, notifications, quick input, chat) then
+ *  flow from the right. Code surfaces are pinned back to left-to-right.
+ *--------------------------------------------------------------------------------------------*/
+
+/* Arabic-friendly UI font stack (falls back to the system font when none is installed). */
+.monaco-workbench:lang(ar), .monaco-workbench.axiora-rtl {
+	font-family: "Segoe UI", "Noto Sans Arabic", "Noto Naskh Arabic", "Tahoma", "Geeza Pro", system-ui, sans-serif;
+}
+
+.monaco-workbench.axiora-rtl { direction: rtl; }
+
+/* Code stays left-to-right (monaco handles bidi inside lines). */
+.monaco-workbench.axiora-rtl .monaco-editor,
+.monaco-workbench.axiora-rtl .monaco-diff-editor,
+.monaco-workbench.axiora-rtl .xterm,
+.monaco-workbench.axiora-rtl .terminal-wrapper,
+.monaco-workbench.axiora-rtl .integrated-terminal,
+.monaco-workbench.axiora-rtl .notebook-text-diff-editor,
+.monaco-workbench.axiora-rtl .cell-editor-container,
+.monaco-workbench.axiora-rtl .monaco-scrollable-element > .scrollbar,
+.monaco-workbench.axiora-rtl .minimap,
+.monaco-workbench.axiora-rtl .keybinding,
+.monaco-workbench.axiora-rtl .monaco-keybinding,
+.monaco-workbench.axiora-rtl .setting-item-control .monaco-inputbox input[type="number"],
+.monaco-workbench.axiora-rtl .debug-console .monaco-list-row,
+.monaco-workbench.axiora-rtl .repl-input-wrapper,
+.monaco-workbench.axiora-rtl .output-view .monaco-editor {
+	direction: ltr;
+}
+
+/* Inputs: start typing from the right, but let mixed text decide per paragraph. */
+.monaco-workbench.axiora-rtl input,
+.monaco-workbench.axiora-rtl textarea { direction: rtl; unicode-bidi: plaintext; text-align: start; }
+
+/* Lists and trees: text aligned to the right; disclosure chevrons point left. */
+.monaco-workbench.axiora-rtl .monaco-list-row { text-align: right; }
+.monaco-workbench.axiora-rtl .monaco-tl-twistie.collapsible.collapsed::before,
+.monaco-workbench.axiora-rtl .codicon-chevron-right:not(.monaco-editor *),
+.monaco-workbench.axiora-rtl .codicon-arrow-right:not(.monaco-editor *),
+.monaco-workbench.axiora-rtl .codicon-arrow-left:not(.monaco-editor *),
+.monaco-workbench.axiora-rtl .codicon-chevron-left:not(.monaco-editor *) { transform: scaleX(-1); }
+.monaco-workbench.axiora-rtl .monaco-tl-indent { display: none; }
+.monaco-workbench.axiora-rtl .monaco-icon-label > .monaco-icon-label-container > .monaco-icon-description-container > .label-description { margin-left: 0; margin-right: 0.5em; }
+.monaco-workbench.axiora-rtl .monaco-icon-label::before { padding-right: 0; padding-left: 6px; }
+
+/* Context menus and the menu bar. */
+.monaco-workbench.axiora-rtl .monaco-menu .monaco-action-bar.vertical .action-label,
+.monaco-workbench.axiora-rtl .monaco-menu .monaco-action-bar.vertical .keybinding { text-align: right; }
+.monaco-workbench.axiora-rtl .monaco-menu .monaco-action-bar.vertical .submenu-indicator { transform: scaleX(-1); }
+
+/* Settings editor. */
+.monaco-workbench.axiora-rtl .settings-editor .setting-item-contents,
+.monaco-workbench.axiora-rtl .settings-editor .settings-toc-container { text-align: right; }
+.monaco-workbench.axiora-rtl .settings-editor .setting-item-contents .setting-item-modified-indicator { left: auto; right: 0; }
+.monaco-workbench.axiora-rtl .settings-editor .setting-item-contents { padding-left: 0; padding-right: 0; }
+
+/* Dialogs, notifications, hovers, quick input. */
+.monaco-workbench.axiora-rtl .monaco-dialog-box,
+.monaco-workbench.axiora-rtl .notification-list-item,
+.monaco-workbench.axiora-rtl .monaco-hover:not(.monaco-editor *),
+.monaco-workbench.axiora-rtl .quick-input-widget { direction: rtl; text-align: right; }
+
+/* Breadcrumbs separators point the other way. */
+.monaco-workbench.axiora-rtl .monaco-breadcrumb-item::before,
+.monaco-workbench.axiora-rtl .monaco-breadcrumbs .codicon-breadcrumb-separator { transform: scaleX(-1); }
+
+/* Chat (both directions): each paragraph picks its own direction like dir=auto, so Arabic
+   messages read right-to-left and English ones left-to-right. Code blocks stay LTR. */
+.interactive-session .interactive-item-container .rendered-markdown > p,
+.interactive-session .interactive-item-container .rendered-markdown > ul,
+.interactive-session .interactive-item-container .rendered-markdown > ol,
+.interactive-session .interactive-item-container .rendered-markdown li,
+.interactive-session .interactive-item-container .rendered-markdown > h1,
+.interactive-session .interactive-item-container .rendered-markdown > h2,
+.interactive-session .interactive-item-container .rendered-markdown > h3,
+.interactive-session .interactive-item-container .rendered-markdown > blockquote,
+.interactive-session .interactive-item-container .rendered-markdown table,
+.interactive-session .chat-attached-context,
+.interactive-session .interactive-input-part .chat-input-placeholder {
+	unicode-bidi: plaintext;
+	text-align: start;
+}
+.monaco-workbench.axiora-rtl .interactive-session .rendered-markdown pre,
+.monaco-workbench.axiora-rtl .interactive-session .rendered-markdown code { direction: ltr; unicode-bidi: isolate; }
+.monaco-workbench.axiora-rtl .interactive-session .interactive-item-container .rendered-markdown ul,
+.monaco-workbench.axiora-rtl .interactive-session .interactive-item-container .rendered-markdown ol { padding-left: 0; padding-right: 20px; }

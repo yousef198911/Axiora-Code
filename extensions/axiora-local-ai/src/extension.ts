@@ -1,12 +1,13 @@
 /*---------------------------------------------------------------------------------------------
  *  Axiora Local AI - local-first AI features that work without a Copilot account.
  *--------------------------------------------------------------------------------------------*/
+import { installRuntimeL10n, languageRule } from './i18n';
 import { toolLoop, setLastReply } from './tools';
 import * as vscode from 'vscode';
 import * as cp from 'child_process';
 import * as path from 'path';
 import { chat, ChatMessage, complete, initLlm, listModels } from './llm';
-import { chatCommands, contextProviders } from './util';
+import { chatCommands, contextProviders, refreshSys } from './util';
 import { awake } from './keepAwake';
 import { setPrompt } from './liveContext';
 import { systemPrompt, compact } from './promptOps';
@@ -92,17 +93,17 @@ async function listCheckpoints(cwd: string) {
 async function restoreCheckpoint(sha?: string, label?: string) {
 	const r = root(); if (!r) { return; }
 	const items = await listCheckpoints(r.fsPath);
-	if (!items.length) { vscode.window.showInformationMessage('No Axiora checkpoints yet.'); return; }
-	const pick = typeof sha === 'string' ? { label: label ?? sha.slice(0, 8), i: { sha } } : await vscode.window.showQuickPick(items.map(i => ({ label: i.subject.replace('Axiora checkpoint: ', ''), description: i.sha.slice(0, 8), i })), { placeHolder: 'Restore workspace files to checkpoint' });
+	if (!items.length) { vscode.window.showInformationMessage(vscode.l10n.t("No Axiora checkpoints yet.")); return; }
+	const pick = typeof sha === 'string' ? { label: label ?? sha.slice(0, 8), i: { sha } } : await vscode.window.showQuickPick(items.map(i => ({ label: i.subject.replace('Axiora checkpoint: ', ''), description: i.sha.slice(0, 8), i })), { placeHolder: vscode.l10n.t("Restore workspace files to checkpoint") });
 	if (!pick) { return; }
-	const ok = await vscode.window.showWarningMessage(`Restore files to "${pick.label}"? A safety checkpoint of the current state is created first.`, { modal: true }, 'Restore');
+	const ok = await vscode.window.showWarningMessage(vscode.l10n.t("Restore files to \"{0}\"? A safety checkpoint of the current state is created first.", pick.label), { modal: true }, 'Restore');
 	if (ok !== 'Restore') { return; }
 	await createCheckpoint('before restore');
 	await git(['restore', `--source=${pick.i.sha}`, '--worktree', '--', '.'], r.fsPath);
 	// remove files created after the checkpoint
 	const created = await git(['diff', '--name-only', '--diff-filter=A', pick.i.sha, (await createCheckpoint('restore-scan'))!], r.fsPath);
 	for (const f of created.split('\n').filter(Boolean)) { await vscode.workspace.fs.delete(vscode.Uri.joinPath(r, f)).then(undefined, () => undefined); }
-	vscode.window.showInformationMessage(`Restored checkpoint "${pick.label}".`);
+	vscode.window.showInformationMessage(vscode.l10n.t("Restored checkpoint \"{0}\".", pick.label));
 }
 
 // ---------------------------------------------------------------- memory
@@ -117,7 +118,8 @@ async function memoryContext(): Promise<string> {
 	const u = memoryUri(); const m = u && await readText(u);
 	return m ? `\n\nProject memory (always respect):\n${m.slice(0, 6000)}` : '';
 }
-const SYSTEM = 'You are Axiora, a precise senior software engineer assistant inside the Axiora code editor. Answer concisely in the user\'s language. Use Markdown.';
+const SYSTEM_BASE = 'You are Axiora, a precise senior software engineer assistant inside the Axiora code editor. Answer concisely. Use Markdown.';
+const sysPrompt = () => `${SYSTEM_BASE} ${languageRule()}`;
 
 // ---------------------------------------------------------------- review
 async function diffForReview(): Promise<string> {
@@ -128,7 +130,7 @@ async function diffForReview(): Promise<string> {
 	return d.slice(0, 60000);
 }
 function reviewPrompt(diff: string): ChatMessage[] {
-	return [{ role: 'system', content: SYSTEM }, { role: 'user', content: `Review these uncommitted changes like a strict code reviewer. List concrete issues (bugs, security, performance, readability) as "- [severity] file:line — problem → fix". End with a one-line verdict.\n\n\`\`\`diff\n${diff}\n\`\`\`` }];
+	return [{ role: 'system', content: sysPrompt() }, { role: 'user', content: `Review these uncommitted changes like a strict code reviewer. List concrete issues (bugs, security, performance, readability) as "- [severity] file:line — problem → fix". End with a one-line verdict.\n\n\`\`\`diff\n${diff}\n\`\`\`` }];
 }
 
 // ---------------------------------------------------------------- specs
@@ -141,7 +143,7 @@ const SPEC_STEPS: { file: string; ask: string }[] = [
 async function generateSpec(feature: string, onProgress: (s: string) => void, token?: vscode.CancellationToken): Promise<vscode.Uri> {
 	const r = root(); if (!r) { throw new Error('Open a folder first.'); }
 	const dir = vscode.Uri.joinPath(r, '.axiora', 'specs', slug(feature));
-	const history: ChatMessage[] = [{ role: 'system', content: SYSTEM + await memoryContext() }, { role: 'user', content: `Feature to plan: ${feature}` }];
+	const history: ChatMessage[] = [{ role: 'system', content: sysPrompt() + await memoryContext() }, { role: 'user', content: `Feature to plan: ${feature}` }];
 	for (const step of SPEC_STEPS) {
 		onProgress(`\n\n### ${step.file}\n\n`);
 		history.push({ role: 'user', content: step.ask + ' Output only the Markdown document.' });
@@ -156,7 +158,7 @@ async function generateSpec(feature: string, onProgress: (s: string) => void, to
 function userDir(ctx: vscode.ExtensionContext) { return vscode.Uri.joinPath(ctx.globalStorageUri, '..', '..'); }
 async function syncPush(ctx: vscode.ExtensionContext, quiet = false) {
 	const ep = vscode.workspace.getConfiguration('axiora.sync').get<string>('endpoint', '');
-	if (!ep) { if (!quiet) { vscode.window.showWarningMessage('Set "axiora.sync.endpoint" to your sync server URL first.', 'Open Setting').then(a => a && vscode.commands.executeCommand('workbench.action.openSettings', 'axiora.sync')); } return; }
+	if (!ep) { if (!quiet) { vscode.window.showWarningMessage(vscode.l10n.t("Set \"axiora.sync.endpoint\" to your sync server URL first."), 'Open Setting').then(a => a && vscode.commands.executeCommand('workbench.action.openSettings', 'axiora.sync')); } return; }
 	const u = userDir(ctx);
 	const payload = {
 		version: 1, updatedAt: new Date().toISOString(),
@@ -168,7 +170,7 @@ async function syncPush(ctx: vscode.ExtensionContext, quiet = false) {
 	const r = await fetch(ep, { method: 'PUT', headers: { 'content-type': 'application/json', ...(token ? { authorization: `Bearer ${token}` } : {}) }, body: JSON.stringify(payload) });
 	if (!r.ok) { throw new Error(`Sync upload failed: ${r.status}`); }
 	out.info(`settings uploaded to ${ep}`);
-	if (!quiet) { vscode.window.showInformationMessage('Settings uploaded to your server.'); }
+	if (!quiet) { vscode.window.showInformationMessage(vscode.l10n.t("Settings uploaded to your server.")); }
 }
 async function syncPull(ctx: vscode.ExtensionContext) {
 	const ep = vscode.workspace.getConfiguration('axiora.sync').get<string>('endpoint', '');
@@ -183,14 +185,16 @@ async function syncPull(ctx: vscode.ExtensionContext) {
 	const missing = (p.extensions ?? []).filter(id => !vscode.extensions.getExtension(id));
 	for (const id of missing) { await vscode.commands.executeCommand('workbench.extensions.installExtension', id).then(undefined, e => out.warn(`install ${id}: ${e}`)); }
 	out.info(`settings downloaded from ${ep}; installed ${missing.length} extensions`);
-	vscode.window.showInformationMessage(`Settings downloaded from your server${missing.length ? `, installing ${missing.length} extensions` : ''}.`);
+	vscode.window.showInformationMessage(vscode.l10n.t("Settings downloaded from your server{0}.", missing.length ? `, installing ${missing.length} extensions` : ''));
 }
 
 // ---------------------------------------------------------------- activate
 export function activate(ctx: vscode.ExtensionContext) {
+	installRuntimeL10n();
+	ctx.subscriptions.push(vscode.workspace.onDidChangeConfiguration(e => { if (e.affectsConfiguration('axiora.chat.responseLanguage')) { refreshSys(); } }));
 	initLlm(ctx.secrets);
 	const reg = (id: string, fn: (...a: any[]) => any) => ctx.subscriptions.push(vscode.commands.registerCommand(id, async (...a) => {
-		try { return await fn(...a); } catch (e) { out.error(`${id}: ${(e as Error).message}`); vscode.window.showErrorMessage(`Axiora: ${(e as Error).message}`); }
+		try { return await fn(...a); } catch (e) { out.error(`${id}: ${(e as Error).message}`); vscode.window.showErrorMessage(vscode.l10n.t("Axiora: {0}", (e as Error).message)); }
 	}));
 
 	ctx.subscriptions.push(out, vscode.languages.registerInlineCompletionItemProvider([{ scheme: 'file' }, { scheme: 'untitled' }, { scheme: 'vscode-remote' }], new LocalInlineProvider()));
@@ -199,41 +203,41 @@ export function activate(ctx: vscode.ExtensionContext) {
 		const c = vscode.workspace.getConfiguration('axiora.inlineCompletion');
 		const v = !c.get('enabled', true);
 		await c.update('enabled', v, vscode.ConfigurationTarget.Global);
-		vscode.window.showInformationMessage(`Axiora local inline completion ${v ? 'enabled' : 'disabled'}.`);
+		vscode.window.showInformationMessage(vscode.l10n.t("Axiora local inline completion {0}.", v ? 'enabled' : 'disabled'));
 	});
 	reg('axiora.ai.setApiKey', async () => {
-		const k = await vscode.window.showInputBox({ prompt: 'API key for the OpenAI-compatible provider (stored securely)', password: true, ignoreFocusOut: true });
+		const k = await vscode.window.showInputBox({ prompt: vscode.l10n.t("API key for the OpenAI-compatible provider (stored securely)"), password: true, ignoreFocusOut: true });
 		if (k !== undefined) { k ? await ctx.secrets.store('axiora.ai.apiKey', k) : await ctx.secrets.delete('axiora.ai.apiKey'); }
 	});
 	reg('axiora.ai.testConnection', async () => {
 		const t = await chat([{ role: 'user', content: 'Reply with: OK' }], () => { });
-		vscode.window.showInformationMessage(`Model replied: ${t.slice(0, 80)}`);
+		vscode.window.showInformationMessage(vscode.l10n.t("Model replied: {0}", t.slice(0, 80)));
 	});
-	reg('axiora.checkpoint.create', async () => { const c = await createCheckpoint(); if (c) { vscode.window.showInformationMessage(`Checkpoint created (${c.slice(0, 8)}).`); } });
+	reg('axiora.checkpoint.create', async () => { const c = await createCheckpoint(); if (c) { vscode.window.showInformationMessage(vscode.l10n.t("Checkpoint created ({0}).", c.slice(0, 8))); } });
 	reg('axiora.checkpoint.restore', () => restoreCheckpoint());
 	ctx.subscriptions.push(vscode.commands.registerCommand('axiora.checkpoint._create', (label?: string) => createCheckpoint(label).catch(() => undefined)));
 	reg('axiora.checkpoint._restoreTo', (sha: string, label?: string) => restoreCheckpoint(sha, label));
-	reg('axiora.memory.add', async () => { const n = await vscode.window.showInputBox({ prompt: 'Note for the project memory (.axiora/memory.md)' }); if (n) { await addMemory(n); } });
+	reg('axiora.memory.add', async () => { const n = await vscode.window.showInputBox({ prompt: vscode.l10n.t("Note for the project memory (.axiora/memory.md)") }); if (n) { await addMemory(n); } });
 	reg('axiora.memory.open', async () => { const u = memoryUri(); if (!u) { return; } if (!await readText(u)) { await addMemory('Memory created.'); } await vscode.window.showTextDocument(u); });
 	reg('axiora.spec.new', async () => {
-		const f = await vscode.window.showInputBox({ prompt: 'Describe the feature to plan (creates .axiora/specs/<name>/requirements.md, design.md, tasks.md)' });
+		const f = await vscode.window.showInputBox({ prompt: vscode.l10n.t("Describe the feature to plan (creates .axiora/specs/<name>/requirements.md, design.md, tasks.md)") });
 		if (!f) { return; }
-		const dir = await vscode.window.withProgress({ location: vscode.ProgressLocation.Notification, title: 'Axiora: writing spec…', cancellable: true }, (_p, tok) => generateSpec(f, () => { }, tok));
+		const dir = await vscode.window.withProgress({ location: vscode.ProgressLocation.Notification, title: vscode.l10n.t("Axiora: writing spec…"), cancellable: true }, (_p, tok) => generateSpec(f, () => { }, tok));
 		await vscode.window.showTextDocument(vscode.Uri.joinPath(dir, 'requirements.md'));
 	});
 	reg('axiora.review.changes', async () => {
 		const diff = await diffForReview();
-		if (!diff.trim()) { vscode.window.showInformationMessage('No uncommitted changes to review.'); return; }
+		if (!diff.trim()) { vscode.window.showInformationMessage(vscode.l10n.t("No uncommitted changes to review.")); return; }
 		const doc = await vscode.workspace.openTextDocument({ language: 'markdown', content: '# Axiora review\n\n' });
 		const ed = await vscode.window.showTextDocument(doc, vscode.ViewColumn.Beside);
-		await vscode.window.withProgress({ location: vscode.ProgressLocation.Notification, title: 'Axiora: reviewing changes…', cancellable: true }, async (_p, tok) => {
+		await vscode.window.withProgress({ location: vscode.ProgressLocation.Notification, title: vscode.l10n.t("Axiora: reviewing changes…"), cancellable: true }, async (_p, tok) => {
 			let pending = '';
 			const flush = async () => { if (pending) { const s = pending; pending = ''; await ed.edit(e => e.insert(doc.lineAt(doc.lineCount - 1).range.end, s)); } };
 			const timer = setInterval(flush, 200);
 			try { await chat(reviewPrompt(diff), s => pending += s, tok); } finally { clearInterval(timer); await flush(); }
 		});
 	});
-	reg('axiora.sync.setToken', async () => { const t = await vscode.window.showInputBox({ prompt: 'Token for your settings-sync server', password: true }); if (t !== undefined) { await ctx.secrets.store('axiora.sync.token', t); } });
+	reg('axiora.sync.setToken', async () => { const t = await vscode.window.showInputBox({ prompt: vscode.l10n.t("Token for your settings-sync server"), password: true }); if (t !== undefined) { await ctx.secrets.store('axiora.sync.token', t); } });
 	reg('axiora.sync.push', () => syncPush(ctx));
 	reg('axiora.sync.pull', () => syncPull(ctx));
 
@@ -277,17 +281,17 @@ export function activate(ctx: vscode.ExtensionContext) {
 	async function handleChat(req: vscode.ChatRequest, _ctx: vscode.ChatContext, stream: vscode.ChatResponseStream, token: vscode.CancellationToken) {
 		try {
 			switch (req.command) {
-				case 'remember': await addMemory(req.prompt); stream.markdown(`Saved to \`.axiora/memory.md\`: ${req.prompt}`); return;
+				case 'remember': await addMemory(req.prompt); stream.markdown(vscode.l10n.t("Saved to `.axiora/memory.md`: {0}", req.prompt)); return;
 				case 'memory': { const u = memoryUri(); stream.markdown((u && await readText(u)) || '_Memory is empty. Use `/remember <note>`._'); return; }
 				case 'checkpoint': { const c = await createCheckpoint(req.prompt || undefined); stream.markdown(c ? `Checkpoint \`${c.slice(0, 8)}\` created. Restore with **Axiora AI: Restore Checkpoint...**` : 'Open a git folder first.'); return; }
 				case 'review': {
 					const diff = await diffForReview();
-					if (!diff.trim()) { stream.markdown('No uncommitted changes to review.'); return; }
-					stream.progress('Reviewing uncommitted changes locally…');
+					if (!diff.trim()) { stream.markdown(vscode.l10n.t("No uncommitted changes to review.")); return; }
+					stream.progress(vscode.l10n.t("Reviewing uncommitted changes locally…"));
 					await chat(reviewPrompt(diff), s => stream.markdown(s), token); return;
 				}
 				case 'spec': {
-					if (!req.prompt.trim()) { stream.markdown('Usage: `/spec <feature description>`'); return; }
+					if (!req.prompt.trim()) { stream.markdown(vscode.l10n.t("Usage: `/spec <feature description>`")); return; }
 					const dir = await generateSpec(req.prompt, s => stream.markdown(s), token);
 					for (const s of SPEC_STEPS) { stream.reference(vscode.Uri.joinPath(dir, s.file)); }
 					return;
@@ -297,7 +301,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 			if (extra) { await extra(req, stream, token, _ctx); return; }
 			let more = '';
 			for (const p of contextProviders) { more += await p().catch(() => ''); }
-			let msgs: ChatMessage[] = [{ role: 'system', content: await systemPrompt(SYSTEM) + await memoryContext() + more }];
+			let msgs: ChatMessage[] = [{ role: 'system', content: await systemPrompt(sysPrompt()) + await memoryContext() + more }];
 			for (const h of _ctx.history) {
 				if (h instanceof vscode.ChatRequestTurn) { msgs.push({ role: 'user', content: h.prompt }); }
 				else if (h instanceof vscode.ChatResponseTurn) { msgs.push({ role: 'assistant', content: h.response.map(p => p instanceof vscode.ChatResponseMarkdownPart ? p.value.value : '').join('') }); }
@@ -308,7 +312,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 			msgs = await compact(msgs, token, n => stream.progress(n));
 			const reply = await toolLoop(msgs, stream, token);
 			setLastReply(reply);
-			if (reply.trim()) { stream.button({ command: 'axiora.voice.readAloud', arguments: [reply], title: '$(unmute) Read aloud' }); }
+			if (reply.trim()) { stream.button({ command: 'axiora.voice.readAloud', arguments: [reply], title: vscode.l10n.t("$(unmute) Read aloud") }); }
 			if (vscode.workspace.getConfiguration('axiora.voice.tts').get('autoSpeak', false)) { void vscode.commands.executeCommand('axiora.voice.readAloud', reply); }
 		} catch (e) {
 			const msg = (e as Error).message;

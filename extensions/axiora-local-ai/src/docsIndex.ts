@@ -22,11 +22,11 @@ export function activate(ctx: vscode.ExtensionContext) {
 	const dir = path.join(ctx.globalStorageUri.fsPath, 'docs'); fs.mkdirSync(dir, { recursive: true });
 	const indexes = (): Index[] => fs.readdirSync(dir).filter(f => f.endsWith('.json')).map(f => JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8')));
 	register(ctx, 'axiora.docs.add', async () => {
-		const root = await vscode.window.showInputBox({ prompt: 'Documentation URL to index (pages under this prefix are crawled)', placeHolder: 'https://docs.python.org/3/library/asyncio.html' }); if (!root) { return; }
+		const root = await vscode.window.showInputBox({ prompt: vscode.l10n.t("Documentation URL to index (pages under this prefix are crawled)"), placeHolder: vscode.l10n.t("https://docs.python.org/3/library/asyncio.html") }); if (!root) { return; }
 		const name = await vscode.window.showInputBox({ prompt: 'Name', value: new URL(root).hostname }); if (!name) { return; }
 		const max = vscode.workspace.getConfiguration('axiora.docs').get<number>('maxPages', 40);
 		const prefix = root.replace(/[^/]*$/, ''); const seen = new Set<string>(); const queue = [root]; const chunks: Chunk[] = [];
-		await vscode.window.withProgress({ location: vscode.ProgressLocation.Notification, title: `Indexing ${name}`, cancellable: true }, async (p, tok) => {
+		await vscode.window.withProgress({ location: vscode.ProgressLocation.Notification, title: vscode.l10n.t("Indexing {0}", name), cancellable: true }, async (p, tok) => {
 			while (queue.length && seen.size < max && !tok.isCancellationRequested) {
 				const u = queue.shift()!; if (seen.has(u)) { continue; } seen.add(u);
 				try {
@@ -34,22 +34,22 @@ export function activate(ctx: vscode.ExtensionContext) {
 					const html = await r.text(); const title = strip(/<title>([\s\S]*?)<\/title>/i.exec(html)?.[1] ?? u);
 					const text = strip(html); for (let i = 0; i < text.length; i += 1500) { chunks.push({ url: u, title, text: text.slice(i, i + 1700) }); }
 					for (const m of html.matchAll(/href="([^"#]+)/g)) { try { const n = new URL(m[1], u).toString(); if (n.startsWith(prefix) && !seen.has(n)) { queue.push(n); } } catch { /* bad url */ } }
-					p.report({ message: `${seen.size} pages`, increment: 100 / max });
+					p.report({ message: vscode.l10n.t("{0} pages", seen.size), increment: 100 / max });
 				} catch { /* skip page */ }
 			}
 		});
 		fs.writeFileSync(path.join(dir, `${name.replace(/[^\w.-]+/g, '_')}.json`), JSON.stringify({ name, root, chunks, at: new Date().toISOString() } satisfies Index));
-		vscode.window.showInformationMessage(`Indexed ${seen.size} pages (${chunks.length} chunks) for "${name}". Ask with @axiora /docs.`);
+		vscode.window.showInformationMessage(vscode.l10n.t("Indexed {0} pages ({1} chunks) for \"{2}\". Ask with @axiora /docs.", seen.size, chunks.length, name));
 	});
 	register(ctx, 'axiora.docs.manage', async () => {
-		const p = await vscode.window.showQuickPick(indexes().map(i => ({ label: i.name, description: `${i.chunks.length} chunks · ${i.root}`, detail: `indexed ${new Date(i.at).toLocaleString()}` })), { placeHolder: 'Documentation sources (select to remove)', canPickMany: true });
+		const p = await vscode.window.showQuickPick(indexes().map(i => ({ label: i.name, description: `${i.chunks.length} chunks · ${i.root}`, detail: `indexed ${new Date(i.at).toLocaleString()}` })), { placeHolder: vscode.l10n.t("Documentation sources (select to remove)"), canPickMany: true });
 		for (const x of p ?? []) { fs.rmSync(path.join(dir, `${x.label.replace(/[^\w.-]+/g, '_')}.json`), { force: true }); }
 	});
 	chatCommands.set('docs', async (req, stream, token) => {
-		const all = indexes(); if (!all.length) { stream.markdown('No documentation indexed yet. Run **Docs: Add Documentation Source…**.'); stream.button({ title: 'Add Documentation Source', command: 'axiora.docs.add' }); return; }
+		const all = indexes(); if (!all.length) { stream.markdown(vscode.l10n.t("No documentation indexed yet. Run **Docs: Add Documentation Source…**.")); stream.button({ title: vscode.l10n.t("Add Documentation Source"), command: 'axiora.docs.add' }); return; }
 		const m = /^#(\S+)\s+/.exec(req.prompt); const pool = m ? all.filter(i => i.name.startsWith(m[1])) : all; const q = m ? req.prompt.slice(m[0].length) : req.prompt;
 		const top = rank(pool.flatMap(i => i.chunks), q);
-		if (!top.length) { stream.markdown('No matching passages in the indexed docs.'); return; }
+		if (!top.length) { stream.markdown(vscode.l10n.t("No matching passages in the indexed docs.")); return; }
 		const ctxt = top.map((c, i) => `[${i + 1}] ${c.title} (${c.url})\n${c.text}`).join('\n\n');
 		await chat([{ role: 'system', content: SYS }, { role: 'user', content: `Answer from these documentation excerpts; cite as [n].\n\n${ctxt}\n\nQuestion: ${q}` }], s => stream.markdown(s), token);
 		stream.markdown('\n\n' + [...new Map(top.map(c => [c.url, c])).values()].map((c, i) => `${i + 1}. [${c.title}](${c.url})`).join('\n'));

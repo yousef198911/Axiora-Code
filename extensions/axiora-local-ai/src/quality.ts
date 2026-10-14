@@ -81,7 +81,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 		const files = await vscode.workspace.findFiles('**/*.{js,ts,jsx,tsx,py}', '{**/node_modules/**,**/out/**,**/dist/**,**/.axiora/**}', 2000);
 		let n = 0; for (const u of files) { const d = await vscode.workspace.openTextDocument(u); check(d); n += fixes.get(u.toString())?.length ?? 0; }
 		await vscode.commands.executeCommand('workbench.actions.view.problems');
-		vscode.window.showInformationMessage(`Inspections: ${n} finding(s) in ${files.length} file(s).`);
+		vscode.window.showInformationMessage(vscode.l10n.t("Inspections: {0} finding(s) in {1} file(s).", n, files.length));
 	});
 	// ---- SCA via OSV.dev
 	const sca = vscode.languages.createDiagnosticCollection('axiora-sca'); ctx.subscriptions.push(sca);
@@ -111,22 +111,22 @@ export function activate(ctx: vscode.ExtensionContext) {
 	// ---- safe AI refactor
 	register(ctx, 'axiora.refactor.safe', async () => {
 		const ed = vscode.window.activeTextEditor; const r = wsRoot(); if (!ed || !r) { return; }
-		const what = await vscode.window.showInputBox({ prompt: 'Refactoring (behaviour must not change)', placeHolder: 'extract the validation into a function; rename x to total; replace loop with map…' }); if (!what) { return; }
+		const what = await vscode.window.showInputBox({ prompt: vscode.l10n.t("Refactoring (behaviour must not change)"), placeHolder: vscode.l10n.t("extract the validation into a function; rename x to total; replace loop with map…") }); if (!what) { return; }
 		const doc = ed.document; const range = ed.selection.isEmpty ? new vscode.Range(0, 0, doc.lineCount, 0) : new vscode.Range(ed.selection.start.with(undefined, 0), ed.selection.end.with(ed.selection.end.line + 1, 0));
 		const before = doc.getText(range);
 		const after = unfence(await withProgress('Refactoring…', t => ask(`Apply this behaviour-preserving refactoring: ${what}\nReturn ONLY the rewritten code for the given range, nothing else.\n\n\`\`\`${doc.languageId}\n${before}\n\`\`\``, SYS, t))) + (before.endsWith('\n') ? '\n' : '');
-		if (after.trim() === before.trim() || after.trim().length < 2) { vscode.window.showInformationMessage('The model proposed no change.'); return; }
+		if (after.trim() === before.trim() || after.trim().length < 2) { vscode.window.showInformationMessage(vscode.l10n.t("The model proposed no change.")); return; }
 		const prop = vscode.Uri.parse(`untitled:${path.basename(doc.fileName)}.refactor${path.extname(doc.fileName)}`);
 		const pd = await vscode.workspace.openTextDocument(prop); const we = new vscode.WorkspaceEdit(); we.insert(prop, new vscode.Position(0, 0), doc.getText().replace(before, after)); await vscode.workspace.applyEdit(we);
 		await vscode.commands.executeCommand('vscode.diff', doc.uri, pd.uri, `Refactor preview: ${what}`);
 		const test = vscode.workspace.getConfiguration('axiora.solo').get<string>('testCommand', '') || (await vscode.workspace.findFiles('package.json', undefined, 1)).length && 'npm test --silent' || '';
-		const a = await vscode.window.showInformationMessage(`Apply refactoring${test ? ` and verify with "${test}"` : ''}?`, 'Apply', 'Discard'); if (a !== 'Apply') { return; }
+		const a = await vscode.window.showInformationMessage(vscode.l10n.t("Apply refactoring{0}?", test ? ` and verify with "${test}"` : ''), 'Apply', 'Discard'); if (a !== 'Apply') { return; }
 		const orig = doc.getText(); const ed2 = new vscode.WorkspaceEdit(); ed2.replace(doc.uri, range, after); await vscode.workspace.applyEdit(ed2); await doc.save();
-		if (!test) { vscode.window.showInformationMessage('Refactoring applied (no test command configured — set axiora.solo.testCommand to verify automatically).'); return; }
+		if (!test) { vscode.window.showInformationMessage(vscode.l10n.t("Refactoring applied (no test command configured — set axiora.solo.testCommand to verify automatically).")); return; }
 		const ok = await run('bash', ['-lc', `${test} 2>&1`], r.fsPath).then(() => true, () => false);
-		if (ok) { vscode.window.showInformationMessage('Refactoring applied — tests still pass ✓'); return; }
+		if (ok) { vscode.window.showInformationMessage(vscode.l10n.t("Refactoring applied — tests still pass ✓")); return; }
 		const back = new vscode.WorkspaceEdit(); back.replace(doc.uri, new vscode.Range(0, 0, doc.lineCount, 0), orig); await vscode.workspace.applyEdit(back); await doc.save();
-		vscode.window.showWarningMessage('Tests failed after the refactoring — it was rolled back.');
+		vscode.window.showWarningMessage(vscode.l10n.t("Tests failed after the refactoring — it was rolled back."));
 	});
 	// ---- property tests: run + counterexample
 	register(ctx, 'axiora.propertyTests.run', async () => {
@@ -136,7 +136,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 		const res = await withProgress('Running property tests…', () => run('bash', ['-lc', `cd "${path.dirname(f)}" && (${cmd}); exit \${PIPESTATUS[0]}`], r.fsPath).then(o => ({ ok: true, o }), e => ({ ok: false, o: String(e.message) })));
 		const out = vscode.window.createOutputChannel('Axiora Property Tests'); out.clear(); out.append(res.o);
 		const clean = res.o.replace(/^E {0,11}/gm, ''); const fe = /(?:Falsifying example|Failing test case):[\s\S]*?\n\)/.exec(clean)?.[0]?.replace(/\s+/g, ' ') ?? /Counterexample: .*/.exec(clean)?.[0];
-		if (res.ok && !/failed|Falsifying|Counterexample/i.test(res.o)) { vscode.window.showInformationMessage('All properties hold ✓'); out.show(true); return; }
+		if (res.ok && !/failed|Falsifying|Counterexample/i.test(res.o)) { vscode.window.showInformationMessage(vscode.l10n.t("All properties hold ✓")); out.show(true); return; }
 		const a = await vscode.window.showWarningMessage(fe ? `Property violated — ${fe.split('\n').slice(0, 3).join(' ').slice(0, 200)}` : 'Property tests failed.', 'Show Output', 'Fix with AI');
 		if (a === 'Show Output') { out.show(); }
 		if (a === 'Fix with AI') { await vscode.commands.executeCommand('workbench.action.chat.open', { query: `@axiora The property test ${path.basename(f)} failed.\n${fe ?? res.o.slice(-1500)}\nFind the bug in the code under test and propose the fix.` }); }

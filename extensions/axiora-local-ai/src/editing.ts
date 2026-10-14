@@ -37,7 +37,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 	}, 1000);
 	ctx.subscriptions.push({ dispose: () => clearInterval(timer) });
 	register(ctx, 'axiora.edit.pasteFromHistory', async () => {
-		const p = await vscode.window.showQuickPick(hist.map(h => ({ label: h.replace(/\s+/g, ' ').slice(0, 100), h })), { placeHolder: 'Paste from clipboard history' });
+		const p = await vscode.window.showQuickPick(hist.map(h => ({ label: h.replace(/\s+/g, ' ').slice(0, 100), h })), { placeHolder: vscode.l10n.t("Paste from clipboard history") });
 		const ed = vscode.window.activeTextEditor;
 		if (p && ed) { await ed.edit(e => ed.selections.forEach(s => e.replace(s, p.h))); }
 	});

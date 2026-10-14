@@ -18,11 +18,11 @@ const gcfg = () => vscode.workspace.getConfiguration('axiora.google');
 async function googleSignIn(): Promise<void> {
 	let clientId = gcfg().get<string>('clientId', '');
 	if (!clientId) {
-		clientId = await vscode.window.showInputBox({ prompt: 'Your Google OAuth client ID (Desktop app type, from console.cloud.google.com → Credentials)', ignoreFocusOut: true }) ?? '';
+		clientId = await vscode.window.showInputBox({ prompt: vscode.l10n.t("Your Google OAuth client ID (Desktop app type, from console.cloud.google.com → Credentials)"), ignoreFocusOut: true }) ?? '';
 		if (!clientId) { return; } await gcfg().update('clientId', clientId, vscode.ConfigurationTarget.Global);
 	}
 	let secret = await secrets.get('axiora.google.clientSecret');
-	if (!secret) { secret = await vscode.window.showInputBox({ prompt: 'Google OAuth client secret (stored in secret storage)', password: true, ignoreFocusOut: true }); if (!secret) { return; } await secrets.store('axiora.google.clientSecret', secret); }
+	if (!secret) { secret = await vscode.window.showInputBox({ prompt: vscode.l10n.t("Google OAuth client secret (stored in secret storage)"), password: true, ignoreFocusOut: true }); if (!secret) { return; } await secrets.store('axiora.google.clientSecret', secret); }
 	const verifier = crypto.randomBytes(32).toString('base64url'); const challenge = crypto.createHash('sha256').update(verifier).digest('base64url'); const state = crypto.randomBytes(8).toString('hex');
 	const code = await new Promise<{ code: string; redirect: string }>((res, rej) => {
 		const srv = http.createServer((req, rsp) => {
@@ -41,7 +41,7 @@ async function googleSignIn(): Promise<void> {
 	const r = await fetch('https://oauth2.googleapis.com/token', { method: 'POST', body: new URLSearchParams({ code: code.code, client_id: clientId, client_secret: secret, redirect_uri: code.redirect, grant_type: 'authorization_code', code_verifier: verifier }) });
 	const j = await r.json() as any; if (!r.ok) { throw new Error(`Google token: ${j.error_description ?? j.error}`); }
 	await secrets.store('axiora.google.refreshToken', j.refresh_token);
-	vscode.window.showInformationMessage('Axiora: Google account connected (Gmail, Drive, Calendar).');
+	vscode.window.showInformationMessage(vscode.l10n.t("Axiora: Google account connected (Gmail, Drive, Calendar)."));
 }
 let access: { t: string; exp: number } | undefined;
 async function gtoken(): Promise<string> {
@@ -109,19 +109,19 @@ async function slackChannel(n: string): Promise<string> {
 export function activate(ctx: vscode.ExtensionContext) {
 	secrets = ctx.secrets;
 	register(ctx, 'axiora.google.signIn', googleSignIn);
-	register(ctx, 'axiora.google.signOut', async () => { await secrets.delete('axiora.google.refreshToken'); access = undefined; vscode.window.showInformationMessage('Google disconnected.'); });
-	register(ctx, 'axiora.slack.setToken', async () => { const t = await vscode.window.showInputBox({ prompt: 'Slack bot token (xoxb-…), scopes: channels:read, channels:history, groups:read, chat:write', password: true, ignoreFocusOut: true }); if (t !== undefined) { t ? await secrets.store('axiora.connector.slack', t) : await secrets.delete('axiora.connector.slack'); } });
+	register(ctx, 'axiora.google.signOut', async () => { await secrets.delete('axiora.google.refreshToken'); access = undefined; vscode.window.showInformationMessage(vscode.l10n.t("Google disconnected.")); });
+	register(ctx, 'axiora.slack.setToken', async () => { const t = await vscode.window.showInputBox({ prompt: vscode.l10n.t("Slack bot token (xoxb-…), scopes: channels:read, channels:history, groups:read, chat:write"), password: true, ignoreFocusOut: true }); if (t !== undefined) { t ? await secrets.store('axiora.connector.slack', t) : await secrets.delete('axiora.connector.slack'); } });
 	registerSender('gmail', async d => { await gget('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', { method: 'POST', body: JSON.stringify({ raw: rfc822(d) }) }); return `Email sent to ${d.to}.`; });
 	registerSender('gmail-draft', async d => { const j = await gget('https://gmail.googleapis.com/gmail/v1/users/me/drafts', { method: 'POST', body: JSON.stringify({ message: { raw: rfc822(d) } }) }); return `Saved to Gmail Drafts (${j.id}) — not sent.`; });
 	registerSender('slack', async d => { const ch = await slackChannel(d.to); const j = await slackApi('chat.postMessage', { channel: ch, text: d.body }); return `Posted to ${d.to} (ts ${j.ts}).`; });
 	for (const id of ['gmail', 'drive', 'calendar', 'slack'] as const) {
 		chatCommands.set(id, async (req, stream) => {
-			stream.progress(`Querying ${id}…`);
+			stream.progress(vscode.l10n.t("Querying {0}…", id));
 			try {
 				const r = await services[id](req.prompt);
-				if (typeof r === 'object') { stream.markdown(`Draft created — **nothing has been sent**. Review, edit, then click Send on the card.\n\n`); stream.button({ command: 'axiora.drafts.open', arguments: [r.draft], title: '$(edit) Open draft' }); return; }
+				if (typeof r === 'object') { stream.markdown(vscode.l10n.t("Draft created — **nothing has been sent**. Review, edit, then click Send on the card.\n\n")); stream.button({ command: 'axiora.drafts.open', arguments: [r.draft], title: vscode.l10n.t("$(edit) Open draft") }); return; }
 				const md = new vscode.MarkdownString(`**${id[0].toUpperCase() + id.slice(1)}** · live data\n\n`); for (const l of r.split('\n').filter(Boolean)) { md.appendMarkdown(`- ${l.replace(/[\\`*_[\]<>]/g, m => '\\' + m)}\n`); } stream.markdown(md);
-			} catch (e) { stream.markdown(`**${id} error:** ${(e as Error).message}`); }
+			} catch (e) { stream.markdown(vscode.l10n.t("**{0} error:** {1}", id, (e as Error).message)); }
 		});
 	}
 }

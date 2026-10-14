@@ -86,7 +86,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 		const url = `http://127.0.0.1:${cfg().get('port', 3917)}/mcp`;
 		const conf = JSON.stringify({ mcpServers: { axiora: { type: 'http', url, headers: { Authorization: `Bearer ${token}` } } } }, null, 2);
 		await vscode.env.clipboard.writeText(conf);
-		vscode.window.showInformationMessage(`Axiora MCP server running at ${url}. Client config copied to clipboard.`);
+		vscode.window.showInformationMessage(vscode.l10n.t("Axiora MCP server running at {0}. Client config copied to clipboard.", url));
 	});
-	register(ctx, 'axiora.mcp.regenerateToken', async () => { token = crypto.randomBytes(24).toString('hex'); await ctx.globalState.update('axiora.mcp.token', token); vscode.window.showInformationMessage('New MCP token generated; run "Copy Client Config" again.'); });
+	register(ctx, 'axiora.mcp.regenerateToken', async () => { token = crypto.randomBytes(24).toString('hex'); await ctx.globalState.update('axiora.mcp.token', token); vscode.window.showInformationMessage(vscode.l10n.t("New MCP token generated; run \"Copy Client Config\" again.")); });
 }

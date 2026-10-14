@@ -13,10 +13,10 @@ function repoRoot(file?: string): string | undefined {
 export function activate(ctx: vscode.ExtensionContext) {
 	register(ctx, 'axiora.git.stashStaged', async () => {
 		const cwd = repoRoot(); if (!cwd) { return; }
-		const msg = await vscode.window.showInputBox({ prompt: 'Stash message (staged changes only)' });
+		const msg = await vscode.window.showInputBox({ prompt: vscode.l10n.t("Stash message (staged changes only)") });
 		if (msg === undefined) { return; }
 		await run('git', ['stash', 'push', '--staged', ...(msg ? ['-m', msg] : [])], cwd);
-		vscode.window.showInformationMessage('Staged changes stashed.');
+		vscode.window.showInformationMessage(vscode.l10n.t("Staged changes stashed."));
 	});
 	register(ctx, 'axiora.git.blamePrevious', async () => {
 		const ed = vscode.window.activeTextEditor; if (!ed) { return; }
@@ -25,13 +25,13 @@ export function activate(ctx: vscode.ExtensionContext) {
 		const line = ed.selection.active.line + 1;
 		const b = await run('git', ['blame', '-L', `${line},${line}`, '--porcelain', '--', rel], cwd);
 		const sha = b.split(' ')[0];
-		if (/^0+$/.test(sha)) { vscode.window.showInformationMessage('Line is not committed yet.'); return; }
+		if (/^0+$/.test(sha)) { vscode.window.showInformationMessage(vscode.l10n.t("Line is not committed yet.")); return; }
 		const prevFile = (/^previous \S+ (.+)$/m.exec(b)?.[1]) ?? rel;
 		let content: string;
-		try { content = await run('git', ['show', `${sha}^:${prevFile}`], cwd); } catch { vscode.window.showInformationMessage('This line was introduced in the first commit of the file.'); return; }
+		try { content = await run('git', ['show', `${sha}^:${prevFile}`], cwd); } catch { vscode.window.showInformationMessage(vscode.l10n.t("This line was introduced in the first commit of the file.")); return; }
 		const subject = (await run('git', ['log', '-1', '--format=%h %an: %s', sha], cwd)).trim();
 		const doc = await vscode.workspace.openTextDocument({ content, language: ed.document.languageId });
 		await vscode.window.showTextDocument(doc, { viewColumn: vscode.ViewColumn.Beside });
-		vscode.window.showInformationMessage(`Showing ${prevFile} before ${subject}`);
+		vscode.window.showInformationMessage(vscode.l10n.t("Showing {0} before {1}", prevFile, subject));
 	});
 }

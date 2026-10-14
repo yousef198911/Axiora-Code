@@ -116,16 +116,16 @@ export function activate(ctx: vscode.ExtensionContext) {
 			const mode = cfg().get<string>('autoInstall', 'ask');
 			if (mode === 'never' && !interactive) { item(s); return; }
 			if (mode === 'ask' && !interactive) {
-				const a = await vscode.window.showInformationMessage(`Install the ${s.name} language server for ${s.languages[0]} (completions, diagnostics, go to definition)?`, 'Install', 'Not Now', 'Never for ' + s.name);
+				const a = await vscode.window.showInformationMessage(vscode.l10n.t("Install the {0} language server for {1} (completions, diagnostics, go to definition)?", s.name, s.languages[0]), 'Install', 'Not Now', 'Never for ' + s.name);
 				if (a?.startsWith('Never')) { await cfg().update('disabled', [...cfg().get<string[]>('disabled', []), s.id], vscode.ConfigurationTarget.Global); }
 				if (a !== 'Install') { item(s); return; }
 			}
 			busy.add(s.id); item(s);
-			try { await vscode.window.withProgress({ location: vscode.ProgressLocation.Notification, title: `Installing ${s.name}…` }, () => install(s)); }
-			catch (e) { busy.delete(s.id); item(s); const a = await vscode.window.showErrorMessage(`Could not install ${s.name}: ${(e as Error).message}`, 'Show Log'); if (a) { out.show(); } return; }
+			try { await vscode.window.withProgress({ location: vscode.ProgressLocation.Notification, title: vscode.l10n.t("Installing {0}…", s.name) }, () => install(s)); }
+			catch (e) { busy.delete(s.id); item(s); const a = await vscode.window.showErrorMessage(vscode.l10n.t("Could not install {0}: {1}", s.name, (e as Error).message), 'Show Log'); if (a) { out.show(); } return; }
 			busy.delete(s.id);
 		}
-		try { await start(s); } catch (e) { item(s); vscode.window.showErrorMessage(`${s.name} failed to start: ${(e as Error).message}`, 'Show Log').then(a => a && out.show()); }
+		try { await start(s); } catch (e) { item(s); vscode.window.showErrorMessage(vscode.l10n.t("{0} failed to start: {1}", s.name, (e as Error).message), 'Show Log').then(a => a && out.show()); }
 	};
 	const forDoc = (d: vscode.TextDocument) => SERVERS.find(s => s.languages.includes(d.languageId));
 	const onDoc = (d: vscode.TextDocument) => { const s = forDoc(d); if (s && (d.uri.scheme === 'file' || d.uri.scheme === 'untitled')) { item(s); void ensure(s, false); } };
@@ -134,7 +134,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 	ctx.subscriptions.push(vscode.commands.registerCommand('axiora.lsp.manage', async (id?: string) => {
 		let s = SERVERS.find(x => x.id === id);
 		if (!s) {
-			const p = await vscode.window.showQuickPick(SERVERS.map(x => { const c = conflict(x); const run = clients.get(x.id)?.isRunning(); return { label: `${run ? '$(pass-filled)' : installed(x) ? '$(circle-large-outline)' : '$(cloud-download)'} ${x.name}`, description: x.languages.join(', '), detail: c ? `provided by extension ${c}` : run ? 'running' : installed(x) ? `installed${fs.existsSync(path.join(dir(x), 'VERSION')) ? ` (${fs.readFileSync(path.join(dir(x), 'VERSION'), 'utf8')})` : ''} · stopped` : 'not installed', s: x }; }), { placeHolder: 'Language servers managed by Axiora' });
+			const p = await vscode.window.showQuickPick(SERVERS.map(x => { const c = conflict(x); const run = clients.get(x.id)?.isRunning(); return { label: `${run ? '$(pass-filled)' : installed(x) ? '$(circle-large-outline)' : '$(cloud-download)'} ${x.name}`, description: x.languages.join(', '), detail: c ? `provided by extension ${c}` : run ? 'running' : installed(x) ? `installed${fs.existsSync(path.join(dir(x), 'VERSION')) ? ` (${fs.readFileSync(path.join(dir(x), 'VERSION'), 'utf8')})` : ''} · stopped` : 'not installed', s: x }; }), { placeHolder: vscode.l10n.t("Language servers managed by Axiora") });
 			s = p?.s; if (!s) { return; }
 		}
 		const run = clients.get(s.id)?.isRunning(); const dis = cfg().get<string[]>('disabled', []).includes(s.id);
@@ -144,7 +144,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 		else if (a === 'Stop') { await stop(s); }
 		else if (a === 'Start' || a === 'Install and Start') { await ensure(s, true); }
 		else if (a === 'Update (reinstall)') { await stop(s); fs.rmSync(dir(s), { recursive: true, force: true }); await ensure(s, true); }
-		else if (a === 'Uninstall') { await stop(s); fs.rmSync(dir(s), { recursive: true, force: true }); item(s); vscode.window.showInformationMessage(`${s.name} uninstalled.`); }
+		else if (a === 'Uninstall') { await stop(s); fs.rmSync(dir(s), { recursive: true, force: true }); item(s); vscode.window.showInformationMessage(vscode.l10n.t("{0} uninstalled.", s.name)); }
 		else if (a === 'Disable auto-start' || a === 'Enable auto-start') { const l = cfg().get<string[]>('disabled', []); await cfg().update('disabled', dis ? l.filter(x => x !== s!.id) : [...l, s.id], vscode.ConfigurationTarget.Global); }
 		else if (a === 'Show Log') { out.show(); }
 	}));

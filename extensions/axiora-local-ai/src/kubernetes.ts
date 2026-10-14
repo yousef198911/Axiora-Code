@@ -16,27 +16,27 @@ export function activate(ctx: vscode.ExtensionContext) {
 	register(ctx, 'axiora.k8s.context', async () => {
 		const cur = (await k(['config', 'current-context'])).trim();
 		const all = (await k(['config', 'get-contexts', '-o', 'name'])).trim().split('\n');
-		const p = await vscode.window.showQuickPick(all.map(c => ({ label: c, description: c === cur ? 'current' : '' })), { placeHolder: 'Kubernetes context' });
+		const p = await vscode.window.showQuickPick(all.map(c => ({ label: c, description: c === cur ? 'current' : '' })), { placeHolder: vscode.l10n.t("Kubernetes context") });
 		if (p) { await k(['config', 'use-context', p.label]); }
 	});
 	register(ctx, 'axiora.k8s.namespace', async () => {
 		const all = (await k(['get', 'ns', '-o', 'jsonpath={.items[*].metadata.name}'])).trim().split(/\s+/);
-		const p = await vscode.window.showQuickPick(all, { placeHolder: `Namespace (current: ${ns()})` }); if (p) { await ctx.workspaceState.update('axiora.k8s.ns', p); }
+		const p = await vscode.window.showQuickPick(all, { placeHolder: vscode.l10n.t("Namespace (current: {0})", ns()) }); if (p) { await ctx.workspaceState.update('axiora.k8s.ns', p); }
 	});
 	register(ctx, 'axiora.k8s.pods', async () => {
 		const out = await k(['get', 'pods', '-n', ns(), '--no-headers', '-o', 'custom-columns=NAME:.metadata.name,STATUS:.status.phase,RESTARTS:.status.containerStatuses[0].restartCount']);
 		const items = out.trim().split('\n').filter(Boolean).map(l => { const [name, st, r] = l.trim().split(/\s+/); return { label: `${st === 'Running' ? '$(pass-filled)' : '$(circle-large-outline)'} ${name}`, description: `${st} · restarts ${r}`, name }; });
-		const p = await vscode.window.showQuickPick(items, { placeHolder: `Pods in ${ns()}` }); if (!p) { return; }
+		const p = await vscode.window.showQuickPick(items, { placeHolder: vscode.l10n.t("Pods in {0}", ns()) }); if (!p) { return; }
 		const a = await vscode.window.showQuickPick(['Logs (follow)', 'Open Shell', 'Describe', 'Port Forward...', 'Delete']); if (!a) { return; }
 		if (a.startsWith('Logs')) { term(`logs ${p.name}`, `kubectl logs -f --tail=200 -n ${ns()} ${p.name}`); }
 		else if (a === 'Open Shell') { term(`exec ${p.name}`, `kubectl exec -it -n ${ns()} ${p.name} -- sh -c "command -v bash >/dev/null && exec bash || exec sh"`); }
 		else if (a === 'Describe') { await vscode.window.showTextDocument(await vscode.workspace.openTextDocument({ language: 'yaml', content: await k(['describe', 'pod', '-n', ns(), p.name]) })); }
-		else if (a.startsWith('Port')) { const ports = await vscode.window.showInputBox({ prompt: 'local:remote', value: '8080:80' }); if (ports) { term(`pf ${p.name}`, `kubectl port-forward -n ${ns()} ${p.name} ${ports}`); } }
-		else if (await vscode.window.showWarningMessage(`Delete pod ${p.name}?`, { modal: true }, 'Delete')) { await k(['delete', 'pod', '-n', ns(), p.name]); }
+		else if (a.startsWith('Port')) { const ports = await vscode.window.showInputBox({ prompt: vscode.l10n.t("local:remote"), value: '8080:80' }); if (ports) { term(`pf ${p.name}`, `kubectl port-forward -n ${ns()} ${p.name} ${ports}`); } }
+		else if (await vscode.window.showWarningMessage(vscode.l10n.t("Delete pod {0}?", p.name), { modal: true }, 'Delete')) { await k(['delete', 'pod', '-n', ns(), p.name]); }
 	});
 	register(ctx, 'axiora.k8s.deployments', async () => {
 		const out = await k(['get', 'deploy', '-n', ns(), '--no-headers']);
-		const p = await vscode.window.showQuickPick(out.trim().split('\n').filter(Boolean).map(l => { const c = l.trim().split(/\s+/); return { label: c[0], description: `ready ${c[1]}`, name: c[0] }; }), { placeHolder: `Deployments in ${ns()}` }); if (!p) { return; }
+		const p = await vscode.window.showQuickPick(out.trim().split('\n').filter(Boolean).map(l => { const c = l.trim().split(/\s+/); return { label: c[0], description: `ready ${c[1]}`, name: c[0] }; }), { placeHolder: vscode.l10n.t("Deployments in {0}", ns()) }); if (!p) { return; }
 		const a = await vscode.window.showQuickPick(['Scale...', 'Rollout Restart', 'Rollout Status', 'Get YAML']); if (!a) { return; }
 		if (a === 'Scale...') { const n = await vscode.window.showInputBox({ prompt: 'Replicas' }); if (n) { await k(['scale', 'deploy', p.name, '-n', ns(), `--replicas=${n}`]); } }
 		else if (a === 'Rollout Restart') { await k(['rollout', 'restart', 'deploy', p.name, '-n', ns()]); }

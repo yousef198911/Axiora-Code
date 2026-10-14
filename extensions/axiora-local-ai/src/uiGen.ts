@@ -24,18 +24,18 @@ async function writeApp(name: string, html: string) {
 }
 export function activate(ctx: vscode.ExtensionContext) {
 	chatCommands.set('prototype', async (req, stream, token) => {
-		if (!wsRoot()) { stream.markdown('Open a folder first.'); return; }
+		if (!wsRoot()) { stream.markdown(vscode.l10n.t("Open a folder first.")); return; }
 		const last = ctx.workspaceState.get<string>('axiora.proto.last');
 		const refine = /^refine:\s*([\s\S]+)/i.exec(req.prompt.trim());
-		if (refine && !last) { stream.markdown('No prototype yet — describe an app first.'); return; }
+		if (refine && !last) { stream.markdown(vscode.l10n.t("No prototype yet — describe an app first.")); return; }
 		const name = refine ? last! : `${slug(req.prompt)}`;
 		const prev = refine ? fs.readFileSync(path.join(wsRoot()!.fsPath, '.axiora', 'prototypes', name, 'index.html'), 'utf8') : '';
 		stream.progress(refine ? 'Refining the prototype…' : 'Building the prototype…');
 		const out = await chat([{ role: 'system', content: UI_SYS }, { role: 'user', content: refine ? `Current app:\n${prev}\n\nChange: ${refine[1]}\nReturn the full updated index.html.` : `Build this app: ${req.prompt}` }], () => undefined, token);
 		const u = await writeApp(name, extractHtml(out)); await ctx.workspaceState.update('axiora.proto.last', name);
-		stream.markdown(`Prototype **${name}** ${refine ? 'updated' : 'created'}: `); stream.anchor(u, vscode.workspace.asRelativePath(u));
-		stream.markdown('\n\nIterate with `/prototype refine: <change>`.');
-		stream.button({ command: 'axiora.html.preview', title: 'Open Live Preview', arguments: [u] });
+		stream.markdown(vscode.l10n.t("Prototype **{0}** {1}: ", name, refine ? 'updated' : 'created')); stream.anchor(u, vscode.workspace.asRelativePath(u));
+		stream.markdown(vscode.l10n.t("\n\nIterate with `/prototype refine: <change>`."));
+		stream.button({ command: 'axiora.html.preview', title: vscode.l10n.t("Open Live Preview"), arguments: [u] });
 		await vscode.commands.executeCommand('axiora.html.preview', u).then(undefined, () => undefined);
 	});
 	register(ctx, 'axiora.ui.fromImage', async (uri?: vscode.Uri) => {
@@ -47,7 +47,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 		await vscode.window.showTextDocument(u, { viewColumn: vscode.ViewColumn.One }); await vscode.commands.executeCommand('axiora.html.preview', u).then(undefined, () => undefined);
 	});
 	register(ctx, 'axiora.ui.designer', async (uri?: vscode.Uri) => {
-		const u = uri ?? vscode.window.activeTextEditor?.document.uri; if (!u || !/\.html?$/.test(u.path)) { vscode.window.showInformationMessage('Open or select an .html file.'); return; }
+		const u = uri ?? vscode.window.activeTextEditor?.document.uri; if (!u || !/\.html?$/.test(u.path)) { vscode.window.showInformationMessage(vscode.l10n.t("Open or select an .html file.")); return; }
 		const src = new TextDecoder().decode(await vscode.workspace.fs.readFile(u));
 		const body = /<body[^>]*>([\s\S]*)<\/body>/i.exec(src)?.[1] ?? '';
 		const head = /<head[^>]*>([\s\S]*)<\/head>/i.exec(src)?.[1] ?? '';
@@ -58,7 +58,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 			if (m.save !== undefined) {
 				const cur = new TextDecoder().decode(await vscode.workspace.fs.readFile(u));
 				const next = /<body[^>]*>[\s\S]*<\/body>/i.test(cur) ? cur.replace(/(<body[^>]*>)[\s\S]*(<\/body>)/i, (_a, o, c) => `${o}\n${m.save}\n${c}`) : `<!DOCTYPE html>\n<html><head><meta charset="utf-8"></head><body>\n${m.save}\n</body></html>`;
-				await vscode.workspace.fs.writeFile(u, new TextEncoder().encode(next)); vscode.window.setStatusBarMessage(`Saved ${path.basename(u.path)}`, 2500);
+				await vscode.workspace.fs.writeFile(u, new TextEncoder().encode(next)); vscode.window.setStatusBarMessage(vscode.l10n.t("Saved {0}", path.basename(u.path)), 2500);
 			}
 		});
 	});

@@ -66,7 +66,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 	};
 	register(ctx, 'axiora.kdoc.run', async (uri: vscode.Uri, idx: number) => { const doc = await vscode.workspace.openTextDocument(uri); const b = blocks(doc.getText())[idx]; if (b) { await writeOut(doc, idx, await exec(doc, b)); } });
 	register(ctx, 'axiora.kdoc.runAll', async (uri?: vscode.Uri) => { const doc = uri ? await vscode.workspace.openTextDocument(uri) : vscode.window.activeTextEditor?.document; if (!doc) { return; } const n = blocks(doc.getText()).length; for (let i = 0; i < n; i++) { const b = blocks(doc.getText())[i]; await writeOut(doc, i, await exec(doc, b)); } });
-	register(ctx, 'axiora.kdoc.restart', (uri?: vscode.Uri) => { const u = (uri ?? vscode.window.activeTextEditor?.document.uri)?.toString(); for (const [k, v] of kernels) { if (k.startsWith(`${u}|`)) { v.p.kill(); kernels.delete(k); } } vscode.window.setStatusBarMessage('Kernel restarted', 2000); });
+	register(ctx, 'axiora.kdoc.restart', (uri?: vscode.Uri) => { const u = (uri ?? vscode.window.activeTextEditor?.document.uri)?.toString(); for (const [k, v] of kernels) { if (k.startsWith(`${u}|`)) { v.p.kill(); kernels.delete(k); } } vscode.window.setStatusBarMessage(vscode.l10n.t("Kernel restarted"), 2000); });
 	register(ctx, 'axiora.kdoc.clear', async () => { const ed = vscode.window.activeTextEditor; if (!ed) { return; } const bs = blocks(ed.document.getText()).filter(b => b.outStart !== undefined).reverse(); await ed.edit(e => bs.forEach(b => e.delete(new vscode.Range(b.end + 1, 0, b.outEnd! + 1, 0)))); });
 	ctx.subscriptions.push({ dispose: () => kernels.forEach(k => k.p.kill()) });
 	ctx.subscriptions.push(vscode.languages.registerCodeLensProvider([{ language: 'markdown' }, { pattern: '**/*.qmd' }], {

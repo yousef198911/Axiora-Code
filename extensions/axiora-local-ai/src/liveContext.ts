@@ -71,7 +71,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 	});
 	chatCommands.set('recall', async (req, stream) => {
 		const hits = req.prompt ? find(req.prompt) : all().sort((a, b) => b.at.localeCompare(a.at));
-		if (!hits.length) { stream.markdown('No matching past conversations.'); return; }
+		if (!hits.length) { stream.markdown(vscode.l10n.t("No matching past conversations.")); return; }
 		stream.markdown(hits.slice(0, 8).map(c => `- **${c.title}** — ${new Date(c.at).toLocaleString()} (${c.turns.length} messages)`).join('\n') + '\n\nUse `#chat:<words>` in a prompt to bring one into context.');
 	});
 }

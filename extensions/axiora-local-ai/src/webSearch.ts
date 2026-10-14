@@ -21,14 +21,14 @@ export async function webSearch(q: string): Promise<{ title: string; url: string
 }
 export function activate(_ctx: vscode.ExtensionContext) {
 	chatCommands.set('web', async (req, stream, token) => {
-		stream.progress('Searching the web…');
+		stream.progress(vscode.l10n.t("Searching the web…"));
 		const res = await webSearch(req.prompt);
-		if (!res.length) { stream.markdown('No web results (network blocked or no matches).'); return; }
+		if (!res.length) { stream.markdown(vscode.l10n.t("No web results (network blocked or no matches).")); return; }
 		const n = vscode.workspace.getConfiguration('axiora.web').get<number>('readPages', 3);
-		stream.progress(`Reading top ${Math.min(n, res.length)} pages…`);
+		stream.progress(vscode.l10n.t("Reading top {0} pages…", Math.min(n, res.length)));
 		const pages = await Promise.all(res.slice(0, n).map(r => fetchPage(r.url, 6000).then(p => p.text, () => '')));
 		const ctx = res.map((r, i) => `[${i + 1}] ${r.title} — ${r.url}\n${pages[i] ? `Page text:\n${pages[i]}` : `Snippet: ${r.snippet}`}`).join('\n\n---\n\n');
-		stream.markdown(`_Read ${pages.filter(Boolean).length} of ${res.length} result pages._\n\n`);
+		stream.markdown(vscode.l10n.t("_Read {0} of {1} result pages._\n\n", pages.filter(Boolean).length, res.length));
 		await chat([{ role: 'system', content: SYS }, { role: 'user', content: `Answer using these web results (full page text where available), cite as [n].\n\n${ctx}\n\nQuestion: ${req.prompt}` }], s => stream.markdown(s), token);
 		stream.markdown('\n\n' + res.map((r, i) => `${i + 1}. [${r.title}](${r.url})${pages[i] ? ' · read' : ''}`).join('\n'));
 	});

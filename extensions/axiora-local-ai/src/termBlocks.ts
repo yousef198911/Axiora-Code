@@ -27,9 +27,9 @@ export function activate(ctx: vscode.ExtensionContext) {
 	register(ctx, 'axiora.term.blocks', async () => {
 		const term = vscode.window.activeTerminal;
 		const list = [...blocks].reverse().filter(b => !term || b.term === term || !blocks.some(x => x.term === term));
-		if (!list.length) { vscode.window.showInformationMessage('No command blocks recorded in this window yet (terminals need shell integration: bash, zsh, fish or pwsh).'); return; }
+		if (!list.length) { vscode.window.showInformationMessage(vscode.l10n.t("No command blocks recorded in this window yet (terminals need shell integration: bash, zsh, fish or pwsh).")); return; }
 		const icon = (b: Block) => b.exit === undefined ? '$(sync~spin)' : b.exit === 0 ? '$(pass)' : '$(error)';
-		const p = await vscode.window.showQuickPick(list.map(b => ({ label: `${icon(b)} ${b.cmd}`, description: `${b.exit === undefined ? 'running' : `exit ${b.exit}`} · ${(((b.end ?? Date.now()) - b.start) / 1000).toFixed(1)}s`, detail: strip(b.out).trim().split('\n').slice(-1)[0]?.slice(0, 120), b })), { placeHolder: 'Command blocks (newest first)', matchOnDetail: true });
+		const p = await vscode.window.showQuickPick(list.map(b => ({ label: `${icon(b)} ${b.cmd}`, description: `${b.exit === undefined ? 'running' : `exit ${b.exit}`} · ${(((b.end ?? Date.now()) - b.start) / 1000).toFixed(1)}s`, detail: strip(b.out).trim().split('\n').slice(-1)[0]?.slice(0, 120), b })), { placeHolder: vscode.l10n.t("Command blocks (newest first)"), matchOnDetail: true });
 		if (!p) { return; }
 		const b = p.b; const out = strip(b.out);
 		const a = await vscode.window.showQuickPick([...(b.exit ? ['$(sparkle) Ask AI to Fix'] : []), '$(copy) Copy Output', '$(copy) Copy Command', '$(debug-rerun) Rerun', '$(go-to-file) Open Output in Editor', '$(sparkle) Explain Output'], { placeHolder: b.cmd });
@@ -49,14 +49,14 @@ export function activate(ctx: vscode.ExtensionContext) {
 	register(ctx, 'axiora.edit.shellFilter', async () => {
 		const ed = vscode.window.activeTextEditor; if (!ed) { return; }
 		const last = ctx.globalState.get<string>('axiora.shellFilter', 'sort');
-		const cmd = await vscode.window.showInputBox({ prompt: 'Pipe each selection (or the whole file) through this shell command; output replaces it', value: last, placeHolder: 'sort -u   |   jq .   |   tr a-z A-Z   |   python3 -c "..."' });
+		const cmd = await vscode.window.showInputBox({ prompt: vscode.l10n.t("Pipe each selection (or the whole file) through this shell command; output replaces it"), value: last, placeHolder: vscode.l10n.t("sort -u   |   jq .   |   tr a-z A-Z   |   python3 -c \"...\"") });
 		if (!cmd) { return; } await ctx.globalState.update('axiora.shellFilter', cmd);
 		const sels = ed.selections.some(s => !s.isEmpty) ? ed.selections.filter(s => !s.isEmpty) : [new vscode.Selection(0, 0, ed.document.lineCount, 0)];
 		const cwd = wsRoot()?.fsPath;
 		try {
 			const outs = await Promise.all(sels.map(s => new Promise<string>((res, rej) => { const p = cp.spawn(process.platform === 'win32' ? 'cmd' : 'sh', process.platform === 'win32' ? ['/c', cmd] : ['-c', cmd], { cwd }); let o = '', e = ''; p.stdout.on('data', d => o += d); p.stderr.on('data', d => e += d); p.on('close', c => c === 0 ? res(o) : rej(new Error(e.trim() || `exit ${c}`))); p.stdin.end(ed.document.getText(s)); })));
 			await ed.edit(eb => sels.forEach((s, i) => eb.replace(s, ed.document.getText(s).endsWith('\n') || outs[i].endsWith('\n') === false ? outs[i] : outs[i].replace(/\n$/, ''))));
-		} catch (e) { vscode.window.showErrorMessage(`Command failed: ${(e as Error).message}`); }
+		} catch (e) { vscode.window.showErrorMessage(vscode.l10n.t("Command failed: {0}", (e as Error).message)); }
 	});
 }
 

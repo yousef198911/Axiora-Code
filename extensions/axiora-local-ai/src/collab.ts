@@ -19,7 +19,7 @@ const dec = (key: Buffer, d: string) => { const b = Buffer.from(d, 'base64'); co
 const rel = (u: vscode.Uri) => { const r = wsRoot(); return r && u.scheme === 'file' && u.fsPath.startsWith(r.fsPath) ? vscode.workspace.asRelativePath(u, false) : undefined; };
 const abs = (f: string) => vscode.Uri.joinPath(wsRoot()!, f);
 async function send(o: unknown) { if (!s) { return; } await fetch(`${s.relay}/r/${s.room}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ peer: s.peer, data: enc(s.key, o) }) }).catch(() => undefined); }
-function status() { if (!s) { item.hide(); return; } item.text = `$(live-share) ${s.peers.size} peer${s.peers.size === 1 ? '' : 's'}`; item.tooltip = 'Collaboration session — click for options'; item.show(); }
+function status() { if (!s) { item.hide(); return; } item.text = vscode.l10n.t("$(live-share) {0} peer{1}", s.peers.size, s.peers.size === 1 ? '' : 's'); item.tooltip = vscode.l10n.t("Collaboration session — click for options"); item.show(); }
 async function onMsg(m: any) {
 	if (!s) { return; }
 	if (m.t === 'edit' || m.t === 'full') {
@@ -39,7 +39,7 @@ function listen() {
 		let buf = ''; res.setEncoding('utf8');
 		res.on('data', (d: string) => { buf += d; let i; while ((i = buf.indexOf('\n\n')) >= 0) { const block = buf.slice(0, i); buf = buf.slice(i + 2); const ev = /^event: (\w+)/m.exec(block)?.[1] ?? 'message'; const data = block.split('\n').filter(l => l.startsWith('data: ')).map(l => l.slice(6)).join('\n'); if (!data) { continue; } const j = JSON.parse(data);
 			if (ev === 'hello') { j.peers.forEach((p: string) => sess.peers.add(p)); if (j.peers.length) { void send({ t: 'need' }); } }
-			else if (ev === 'join') { sess.peers.add(j.peer); vscode.window.setStatusBarMessage('$(person-add) A peer joined the session', 4000); }
+			else if (ev === 'join') { sess.peers.add(j.peer); vscode.window.setStatusBarMessage(vscode.l10n.t("$(person-add) A peer joined the session"), 4000); }
 			else if (ev === 'leave') { sess.peers.delete(j.peer); sess.cursors.delete(j.peer); paintCursors(); }
 			else { try { void onMsg({ ...dec(sess.key, j.data), p: j.peer }); } catch { /* wrong key */ } }
 			status(); } });
@@ -61,11 +61,11 @@ export function activate(ctx: vscode.ExtensionContext) {
 		const relay = vscode.workspace.getConfiguration('axiora.collab').get<string>('relayUrl', 'http://127.0.0.1:7790');
 		const room = crypto.randomBytes(9).toString('base64url'), key = crypto.randomBytes(32);
 		start(relay, room, key); const link = `${relay.replace(/\/$/, '')}/r/${room}#${key.toString('base64url')}`;
-		await vscode.env.clipboard.writeText(link); vscode.window.showInformationMessage('Collaboration session started — invite link copied. Your peer opens the same repository and runs "Collaboration: Join Session...".');
+		await vscode.env.clipboard.writeText(link); vscode.window.showInformationMessage(vscode.l10n.t("Collaboration session started — invite link copied. Your peer opens the same repository and runs \"Collaboration: Join Session...\"."));
 	});
 	register(ctx, 'axiora.collab.join', async (link?: string) => {
-		link ??= await vscode.window.showInputBox({ prompt: 'Invite link', placeHolder: 'http://relay:7790/r/<room>#<key>', ignoreFocusOut: true }); const m = link && /^(https?:\/\/[^#]+)\/r\/([\w-]+)#([\w-]+)$/.exec(link.trim());
-		if (!m) { if (link) { vscode.window.showErrorMessage('Not a valid Axiora invite link.'); } return; } start(m[1], m[2], Buffer.from(m[3], 'base64url'));
+		link ??= await vscode.window.showInputBox({ prompt: vscode.l10n.t("Invite link"), placeHolder: vscode.l10n.t("http://relay:7790/r/<room>#<key>"), ignoreFocusOut: true }); const m = link && /^(https?:\/\/[^#]+)\/r\/([\w-]+)#([\w-]+)$/.exec(link.trim());
+		if (!m) { if (link) { vscode.window.showErrorMessage(vscode.l10n.t("Not a valid Axiora invite link.")); } return; } start(m[1], m[2], Buffer.from(m[3], 'base64url'));
 	});
 	register(ctx, 'axiora.collab.leave', stop);
 	register(ctx, 'axiora.collab.menu', async () => { const a = await vscode.window.showQuickPick(['Copy Invite Link', 'Leave Session']); if (a === 'Leave Session') { stop(); } if (a?.startsWith('Copy') && s) { await vscode.env.clipboard.writeText(`${s.relay}/r/${s.room}#${s.key.toString('base64url')}`); } });

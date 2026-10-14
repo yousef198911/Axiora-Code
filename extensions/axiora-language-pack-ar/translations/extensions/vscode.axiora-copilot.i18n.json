@@ -44,7 +44,15 @@
 			"Preparing GitHub Copilot / تجهيز Copilot": "تجهيز GitHub Copilot",
 			"GitHub Copilot is unavailable: its runtime could not be downloaded (no connection). It will be retried later.": "GitHub Copilot غير متاح: تعذّر تنزيل محرّكه (لا يوجد اتصال). ستُعاد المحاولة لاحقاً.",
 			"GitHub Copilot is unavailable: the downloaded runtime failed the integrity check and was discarded.": "GitHub Copilot غير متاح: فشل المحرّك المُنزَّل في فحص السلامة وتم حذفه.",
-			"GitHub Copilot is unavailable: its runtime could not be downloaded ({0}).": "GitHub Copilot غير متاح: تعذّر تنزيل محرّكه ({0})."
+			"GitHub Copilot is unavailable: its runtime could not be downloaded ({0}).": "GitHub Copilot غير متاح: تعذّر تنزيل محرّكه ({0}).",
+			"Preparing GitHub Copilot": "تجهيز Copilot",
+			"Allow once": "سماح مرة واحدة",
+			"Always allow reading this session": "سماح دائم بالقراءة لهذه الجلسة",
+			"Always allow file changes this session": "سماح دائم بتعديل الملفات لهذه الجلسة",
+			"Always allow commands this session": "سماح دائم بالأوامر لهذه الجلسة",
+			"Deny": "رفض",
+			"The downloaded GitHub Copilot runtime was removed.": "تم حذف محرّك Copilot.",
+			"No downloaded GitHub Copilot runtime was found.": "لا يوجد محرّك Copilot منزَّل."
 		}
 	}
 }

@@ -6,6 +6,7 @@
  *  and "Connectors: Manage..." to set/clear tokens and test each connection.
  *--------------------------------------------------------------------------------------------*/
 import * as vscode from 'vscode';
+import { languageRule } from './i18n';
 import { register, chatCommands } from './util';
 import { chat } from './llm';
 
@@ -63,14 +64,14 @@ export function activate(ctx: vscode.ExtensionContext) {
 		const items = await Promise.all((Object.keys(LABEL) as Id[]).map(async id => ({ label: `${(await secrets.get(`axiora.connector.${id}`)) ? '$(pass-filled)' : '$(circle-large-outline)'} ${id[0].toUpperCase() + id.slice(1)}`, description: LABEL[id], id })));
 		const p = await vscode.window.showQuickPick(items, { placeHolder: 'Connectors' }); if (!p) { return; }
 		const a = await vscode.window.showQuickPick(['Set Token...', 'Test Connection', 'Remove Token'], { placeHolder: p.label }); if (!a) { return; }
-		if (a === 'Set Token...') { const t = await vscode.window.showInputBox({ prompt: LABEL[p.id], password: true, ignoreFocusOut: true }); if (t) { await secrets.store(`axiora.connector.${p.id}`, t.trim()); vscode.window.showInformationMessage(`${p.id} token saved to the OS keychain.`); } }
+		if (a === 'Set Token...') { const t = await vscode.window.showInputBox({ prompt: LABEL[p.id], password: true, ignoreFocusOut: true }); if (t) { await secrets.store(`axiora.connector.${p.id}`, t.trim()); vscode.window.showInformationMessage(vscode.l10n.t("{0} token saved to the OS keychain.", p.id)); } }
 		if (a === 'Remove Token') { await secrets.delete(`axiora.connector.${p.id}`); }
-		if (a === 'Test Connection') { try { const out = await api[p.id](p.id === 'stripe' ? 'balance' : p.id === 'linear' ? '' : 'me'); vscode.window.showInformationMessage(`${p.id}: OK — ${out.split('\n')[0].slice(0, 120)}`); } catch (e) { vscode.window.showErrorMessage(`${p.id}: ${(e as Error).message}`); } }
+		if (a === 'Test Connection') { try { const out = await api[p.id](p.id === 'stripe' ? 'balance' : p.id === 'linear' ? '' : 'me'); vscode.window.showInformationMessage(vscode.l10n.t("{0}: OK — {1}", p.id, out.split('\n')[0].slice(0, 120))); } catch (e) { vscode.window.showErrorMessage(`${p.id}: ${(e as Error).message}`); } }
 	});
 	for (const id of Object.keys(api) as Id[]) {
 		chatCommands.set(id, async (req, stream, token) => {
-			stream.progress(`Fetching from ${id}…`);
-			let data: string; try { data = await api[id](req.prompt.trim()); } catch (e) { stream.markdown(`**${id}:** ${(e as Error).message}`); stream.button({ command: 'axiora.connectors.manage', title: 'Manage Connectors' }); return; }
+			stream.progress(vscode.l10n.t("Fetching from {0}…", id));
+			let data: string; try { data = await api[id](req.prompt.trim()); } catch (e) { stream.markdown(`**${id}:** ${(e as Error).message}`); stream.button({ command: 'axiora.connectors.manage', title: vscode.l10n.t("Manage Connectors") }); return; }
 			const ask = req.prompt.includes('?') || req.prompt.split(/\s+/).length > 4;
 			const md = new vscode.MarkdownString(); md.appendMarkdown(`**${id[0].toUpperCase() + id.slice(1)}** · live data\n\n`);
 			// one bullet per line (wraps in the chat panel, unlike a code block); identifiers like AXI-1 / KEY-12 / ids as inline code
@@ -78,7 +79,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 			for (const l of data.slice(0, 12000).split('\n').filter(x => x.trim())) { const m = /^(\s*)([A-Za-z][\w]*-\d+|[a-z]{2,6}_[A-Za-z0-9]+)\b(.*)$/.exec(l); md.appendMarkdown(m ? `- \`${m[2]}\`${esc(m[3])}\n` : `- ${esc(l.trim())}\n`); }
 			stream.markdown(md); stream.markdown('\n\n');
 			if (id === 'figma' && /^\s*(me|whoami)?\s*$/i.test(req.prompt)) { return; }
-			if (ask || id === 'figma') { await chat([{ role: 'system', content: `You are Axiora. Use the ${id} data below to help the developer. For Figma, produce implementation guidance (layout, components, tokens) or code when asked.` }, { role: 'user', content: `${req.prompt}\n\n${id} data:\n${data.slice(0, 20000)}` }], c => stream.markdown(c), token); }
+			if (ask || id === 'figma') { await chat([{ role: 'system', content: `You are Axiora. ${languageRule()} Use the ${id} data below to help the developer. For Figma, produce implementation guidance (layout, components, tokens) or code when asked.` }, { role: 'user', content: `${req.prompt}\n\n${id} data:\n${data.slice(0, 20000)}` }], c => stream.markdown(c), token); }
 		});
 	}
 }

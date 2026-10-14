@@ -4,6 +4,7 @@
  *  dependencies. Supports JS/TS, Python, Go, Rust, Java/Kotlin, C/C++ include.
  *--------------------------------------------------------------------------------------------*/
 import * as vscode from 'vscode';
+import { htmlDir, htmlLang } from './i18n';
 import * as path from 'path';
 import * as fs from 'fs';
 import { register, run, wsRoot } from './util';
@@ -38,7 +39,7 @@ export function activate(ctx: vscode.ExtensionContext) {
 		const p = vscode.window.createWebviewPanel('axiora.codemap', 'Codemap', vscode.ViewColumn.Active, { enableScripts: true });
 		p.webview.onDidReceiveMessage(m => m.open && vscode.window.showTextDocument(vscode.Uri.joinPath(root, m.open), { viewColumn: vscode.ViewColumn.Beside }));
 		const data = JSON.stringify({ files, edges, sizes });
-		p.webview.html = `<!DOCTYPE html><html><head><style>
+		p.webview.html = `<!DOCTYPE html><html dir="${htmlDir()}" lang="${htmlLang()}"><head><style>
 body{margin:0;font-family:var(--vscode-font-family);color:var(--vscode-foreground);font-size:11px;overflow:auto}
 #bar{position:sticky;top:0;padding:6px 10px;background:var(--vscode-editor-background);border-bottom:1px solid var(--vscode-panel-border);z-index:2}
 input{background:var(--vscode-input-background);color:var(--vscode-input-foreground);border:1px solid var(--vscode-input-border,transparent);padding:2px 6px}
