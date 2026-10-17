@@ -74,7 +74,7 @@ jobs:
           Compress-Archive -Path "$app\*" -DestinationPath dist\AxioraCode-win32-x64.zip
           Get-ChildItem -Recurse .build\win32-x64 -Filter *.exe | ForEach-Object { Copy-Item $_.FullName dist\ }
           Get-ChildItem dist | ForEach-Object { "{0}  {1}  {2}" -f (Get-FileHash $_.FullName -Algorithm SHA256).Hash, $_.Length, $_.Name } | Tee-Object dist\SHA256SUMS.txt
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: Axiora-Code-win32-x64
           path: dist/*
