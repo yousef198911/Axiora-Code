@@ -20,6 +20,8 @@
   },
   "activationEvents": [
     "onStartupFinished",
+    "onCommand:axiora.cursor.signIn",
+    "onCommand:axiora.cursor.status",
     "onTerminalProfile:axiora.agentTerminal",
     "onLanguage:python",
     "onLanguage:shellscript",
@@ -1229,6 +1231,16 @@
       {
         "command": "axiora.agents.externalCli",
         "title": "%cmd.axiora.agents.externalCli.title%",
+        "category": "%cat.Axiora_AI%"
+      },
+      {
+        "command": "axiora.cursor.signIn",
+        "title": "%cmd.axiora.cursor.signIn.title%",
+        "category": "%cat.Axiora_AI%"
+      },
+      {
+        "command": "axiora.cursor.status",
+        "title": "%cmd.axiora.cursor.status.title%",
         "category": "%cat.Axiora_AI%"
       },
       {
@@ -3062,6 +3074,24 @@
             },
             "markdownDescription": "%cfg.axiora.acp.agents.markdownDescription%",
             "order": 5
+          }
+        }
+      },
+      {
+        "id": "axiora.integrations.cursor",
+        "title": "%cfgsec.axiora.integrations.cursor.title%",
+        "properties": {
+          "axiora.cursor.enabled": {
+            "type": "boolean",
+            "default": true,
+            "markdownDescription": "%cfg.axiora.cursor.enabled.markdownDescription%",
+            "order": 1
+          },
+          "axiora.cursor.cliPath": {
+            "type": "string",
+            "default": "",
+            "markdownDescription": "%cfg.axiora.cursor.cliPath.markdownDescription%",
+            "order": 2
           }
         }
       }

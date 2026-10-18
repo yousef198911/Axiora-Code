@@ -102,6 +102,8 @@ export const axioraSettingLabels: { readonly [key: string]: { readonly category:
 	'axiora.share.endpoint': { category: localize('axiora.cat.RemoteandSharing', "Remote and Sharing"), label: localize('axiora.label.axiora.share.endpoint', "Share Server") },
 	'axiora.embed.baseUrl': { category: localize('axiora.cat.RemoteandSharing', "Remote and Sharing"), label: localize('axiora.label.axiora.embed.baseUrl', "Embed Base URL") },
 	'axiora.acp.agents': { category: localize('axiora.cat.RemoteandSharing', "Remote and Sharing"), label: localize('axiora.label.axiora.acp.agents', "ACP Agents") },
+	'axiora.cursor.enabled': { category: localize('axiora.cat.Cursor', "Cursor"), label: localize('axiora.label.axiora.cursor.enabled', "Enabled") },
+	'axiora.cursor.cliPath': { category: localize('axiora.cat.Cursor', "Cursor"), label: localize('axiora.label.axiora.cursor.cliPath', "CLI Path") },
 	'axiora.language.display': { category: "", label: localize('axiora.label.axiora.language.display', "Display Language") },
 	'axiora.language.mirrorLayout': { category: "", label: localize('axiora.label.axiora.language.mirrorLayout', "Right-to-Left Layout for Arabic") },
 	'axiora.language.statusBar': { category: "", label: localize('axiora.label.axiora.language.statusBar', "Language Switch in Status Bar") },

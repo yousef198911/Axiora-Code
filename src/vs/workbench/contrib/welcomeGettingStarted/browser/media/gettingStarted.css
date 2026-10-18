@@ -1157,3 +1157,4 @@
 .monaco-workbench .part.editor > .content .gettingStartedContainer .axiora-ai-card .axiora-ai-card-button { background: var(--vscode-button-background); color: var(--vscode-button-foreground); border: none; border-radius: 4px; padding: 5px 14px; cursor: pointer; font-family: inherit; }
 .monaco-workbench .part.editor > .content .gettingStartedContainer .axiora-ai-card .axiora-ai-card-button:hover { background: var(--vscode-button-hoverBackground); }
 .monaco-workbench .part.editor > .content .gettingStartedContainer .axiora-ai-card .axiora-ai-card-link { color: var(--vscode-textLink-foreground); }
+.monaco-workbench .part.editor > .content .gettingStartedContainer .axiora-cursor-card { margin-top: 8px; }

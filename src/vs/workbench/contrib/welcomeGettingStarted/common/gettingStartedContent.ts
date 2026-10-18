@@ -267,6 +267,13 @@ export const walkthroughs: GettingStartedWalkthroughContent = [
 				createCopilotSetupStep('CopilotSetupComplete', CopilotCompleteButton, 'chatSetupCompleted && !chatSetupDisabled && (chatAnonymous || chatPlanPro || chatPlanProPlus || chatPlanMax || chatPlanBusiness || chatPlanEnterprise || chatPlanFree)', false),
 				createCopilotSetupStep('CopilotSetupSignedIn', CopilotSignedInButton, '!chatEntitlementSignedOut && (!chatSetupCompleted || chatSetupDisabled || chatPlanCanSignUp)', false),
 				{
+					id: 'CursorAgent',
+					title: localize('gettingStarted.cursorAgent.title', "Use Cursor Agent"),
+					description: localize('gettingStarted.cursorAgent.description', "Sign in with your Cursor account and run the Cursor agent inside the editor. Axiora downloads the official Cursor CLI for you.\n{0}", Button(localize('gettingStarted.cursorAgent.signIn', "Sign in with Cursor"), 'command:axiora.cursor.signIn')),
+					when: '!isWeb',
+					media: { type: 'svg', altText: 'Cursor Agent', path: 'multi-file-edits.svg' },
+				},
+				{
 					id: 'pickColorTheme',
 					title: localize('gettingStarted.pickColor.title', "Choose your theme"),
 					description: localize('gettingStarted.pickColor.description.interpolated', "The right theme helps you focus on your code, is easy on your eyes, and is simply more fun to use.\n{0}", Button(localize('titleID', "Browse Color Themes"), 'command:workbench.action.selectTheme')),

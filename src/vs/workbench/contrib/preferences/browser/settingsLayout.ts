@@ -425,6 +425,11 @@ export const tocData: ITOCEntry<string> = {
 					label: localize('axiora.toc.integrations.remote', "Remote and Sharing"),
 					settings: ['axiora.runner.machines', 'axiora.collab.relayUrl', 'axiora.share.endpoint', 'axiora.embed.baseUrl', 'axiora.acp.agents']
 				},
+				{
+					id: 'integrations/cursor',
+					label: localize('axiora.toc.integrations.cursor', "Cursor"),
+					settings: ['axiora.cursor.enabled', 'axiora.cursor.cliPath']
+				},
 			]
 		},
 		{

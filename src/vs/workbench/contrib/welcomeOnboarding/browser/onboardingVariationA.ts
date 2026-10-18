@@ -581,6 +581,14 @@ export class OnboardingVariationA extends Disposable implements IOnboardingServi
 			this._handleSignIn('apple');
 		}));
 
+		const cursorBtn = this._registerStepFocusable(this._createSignInButton(actions, 'cursor', localize('onboarding.signIn.cursor', "Continue with Cursor"), {
+			label: localize('onboarding.signIn.cursor.aria', "Continue with Cursor")
+		}));
+		this.stepDisposables.add(addDisposableListener(cursorBtn, EventType.CLICK, () => {
+			this._logAction('signIn', undefined, 'cursor');
+			void this.commandService.executeCommand('axiora.cursor.signIn');
+		}));
+
 		const microsoftBtn = this._registerStepFocusable(this._createSignInButton(actions, 'microsoft', localize('onboarding.signIn.microsoft', "Continue with Microsoft"), {
 			iconOnly: true,
 			label: localize('onboarding.signIn.microsoft', "Continue with Microsoft")
@@ -718,7 +726,7 @@ export class OnboardingVariationA extends Disposable implements IOnboardingServi
 		}
 	}
 
-	private _createSignInButton(parent: HTMLElement, providerClass: 'github' | 'github-enterprise' | 'google' | 'apple' | 'microsoft', label: string, options?: { emphasized?: boolean; iconOnly?: boolean; textOnly?: boolean; label?: string }): HTMLButtonElement {
+	private _createSignInButton(parent: HTMLElement, providerClass: 'github' | 'github-enterprise' | 'google' | 'apple' | 'microsoft' | 'cursor', label: string, options?: { emphasized?: boolean; iconOnly?: boolean; textOnly?: boolean; label?: string }): HTMLButtonElement {
 		const isCompact = options?.iconOnly || options?.textOnly;
 		const btn = append(parent, $<HTMLButtonElement>(isCompact ? 'button.onboarding-a-signin-icon-btn' : 'button.onboarding-a-signin-btn'));
 		btn.type = 'button';
@@ -734,6 +742,8 @@ export class OnboardingVariationA extends Disposable implements IOnboardingServi
 			mark.setAttribute('aria-hidden', 'true');
 			if (providerClass === 'github' || providerClass === 'github-enterprise') {
 				mark.appendChild(renderIcon(Codicon.github));
+			} else if (providerClass === 'cursor') {
+				mark.appendChild(renderIcon(Codicon.sparkle));
 			}
 		}
 

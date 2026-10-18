@@ -532,6 +532,15 @@
 	color: currentColor;
 }
 
+.onboarding-a-provider-mark.cursor {
+	background-image: none;
+}
+
+.onboarding-a-provider-mark.cursor .codicon {
+	font-size: 16px;
+	color: currentColor;
+}
+
 .onboarding-a-provider-mark.google {
 	background-image: url('../../../chat/browser/chatSetup/media/google.svg');
 }
