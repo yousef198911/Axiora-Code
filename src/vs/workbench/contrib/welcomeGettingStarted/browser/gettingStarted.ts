@@ -952,6 +952,17 @@ export class GettingStartedPage extends EditorPane {
 		header.appendChild(aiCard);
 		this.categoriesSlideDisposables.add(this.contextService.onDidChangeContext(e => { if (e.affectsSome(new Set(['axiora.aiReady', 'axiora.aiProviderLabel']))) { renderAiCard(); } }));
 
+		// Cursor tool card on the Welcome page. Same sign-in as the Setup walkthrough card next to Copilot.
+		const cursorCard = $('.axiora-ai-card.axiora-cursor-card');
+		const cursorSignIn = $('button.axiora-ai-card-button', {}, localize('axiora.welcome.cursor.signIn', "Sign in with Cursor"));
+		this.categoriesSlideDisposables.add(addDisposableListener(cursorSignIn, 'click', () => this.commandService.executeCommand('axiora.cursor.signIn')));
+		reset(cursorCard,
+			$('div.axiora-ai-card-text', {},
+				$('span.axiora-ai-card-title', {}, localize('axiora.welcome.cursor.title', "Cursor")),
+				$('span.axiora-ai-card-detail', {}, localize('axiora.welcome.cursor.detail', "Sign in with your Cursor account. The agent runs inside the editor."))),
+			$('div.axiora-ai-card-actions', {}, cursorSignIn));
+		header.appendChild(cursorCard);
+
 		const leftColumn = $('.categories-column.categories-column-left', {},);
 		const rightColumn = $('.categories-column.categories-column-right', {},);
 

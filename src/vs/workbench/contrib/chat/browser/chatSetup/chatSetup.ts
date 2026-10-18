@@ -57,7 +57,9 @@ export enum ChatSetupStrategy {
 	SetupWithEnterpriseProvider = 3,
 	SetupWithGoogleProvider = 4,
 	SetupWithAppleProvider = 5,
-	SetupWithMicrosoftProvider = 6
+	SetupWithMicrosoftProvider = 6,
+	/** End-user Cursor account (`agent login`), not a Copilot identity provider. */
+	SetupWithCursor = 7
 }
 
 export type ChatSetupResultValue = boolean /* success */ | undefined /* canceled */;

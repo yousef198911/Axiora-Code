@@ -27,6 +27,13 @@
 		background-image: url('./google.svg');
 	}
 
+	/* Text-only: Cursor has no bundled mark. An empty ::before would reserve a blank icon. */
+	.dialog-buttons-row > .dialog-buttons > .monaco-button.continue-button.cursor::before {
+		background-image: none;
+		width: 0;
+		padding-right: 0;
+	}
+
 	/* Link Buttons */
 
 	.dialog-buttons-row > .dialog-buttons > .monaco-button.link-button {

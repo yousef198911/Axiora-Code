@@ -264,9 +264,10 @@ export function getChatSetupDialogButtons(entitlement: ChatEntitlement, options:
 		const enterpriseProviderLink = button(enterpriseProviderButton.label, enterpriseProviderButton.strategy, 'link-button');
 		const googleProviderButton = button(localize('continueWith', "Continue with {0}", providers.google.name), ChatSetupStrategy.SetupWithGoogleProvider, 'continue-button', 'google');
 		const appleProviderButton = button(localize('continueWith', "Continue with {0}", providers.apple.name), ChatSetupStrategy.SetupWithAppleProvider, 'continue-button', 'apple');
+		const cursorProviderButton = button(localize('continueWithCursor', "Continue with Cursor"), ChatSetupStrategy.SetupWithCursor, 'continue-button', 'cursor');
 		const microsoftProviderButton = button(localize('continueWith', "Continue with {0}", providers.microsoft.name), ChatSetupStrategy.SetupWithMicrosoftProvider, 'continue-button', 'microsoft');
 
-		const socialProviderButtons = [googleProviderButton, appleProviderButton, ...(showMicrosoftProvider ? [microsoftProviderButton] : [])];
+		const socialProviderButtons = [googleProviderButton, appleProviderButton, cursorProviderButton, ...(showMicrosoftProvider ? [microsoftProviderButton] : [])];
 		const providerButtons = enterpriseAuthentication
 			? [enterpriseProviderButton, ...socialProviderButtons, defaultProviderLink]
 			: [defaultProviderButton, ...socialProviderButtons, enterpriseProviderLink];
@@ -428,6 +429,12 @@ export class ChatSetup {
 					break;
 				case ChatSetupStrategy.SetupWithMicrosoftProvider:
 					success = await this.controller.value.setupWithProvider({ useEnterpriseProvider: false, useSocialProvider: 'microsoft', additionalScopes: options?.additionalScopes, forceAnonymous: options?.forceAnonymous, cancellationToken: setupCancellation.token });
+					break;
+				case ChatSetupStrategy.SetupWithCursor:
+					// Cursor is the end user's own account via the CLI, not a Copilot provider.
+					// Leave Copilot setup incomplete (`success` stays unset) so this choice does not
+					// mark GitHub Copilot as signed in.
+					await this.commandService.executeCommand('axiora.cursor.signIn');
 					break;
 				case ChatSetupStrategy.DefaultSetup:
 					success = await this.controller.value.setup({ ...options, useEnterpriseProvider: signedInAccount?.authenticationProvider.enterprise, forceAnonymous: options?.forceAnonymous, cancellationToken: setupCancellation.token });

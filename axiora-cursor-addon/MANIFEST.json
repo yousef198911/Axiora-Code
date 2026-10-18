@@ -1,0 +1,241 @@
+{
+  "name": "axiora-cursor-addon",
+  "description": "Standalone copy of the Cursor CLI integration for Axiora Code. Copy newFiles into the repo with paths preserved, then apply edits.patch (or the per-file diffs in INTEGRATION.md / INTEGRATION-AR.md).",
+  "newFiles": [
+    "extensions/axiora-local-ai/src/acpAuth.ts",
+    "extensions/axiora-local-ai/src/cursorCli.ts",
+    "extensions/axiora-local-ai/src/cursorCliResolve.ts",
+    "extensions/axiora-local-ai/test/cursorIntegration.test.ts"
+  ],
+  "editedFiles": [
+    "extensions/axiora-language-pack-ar/translations/main.i18n.json",
+    "extensions/axiora-local-ai/l10n/bundle.l10n.ar.json",
+    "extensions/axiora-local-ai/l10n/bundle.l10n.json",
+    "extensions/axiora-local-ai/package.json",
+    "extensions/axiora-local-ai/package.nls.ar.json",
+    "extensions/axiora-local-ai/package.nls.json",
+    "extensions/axiora-local-ai/src/acpClient.ts",
+    "extensions/axiora-local-ai/src/features.ts",
+    "src/vs/workbench/contrib/chat/browser/chatSetup/chatSetup.ts",
+    "src/vs/workbench/contrib/chat/browser/chatSetup/chatSetupRunner.ts",
+    "src/vs/workbench/contrib/chat/browser/chatSetup/media/chatSetup.css",
+    "src/vs/workbench/contrib/chat/test/browser/chatSetup/chatSetup.test.ts",
+    "src/vs/workbench/contrib/preferences/browser/axioraSettingLabels.ts",
+    "src/vs/workbench/contrib/preferences/browser/settingsLayout.ts",
+    "src/vs/workbench/contrib/welcomeGettingStarted/browser/gettingStarted.ts",
+    "src/vs/workbench/contrib/welcomeGettingStarted/browser/media/gettingStarted.css",
+    "src/vs/workbench/contrib/welcomeGettingStarted/common/gettingStartedContent.ts",
+    "src/vs/workbench/contrib/welcomeOnboarding/browser/media/variationA.css",
+    "src/vs/workbench/contrib/welcomeOnboarding/browser/onboardingVariationA.ts"
+  ],
+  "notModified": [
+    "extensions/copilot"
+  ],
+  "addonOnlyFiles": [
+    "axiora-cursor-addon/INTEGRATION.md",
+    "axiora-cursor-addon/INTEGRATION-AR.md",
+    "axiora-cursor-addon/MANIFEST.json",
+    "axiora-cursor-addon/edits.patch"
+  ],
+  "functionsAdded": [
+    {
+      "file": "extensions/axiora-local-ai/src/cursorCliResolve.ts",
+      "name": "cursorInstallScriptUrl",
+      "exported": true
+    },
+    {
+      "file": "extensions/axiora-local-ai/src/cursorCliResolve.ts",
+      "name": "cursorCliTarget",
+      "exported": true
+    },
+    {
+      "file": "extensions/axiora-local-ai/src/cursorCliResolve.ts",
+      "name": "isOfficialCursorDownloadUrl",
+      "exported": true
+    },
+    {
+      "file": "extensions/axiora-local-ai/src/cursorCliResolve.ts",
+      "name": "parseCursorInstallScript",
+      "exported": true
+    },
+    {
+      "file": "extensions/axiora-local-ai/src/cursorCliResolve.ts",
+      "name": "preferredCursorExecutable",
+      "exported": true
+    },
+    {
+      "file": "extensions/axiora-local-ai/src/acpAuth.ts",
+      "name": "selectAcpAuthMethod",
+      "exported": true
+    },
+    {
+      "file": "extensions/axiora-local-ai/src/acpAuth.ts",
+      "name": "loginUrlFromAuthResult",
+      "exported": true
+    },
+    {
+      "file": "extensions/axiora-local-ai/src/cursorCli.ts",
+      "name": "cursorExecutableNow",
+      "exported": true
+    },
+    {
+      "file": "extensions/axiora-local-ai/src/cursorCli.ts",
+      "name": "openCursorLoginUrl",
+      "exported": true
+    },
+    {
+      "file": "extensions/axiora-local-ai/src/cursorCli.ts",
+      "name": "ensureCursorCli",
+      "exported": true
+    },
+    {
+      "file": "extensions/axiora-local-ai/src/cursorCli.ts",
+      "name": "activate",
+      "exported": true
+    },
+    {
+      "file": "extensions/axiora-local-ai/src/cursorCli.ts",
+      "name": "overridePath",
+      "exported": false
+    },
+    {
+      "file": "extensions/axiora-local-ai/src/cursorCli.ts",
+      "name": "currentFile",
+      "exported": false
+    },
+    {
+      "file": "extensions/axiora-local-ai/src/cursorCli.ts",
+      "name": "readCurrent",
+      "exported": false
+    },
+    {
+      "file": "extensions/axiora-local-ai/src/cursorCli.ts",
+      "name": "resetLoginUrlGate",
+      "exported": false
+    },
+    {
+      "file": "extensions/axiora-local-ai/src/cursorCli.ts",
+      "name": "execFile",
+      "exported": false
+    },
+    {
+      "file": "extensions/axiora-local-ai/src/cursorCli.ts",
+      "name": "downloadFile",
+      "exported": false
+    },
+    {
+      "file": "extensions/axiora-local-ai/src/cursorCli.ts",
+      "name": "fetchRelease",
+      "exported": false
+    },
+    {
+      "file": "extensions/axiora-local-ai/src/cursorCli.ts",
+      "name": "findExecutable",
+      "exported": false
+    },
+    {
+      "file": "extensions/axiora-local-ai/src/cursorCli.ts",
+      "name": "downloadAndExtract",
+      "exported": false
+    },
+    {
+      "file": "extensions/axiora-local-ai/src/cursorCli.ts",
+      "name": "doEnsure",
+      "exported": false
+    },
+    {
+      "file": "extensions/axiora-local-ai/src/cursorCli.ts",
+      "name": "runAgent",
+      "exported": false
+    },
+    {
+      "file": "extensions/axiora-local-ai/src/cursorCli.ts",
+      "name": "signIn",
+      "exported": false
+    },
+    {
+      "file": "extensions/axiora-local-ai/src/cursorCli.ts",
+      "name": "showStatus",
+      "exported": false
+    },
+    {
+      "file": "extensions/axiora-local-ai/src/acpClient.ts",
+      "name": "cursorAgent",
+      "exported": false
+    }
+  ],
+  "typesAdded": [
+    "CursorCliTarget",
+    "CursorCliRelease",
+    "AcpAuthAgent",
+    "AcpInitializeResult",
+    "CurrentInstall",
+    "Agent.authMethod"
+  ],
+  "constantsAdded": [
+    "CURSOR_INSTALL_POSIX_URL = https://cursor.com/install",
+    "CURSOR_INSTALL_WIN32_URL = https://cursor.com/install?win32=true"
+  ],
+  "settingsAdded": [
+    {
+      "id": "axiora.cursor.enabled",
+      "type": "boolean",
+      "default": true,
+      "section": "axiora.integrations.cursor"
+    },
+    {
+      "id": "axiora.cursor.cliPath",
+      "type": "string",
+      "default": "",
+      "section": "axiora.integrations.cursor"
+    }
+  ],
+  "commandsAdded": [
+    "axiora.cursor.signIn",
+    "axiora.cursor.status"
+  ],
+  "activationEventsAdded": [
+    "onCommand:axiora.cursor.signIn",
+    "onCommand:axiora.cursor.status"
+  ],
+  "contextKeysAdded": [
+    "axiora.cursor.signedIn"
+  ],
+  "environmentVariablesHonored": [
+    "AXIORA_CURSOR_CLI",
+    "NO_OPEN_BROWSER"
+  ],
+  "enumsAdded": [
+    {
+      "name": "ChatSetupStrategy.SetupWithCursor",
+      "value": 7,
+      "file": "src/vs/workbench/contrib/chat/browser/chatSetup/chatSetup.ts"
+    }
+  ],
+  "builtinAcpAgent": {
+    "name": "cursor",
+    "args": ["acp"],
+    "authMethod": "cursor_login",
+    "overriddenBy": "an axiora.acp.agents entry whose name is cursor"
+  },
+  "nlsKeysAdded": [
+    "cfgsec.axiora.integrations.cursor.title",
+    "cfg.axiora.cursor.enabled.markdownDescription",
+    "cfg.axiora.cursor.cliPath.markdownDescription",
+    "cmd.axiora.cursor.signIn.title",
+    "cmd.axiora.cursor.status.title",
+    "continueWithCursor",
+    "gettingStarted.cursorAgent.title",
+    "gettingStarted.cursorAgent.description",
+    "gettingStarted.cursorAgent.signIn",
+    "axiora.welcome.cursor.title",
+    "axiora.welcome.cursor.detail",
+    "axiora.welcome.cursor.signIn",
+    "onboarding.signIn.cursor",
+    "onboarding.signIn.cursor.aria",
+    "axiora.toc.integrations.cursor",
+    "axiora.cat.Cursor",
+    "axiora.label.axiora.cursor.enabled",
+    "axiora.label.axiora.cursor.cliPath"
+  ]
+}

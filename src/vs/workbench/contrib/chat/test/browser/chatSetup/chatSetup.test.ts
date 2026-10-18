@@ -144,7 +144,7 @@ suite('Chat setup dialog presentation', () => {
 			lastButton: buttons.at(-1),
 			footer,
 		}, {
-			buttonLabels: ['Continue with GitHub', 'Continue with Google', 'Continue with Apple', 'Continue with GHE', 'Continue Without Signing In'],
+			buttonLabels: ['Continue with GitHub', 'Continue with Google', 'Continue with Apple', 'Continue with Cursor', 'Continue with GHE', 'Continue Without Signing In'],
 			lastButton: {
 				label: 'Continue Without Signing In',
 				strategy: ChatSetupStrategy.Canceled,
@@ -173,9 +173,9 @@ suite('Chat setup dialog presentation', () => {
 			// every one of them signs in against whichever host the default account points at.
 			enterprise: buttonLabels({}, true, true),
 		}, {
-			withMicrosoft: ['Continue with GitHub', 'Continue with Google', 'Continue with Apple', 'Continue with Microsoft', 'Continue with GHE', 'Continue Without Signing In'],
-			withoutMicrosoft: ['Continue with GitHub', 'Continue with Google', 'Continue with Apple', 'Continue with GHE', 'Continue Without Signing In'],
-			enterprise: ['Continue with GHE', 'Continue with Google', 'Continue with Apple', 'Continue with Microsoft', 'Continue with GitHub'],
+			withMicrosoft: ['Continue with GitHub', 'Continue with Google', 'Continue with Apple', 'Continue with Cursor', 'Continue with Microsoft', 'Continue with GHE', 'Continue Without Signing In'],
+			withoutMicrosoft: ['Continue with GitHub', 'Continue with Google', 'Continue with Apple', 'Continue with Cursor', 'Continue with GHE', 'Continue Without Signing In'],
+			enterprise: ['Continue with GHE', 'Continue with Google', 'Continue with Apple', 'Continue with Cursor', 'Continue with Microsoft', 'Continue with GitHub'],
 		});
 	});
 
